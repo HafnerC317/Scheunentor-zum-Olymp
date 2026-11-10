@@ -16,26 +16,34 @@
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
             color: #e8e8e8;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 40px 20px;
+            margin-bottom: 30px;
+            padding: 30px 20px;
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(0, 59, 122, 0.05) 100%);
             border: 1px solid rgba(212, 175, 55, 0.2);
             border-radius: 20px;
             backdrop-filter: blur(10px);
         }
 
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
         h1 {
-            font-size: 3.5rem;
+            font-size: 2.2rem;
             font-weight: 900;
             background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
             -webkit-background-clip: text;
@@ -43,25 +51,25 @@
             background-clip: text;
             letter-spacing: 2px;
             text-transform: uppercase;
-            margin-bottom: 10px;
         }
 
         .tabs {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            margin-bottom: 25px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .tab {
-            padding: 15px 40px;
+            padding: 12px 30px;
             background: rgba(20, 20, 20, 0.6);
             border: 2px solid rgba(212, 175, 55, 0.3);
             border-radius: 12px;
             color: #D4AF37;
             cursor: pointer;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
@@ -88,27 +96,28 @@
 
         .add-player {
             background: rgba(20, 20, 20, 0.8);
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border: 1px solid rgba(212, 175, 55, 0.2);
         }
 
         .add-player h2 {
             color: #D4AF37;
             margin-bottom: 20px;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #D4AF37;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .form-group input, .form-group select {
@@ -129,13 +138,14 @@
         .btn-primary {
             background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
             color: #0a0a0a;
-            padding: 15px 40px;
+            padding: 12px 35px;
             border: none;
             border-radius: 10px;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         .btn-primary:hover {
@@ -145,19 +155,21 @@
 
         .filter-section {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .filter-btn {
-            padding: 12px 25px;
+            padding: 10px 20px;
             background: rgba(20, 20, 20, 0.6);
             border: 2px solid rgba(212, 175, 55, 0.3);
             border-radius: 10px;
             color: #D4AF37;
             cursor: pointer;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
@@ -172,80 +184,54 @@
         }
 
         .tier {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             background: rgba(20, 20, 20, 0.6);
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             border: 2px solid;
         }
 
-        .tier.elite {
-            border-color: #8B5CF6;
-        }
-
-        .tier.gold {
-            border-color: #D4AF37;
-        }
-
-        .tier.silver {
-            border-color: #C0C0C0;
-        }
-
-        .tier.bronze {
-            border-color: #CD7F32;
-        }
-
-        .tier.cl {
-            border-color: #003B7A;
-        }
+        .tier.elite { border-color: #8B5CF6; }
+        .tier.gold { border-color: #D4AF37; }
+        .tier.silver { border-color: #C0C0C0; }
+        .tier.bronze { border-color: #CD7F32; }
+        .tier.cl { border-color: #003B7A; }
 
         .tier-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .tier-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 800;
         }
 
-        .tier.elite .tier-title {
-            color: #8B5CF6;
-        }
-
-        .tier.gold .tier-title {
-            color: #D4AF37;
-        }
-
-        .tier.silver .tier-title {
-            color: #C0C0C0;
-        }
-
-        .tier.bronze .tier-title {
-            color: #CD7F32;
-        }
-
-        .tier.cl .tier-title {
-            color: #003B7A;
-        }
+        .tier.elite .tier-title { color: #8B5CF6; }
+        .tier.gold .tier-title { color: #D4AF37; }
+        .tier.silver .tier-title { color: #C0C0C0; }
+        .tier.bronze .tier-title { color: #CD7F32; }
+        .tier.cl .tier-title { color: #003B7A; }
 
         .tier-range {
-            font-size: 1.2rem;
+            font-size: 1rem;
             opacity: 0.8;
         }
 
         .players-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 15px;
         }
 
         .player-card {
             background: rgba(10, 10, 10, 0.8);
             border-radius: 12px;
-            padding: 20px;
+            padding: 15px;
             border: 1px solid rgba(212, 175, 55, 0.2);
             transition: all 0.3s ease;
         }
@@ -257,29 +243,29 @@
 
         .player-image {
             width: 100%;
-            height: 200px;
+            height: 180px;
             object-fit: cover;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             background: rgba(212, 175, 55, 0.1);
         }
 
         .player-name {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: #D4AF37;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .player-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .player-rating {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 900;
             background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
             -webkit-background-clip: text;
@@ -289,21 +275,23 @@
 
         .player-position {
             background: rgba(212, 175, 55, 0.2);
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-weight: 600;
             color: #D4AF37;
+            font-size: 0.85rem;
         }
 
         .btn-delete {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             background: rgba(220, 38, 38, 0.2);
             border: 1px solid rgba(220, 38, 38, 0.5);
             border-radius: 8px;
             color: #ef4444;
             cursor: pointer;
             font-weight: 600;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
         }
 
@@ -311,11 +299,93 @@
             background: rgba(220, 38, 38, 0.3);
         }
 
+        /* HISTORIE */
+        .history-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .history-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #D4AF37;
+            margin-bottom: 30px;
+        }
+
+        .history-list {
+            background: rgba(20, 20, 20, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(10, 10, 10, 0.8);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            transform: translateX(5px);
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .history-rank {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #D4AF37;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .history-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #D4AF37;
+            margin-bottom: 4px;
+        }
+
+        .history-details {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .history-rating {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            min-width: 60px;
+            text-align: center;
+        }
+
         /* TRAUMAUFSTELLUNG */
         .formation-selector {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             background: rgba(20, 20, 20, 0.8);
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
             border: 1px solid rgba(212, 175, 55, 0.2);
         }
@@ -323,12 +393,15 @@
         .formation-selector label {
             color: #D4AF37;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-right: 15px;
+            display: block;
+            margin-bottom: 10px;
         }
 
         .formation-selector select {
-            padding: 12px 20px;
+            width: 100%;
+            padding: 12px;
             background: rgba(10, 10, 10, 0.8);
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 8px;
@@ -340,9 +413,9 @@
         .pitch {
             background: linear-gradient(180deg, #1a4d2e 0%, #0f2919 100%);
             border-radius: 15px;
-            padding: 40px 20px;
+            padding: 30px 15px;
             position: relative;
-            min-height: 700px;
+            min-height: 600px;
             border: 3px solid rgba(212, 175, 55, 0.3);
             margin-bottom: 20px;
         }
@@ -362,8 +435,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border: 2px solid rgba(255, 255, 255, 0.2);
             border-radius: 50%;
         }
@@ -372,17 +445,19 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin: 25px 0;
+            margin: 20px 0;
             position: relative;
             z-index: 1;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .player-slot {
             background: rgba(10, 10, 10, 0.9);
             border: 2px solid #D4AF37;
             border-radius: 12px;
-            padding: 15px;
-            min-width: 140px;
+            padding: 12px;
+            min-width: 110px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -398,30 +473,30 @@
         }
 
         .slot-image {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             object-fit: cover;
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             background: rgba(212, 175, 55, 0.1);
         }
 
         .slot-rating {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 900;
             color: #D4AF37;
             margin-top: 5px;
         }
 
         .slot-position {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #D4AF37;
             font-weight: 700;
             margin-bottom: 8px;
         }
 
         .slot-name {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #888;
             margin-top: 5px;
         }
@@ -442,7 +517,7 @@
             border: none;
             color: #D4AF37;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -458,14 +533,14 @@
         }
 
         .bench-content.open {
-            max-height: 300px;
+            max-height: 400px;
             padding: 20px;
         }
 
         .bench-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
         }
 
         .bench-slot {
@@ -503,7 +578,7 @@
         }
 
         .bench-name {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #888;
             margin-top: 5px;
         }
@@ -519,6 +594,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .modal.active {
@@ -527,17 +603,17 @@
 
         .modal-content {
             background: linear-gradient(135deg, #1a1410 0%, #0a0a0a 100%);
-            padding: 40px;
+            padding: 30px;
             border-radius: 20px;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
             border: 2px solid #D4AF37;
         }
 
         .modal-content h3 {
             color: #D4AF37;
             margin-bottom: 20px;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .modal-content select {
@@ -580,15 +656,59 @@
 
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
 
-            .bench-grid {
-                grid-template-columns: repeat(4, 1fr);
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .tab {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .players-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             }
 
             .player-slot {
-                min-width: 100px;
+                min-width: 90px;
+                padding: 10px;
+            }
+
+            .slot-image {
+                width: 60px;
+                height: 60px;
+            }
+
+            .slot-rating {
+                font-size: 1rem;
+            }
+
+            .history-rank {
+                font-size: 1.2rem;
+                min-width: 35px;
+            }
+
+            .history-image {
+                width: 50px;
+                height: 50px;
+            }
+
+            .history-rating {
+                font-size: 1.5rem;
+            }
+
+            .formation-line {
+                gap: 8px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                max-width: 1000px;
             }
         }
     </style>
@@ -596,7 +716,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>⚽ Scheunentor zum Olymp</h1>
+            <img src="https://i.postimg.cc/W3KfS8Km/DALL-E-2025-01-23-00-23-37-A-circular-emblem-logo-with-a-premium-elegant-design-The-logo-features.webp" alt="Scheunentor zum Olymp Logo" class="logo">
+            <h1>Scheunentor zum Olymp</h1>
         </header>
 
         <div class="tabs">
@@ -650,6 +771,12 @@
             </div>
 
             <div id="players-list"></div>
+
+            <!-- HISTORIE -->
+            <div class="history-section">
+                <h2 class="history-title">📜 HALL OF FAME</h2>
+                <div class="history-list" id="history-list"></div>
+            </div>
         </div>
 
         <!-- TRAUMAUFSTELLUNG TAB -->
@@ -841,6 +968,7 @@
             document.getElementById('player-position').value = '';
 
             displayPlayers();
+            displayHistory();
         }
 
         function deletePlayer(id) {
@@ -848,6 +976,7 @@
                 players = players.filter(p => p.id !== id);
                 localStorage.setItem('players', JSON.stringify(players));
                 displayPlayers();
+                displayHistory();
             }
         }
 
@@ -924,6 +1053,28 @@
             });
         }
 
+        function displayHistory() {
+            const historyContainer = document.getElementById('history-list');
+            const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
+
+            if (sortedPlayers.length === 0) {
+                historyContainer.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">Noch keine Spieler vorhanden</p>';
+                return;
+            }
+
+            historyContainer.innerHTML = sortedPlayers.map((player, index) => `
+                <div class="history-item">
+                    <div class="history-rank">#${index + 1}</div>
+                    <img src="${player.image}" alt="${player.name}" class="history-image" onerror="this.src='https://via.placeholder.com/60x60/1a1410/D4AF37?text=?'">
+                    <div class="history-info">
+                        <div class="history-name">${player.name}</div>
+                        <div class="history-details">${player.position} • ${getTier(player.rating).name}</div>
+                    </div>
+                    <div class="history-rating">${player.rating}</div>
+                </div>
+            `).join('');
+        }
+
         function changeFormation() {
             currentFormation = document.getElementById('formation-select').value;
             renderPitch();
@@ -950,14 +1101,14 @@
                     if (player) {
                         slotDiv.innerHTML = `
                             <div class="slot-position">${slot.label}</div>
-                            <img src="${player.image}" class="slot-image" onerror="this.src='https://via.placeholder.com/80x80/1a1410/D4AF37?text=?'">
+                            <img src="${player.image}" class="slot-image" onerror="this.src='https://via.placeholder.com/70x70/1a1410/D4AF37?text=?'">
                             <div class="slot-rating">${player.rating}</div>
                             <div class="slot-name">${player.name}</div>
                         `;
                     } else {
                         slotDiv.innerHTML = `
                             <div class="slot-position">${slot.label}</div>
-                            <div style="color: #666; font-size: 0.9rem; margin-top: 10px;">Leer</div>
+                            <div style="color: #666; font-size: 0.85rem; margin-top: 10px;">Leer</div>
                         `;
                     }
 
@@ -988,7 +1139,7 @@
                     `;
                 } else {
                     slotDiv.innerHTML = `
-                        <div style="color: #666; font-size: 0.8rem; margin-top: 20px;">Leer</div>
+                        <div style="color: #666; font-size: 0.75rem; margin-top: 20px;">Leer</div>
                     `;
                 }
 
@@ -1062,6 +1213,7 @@
 
         // INIT
         displayPlayers();
+        displayHistory();
         renderPitch();
     </script>
 </body>
