@@ -1,11 +1,12 @@
 {
   "name": "Scheunentor zum Olymp",
   "short_name": "Scheunentor",
-  "description": "Football Ratings Pro - Traumaufstellung & Hall of Fame",
-  "start_url": "/Scheunentor-zum-Olymp/",
+  "description": "Football Ratings Pro – Bewerte deine Fußball-Legenden",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://i.imgur.com/vCwczZs.png",
