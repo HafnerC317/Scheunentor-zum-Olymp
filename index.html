@@ -1,1858 +1,1199 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0a0a0a">
-    <meta name="description" content="Scheunentor zum Olymp – Die ultimative Fußball-Ratings-App">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="icon-192.png">
-    <title>Scheunentor zum Olymp</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
-            color: #e0e0e0;
-            min-height: 100vh;
-            padding-bottom: 80px;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(26, 20, 16, 0.3) 100%);
-            border-radius: 20px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .header h1 {
-            font-size: 2.8rem;
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-        }
-
-        .header p {
-            color: #888;
-            font-size: 1.1rem;
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            background: rgba(26, 20, 16, 0.6);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            color: #D4AF37;
-            padding: 12px 30px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-        }
-
-        .tab:hover {
-            background: rgba(212, 175, 55, 0.2);
-            border-color: #D4AF37;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            color: #0a0a0a;
-            border-color: #FFD700;
-            box-shadow: 0 5px 25px rgba(212, 175, 55, 0.5);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #D4AF37;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            background: rgba(26, 20, 16, 0.6);
-            color: #e0e0e0;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #D4AF37;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            color: #0a0a0a;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-        }
-
-        .player-form {
-            background: rgba(26, 20, 16, 0.6);
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border: 2px solid rgba(212, 175, 55, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .player-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .player-card {
-            background: rgba(26, 20, 16, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        .player-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, transparent, currentColor, transparent);
-        }
-
-        .player-card.elite {
-            border-color: #9b59b6;
-            box-shadow: 0 5px 20px rgba(155, 89, 182, 0.3);
-        }
-
-        .player-card.gold {
-            border-color: #D4AF37;
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
-        }
-
-        .player-card.silver {
-            border-color: #C0C0C0;
-            box-shadow: 0 5px 20px rgba(192, 192, 192, 0.3);
-        }
-
-        .player-card.bronze {
-            border-color: #CD7F32;
-            box-shadow: 0 5px 20px rgba(205, 127, 50, 0.3);
-        }
-
-        .player-card.champions {
-            border-color: #003B7A;
-            box-shadow: 0 5px 20px rgba(0, 59, 122, 0.3);
-        }
-
-        .player-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
-        }
-
-        .tier-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .tier-badge.elite {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: #fff;
-        }
-
-        .tier-badge.gold {
-            background: linear-gradient(135deg, #D4AF37, #FFD700);
-            color: #0a0a0a;
-        }
-
-        .tier-badge.silver {
-            background: linear-gradient(135deg, #C0C0C0, #E8E8E8);
-            color: #0a0a0a;
-        }
-
-        .tier-badge.bronze {
-            background: linear-gradient(135deg, #CD7F32, #E89654);
-            color: #0a0a0a;
-        }
-
-        .tier-badge.champions {
-            background: linear-gradient(135deg, #003B7A, #0056b3);
-            color: #fff;
-        }
-
-        .player-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 20px auto;
-            border: 3px solid rgba(212, 175, 55, 0.5);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .player-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #D4AF37;
-            margin: 15px 0;
-        }
-
-        .player-info {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .player-position {
-            background: rgba(212, 175, 55, 0.2);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            color: #D4AF37;
-        }
-
-        .player-rating {
-            background: linear-gradient(135deg, #D4AF37, #FFD700);
-            color: #0a0a0a;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .player-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .edit-btn,
-        .delete-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .edit-btn {
-            background: rgba(52, 152, 219, 0.8);
-            color: white;
-        }
-
-        .edit-btn:hover {
-            background: rgba(52, 152, 219, 1);
-            transform: scale(1.05);
-        }
-
-        .delete-btn {
-            background: rgba(231, 76, 60, 0.8);
-            color: white;
-        }
-
-        .delete-btn:hover {
-            background: rgba(231, 76, 60, 1);
-            transform: scale(1.05);
-        }
-
-        .alt-positions-input {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .alt-positions-input select {
-            flex: 1;
-        }
-
-        .alt-positions-input button {
-            padding: 12px 20px;
-            background: rgba(212, 175, 55, 0.3);
-            border: 2px solid #D4AF37;
-            border-radius: 8px;
-            color: #D4AF37;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .alt-positions-input button:hover {
-            background: rgba(212, 175, 55, 0.5);
-        }
-
-        .alt-positions-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .alt-pos-tag {
-            background: rgba(212, 175, 55, 0.2);
-            border: 2px solid #D4AF37;
-            border-radius: 20px;
-            padding: 6px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #D4AF37;
-            font-weight: 600;
-        }
-
-        .alt-pos-remove {
-            cursor: pointer;
-            color: #ff6b6b;
-            font-weight: 700;
-            transition: all 0.2s ease;
-        }
-
-        .alt-pos-remove:hover {
-            transform: scale(1.2);
-        }
-
-        .pitch {
-            background: linear-gradient(180deg, #1a5f1a 0%, #0d3d0d 100%);
-            border-radius: 20px;
-            padding: 40px 20px;
-            position: relative;
-            min-height: 600px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        .pitch-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .formation-row {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            z-index: 1;
-            flex-wrap: wrap;
-        }
-
-        .player-slot {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .player-slot:hover {
-            transform: scale(1.1);
-        }
-
-        .player-slot-circle {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: rgba(26, 20, 16, 0.9);
-            border: 3px solid #D4AF37;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #D4AF37;
-            font-weight: 700;
-            font-size: 0.9rem;
-            margin: 0 auto 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .player-slot-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .player-slot.filled .player-slot-circle {
-            border-color: #FFD700;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-        }
-
-        .player-slot-name {
-            font-size: 0.85rem;
-            color: #fff;
-            font-weight: 600;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-        }
-
-        .player-slot-rating {
-            background: linear-gradient(135deg, #D4AF37, #FFD700);
-            color: #0a0a0a;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            display: inline-block;
-            margin-top: 5px;
-        }
-
-        .formation-controls {
-            background: rgba(26, 20, 16, 0.6);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            border: 2px solid rgba(212, 175, 55, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .formation-controls h3 {
-            color: #D4AF37;
-            margin-bottom: 15px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #1a1410 0%, #0a0a0a 100%);
-            margin: 5% auto;
-            padding: 30px;
-            border: 2px solid #D4AF37;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 50px rgba(212, 175, 55, 0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
-        }
-
-        .modal-header h2 {
-            color: #D4AF37;
-        }
-
-        .close {
-            color: #D4AF37;
-            font-size: 2rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .close:hover {
-            color: #FFD700;
-            transform: scale(1.2);
-        }
-
-        .squad-player-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .squad-player-item {
-            background: rgba(26, 20, 16, 0.6);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(212, 175, 55, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .squad-player-item:hover {
-            background: rgba(212, 175, 55, 0.2);
-            border-color: #D4AF37;
-            transform: translateX(5px);
-        }
-
-        .squad-player-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #D4AF37;
-        }
-
-        .bench-container {
-            background: rgba(26, 20, 16, 0.6);
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 25px;
-            border: 2px solid rgba(212, 175, 55, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .bench-toggle {
-            width: 100%;
-            background: linear-gradient(135deg, #D4AF37, #FFD700);
-            color: #0a0a0a;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .bench-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
-        }
-
-        .bench-slots {
-            display: none;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 15px;
-            animation: slideDown 0.4s ease;
-        }
-
-        .bench-slots.active {
-            display: grid;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .saved-squads {
-            background: rgba(26, 20, 16, 0.6);
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 25px;
-            border: 2px solid rgba(212, 175, 55, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .saved-squads h3 {
-            color: #D4AF37;
-            margin-bottom: 15px;
-        }
-
-        .saved-squad-card {
-            background: rgba(10, 10, 10, 0.6);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            border: 2px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .saved-squad-name {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #D4AF37;
-            margin-bottom: 8px;
-        }
-
-        .saved-squad-formation {
-            color: #888;
-            margin-bottom: 10px;
-        }
-
-        .saved-squad-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .load-squad-btn,
-        .delete-squad-btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .load-squad-btn {
-            background: rgba(46, 204, 113, 0.8);
-            color: white;
-            flex: 1;
-        }
-
-        .load-squad-btn:hover {
-            background: rgba(46, 204, 113, 1);
-        }
-
-        .delete-squad-btn {
-            background: rgba(231, 76, 60, 0.8);
-            color: white;
-        }
-
-        .delete-squad-btn:hover {
-            background: rgba(231, 76, 60, 1);
-        }
-
-        .cancel-btn {
-            background: rgba(149, 165, 166, 0.8);
-            color: white;
-            margin-left: 10px;
-        }
-
-        .cancel-btn:hover {
-            background: rgba(149, 165, 166, 1);
-        }
-
-        .hall-subtabs {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .hall-subtab {
-            background: rgba(26, 20, 16, 0.6);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            color: #D4AF37;
-            padding: 10px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .hall-subtab:hover {
-            background: rgba(212, 175, 55, 0.2);
-            border-color: #D4AF37;
-        }
-
-        .hall-subtab.active {
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            color: #0a0a0a;
-            border-color: #FFD700;
-        }
-
-        .hall-subcontent {
-            display: none;
-        }
-
-        .hall-subcontent.active {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .hall-player-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-        }
-
-        .hall-player-card {
-            background: rgba(26, 20, 16, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        .hall-player-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, transparent, currentColor, transparent);
-        }
-
-        .hall-player-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
-        }
-
-        .hall-player-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 20px auto;
-            border: 3px solid rgba(212, 175, 55, 0.5);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .hall-player-name {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #D4AF37;
-            margin: 15px 0;
-        }
-
-        .hall-player-info {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .hall-player-position {
-            background: rgba(212, 175, 55, 0.2);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            color: #D4AF37;
-        }
-
-        .hall-player-rating {
-            background: linear-gradient(135deg, #D4AF37, #FFD700);
-            color: #0a0a0a;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .hall-category {
-            margin-bottom: 40px;
-        }
-
-        .hall-category-title {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(255, 215, 0, 0.1));
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border-left: 5px solid #D4AF37;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .hall-category-title span:first-child {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #D4AF37;
-        }
-
-        .hall-category-title span:last-child {
-            color: #888;
-            font-size: 0.95rem;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-
-            .tab {
-                width: 100%;
-            }
-
-            .player-list,
-            .hall-player-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .player-slot-circle {
-                width: 60px;
-                height: 60px;
-            }
-
-            .formation-row {
-                gap: 10px;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(26, 20, 16, 0.5);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #D4AF37, #FFD700);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #FFD700, #D4AF37);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scheunentor zum Olymp</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(212, 175, 55, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      font-size: 3em;
+      color: #D4AF37;
+      text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .header h1::before,
+    .header h1::after {
+      content: "⚽";
+      font-size: 0.8em;
+    }
+    .subtitle {
+      color: #aaa;
+      font-size: 1.2em;
+    }
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 200px;
+      padding: 15px 30px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      color: #D4AF37;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .tab-btn:hover {
+      background: rgba(212, 175, 55, 0.1);
+      transform: translateY(-2px);
+    }
+    .tab-btn.active {
+      background: #D4AF37;
+      color: #0a0a0a;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #D4AF37;
+      font-weight: 600;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1em;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #D4AF37;
+    }
+    .btn {
+      padding: 12px 30px;
+      background: #D4AF37;
+      border: none;
+      border-radius: 8px;
+      color: #0a0a0a;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1em;
+    }
+    .btn:hover {
+      background: #b8941f;
+      transform: translateY(-2px);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #D4AF37;
+      border: 2px solid rgba(212, 175, 55, 0.3);
+    }
+    .btn-secondary:hover {
+      background: rgba(212, 175, 55, 0.2);
+    }
+    .btn-danger {
+      background: rgba(220, 53, 69, 0.8);
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: rgba(220, 53, 69, 1);
+    }
+    .tier-section {
+      margin-bottom: 40px;
+    }
+    .tier-header {
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 1.5em;
+      font-weight: bold;
+      text-align: center;
+    }
+    .tier-elite { background: linear-gradient(135deg, #8B5CF6, #6D28D9); }
+    .tier-gold { background: linear-gradient(135deg, #D4AF37, #b8941f); }
+    .tier-silver { background: linear-gradient(135deg, #C0C0C0, #999); }
+    .tier-bronze { background: linear-gradient(135deg, #CD7F32, #A0522D); }
+    .tier-cl { background: linear-gradient(135deg, #003B7A, #002752); }
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .player-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+    .player-card:hover {
+      transform: translateY(-5px);
+      border-color: #D4AF37;
+    }
+    .player-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    .player-name {
+      font-size: 1.3em;
+      color: #D4AF37;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .player-rating {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .player-positions {
+      margin-bottom: 10px;
+    }
+    .position-tag {
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(212, 175, 55, 0.2);
+      border-radius: 4px;
+      margin: 2px;
+      font-size: 0.85em;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+    }
+    .position-tag.primary {
+      background: rgba(212, 175, 55, 0.4);
+      font-weight: bold;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .action-buttons button {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.9em;
+    }
+    .hof-header {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(212, 175, 55, 0.1);
+      border-radius: 20px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    .hof-title {
+      font-size: 2.5em;
+      color: #D4AF37;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    .hof-title::before,
+    .hof-title::after {
+      content: "🏆";
+      font-size: 0.8em;
+    }
+    .hof-tabs {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .hof-tab-btn {
+      padding: 12px 24px;
+      background: rgba(26, 20, 16, 0.8);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      border-radius: 10px;
+      color: #D4AF37;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .hof-tab-btn:hover {
+      background: rgba(212, 175, 55, 0.2);
+    }
+    .hof-tab-btn.active {
+      background: #D4AF37;
+      color: #0a0a0a;
+      font-weight: bold;
+    }
+    .formation-selector {
+      margin-bottom: 30px;
+    }
+    .formation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .formation-btn {
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(212, 175, 55, 0.3);
+      border-radius: 8px;
+      color: #D4AF37;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1.1em;
+      font-weight: bold;
+    }
+    .formation-btn:hover {
+      background: rgba(212, 175, 55, 0.1);
+    }
+    .formation-btn.active {
+      background: #D4AF37;
+      color: #0a0a0a;
+    }
+    .pitch {
+      background: linear-gradient(to bottom, #0a5c0a 0%, #0d7d0d 100%);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 30px 0;
+      border: 3px solid #fff;
+      position: relative;
+      min-height: 600px;
+    }
+    .pitch::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.5);
+    }
+    .pitch-row {
+      display: flex;
+      justify-content: space-around;
+      margin: 20px 0;
+      position: relative;
+      z-index: 1;
+    }
+    .pitch-slot {
+      width: 100px;
+      height: 120px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px dashed rgba(212, 175, 55, 0.5);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .pitch-slot:hover {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: #D4AF37;
+    }
+    .pitch-slot.filled {
+      background: rgba(212, 175, 55, 0.3);
+      border: 2px solid #D4AF37;
+    }
+    .pitch-slot img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 5px;
+    }
+    .pitch-slot .player-name-small {
+      font-size: 0.75em;
+      text-align: center;
+      color: #fff;
+      font-weight: bold;
+    }
+    .pitch-slot .player-rating-small {
+      font-size: 1em;
+      color: #D4AF37;
+      font-weight: bold;
+    }
+    .bench-container {
+      margin-top: 30px;
+    }
+    .bench-toggle {
+      width: 100%;
+      padding: 15px;
+      background: rgba(212, 175, 55, 0.2);
+      border: 2px solid #D4AF37;
+      border-radius: 12px;
+      color: #D4AF37;
+      font-size: 1.2em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .bench-toggle:hover {
+      background: rgba(212, 175, 55, 0.3);
+    }
+    .bench-slots {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+    }
+    .bench-slots.open {
+      display: grid;
+    }
+    .squad-management {
+      margin: 30px 0;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 2px solid rgba(212, 175, 55, 0.3);
+    }
+    .squad-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .squad-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .squad-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 8px;
+    }
+    .squad-item-name {
+      font-weight: bold;
+      color: #D4AF37;
+    }
+    .squad-item-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    .squad-item-buttons button {
+      padding: 5px 10px;
+      font-size: 0.85em;
+    }
+    .alt-positions-container {
+      margin-top: 15px;
+    }
+    .alt-positions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .alt-pos-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .alt-pos-checkbox:hover {
+      background: rgba(212, 175, 55, 0.1);
+    }
+    .alt-pos-checkbox input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+    .alt-pos-checkbox label {
+      margin: 0;
+      cursor: pointer;
+      color: #fff;
+      font-size: 0.9em;
+    }
+    .reset-container {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(220, 53, 69, 0.1);
+      border: 2px solid rgba(220, 53, 69, 0.3);
+      border-radius: 12px;
+    }
+    .reset-warning {
+      color: #ff6b6b;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      .header h1 { font-size: 2em; }
+      .players-grid { grid-template-columns: 1fr; }
+      .pitch-slot { width: 80px; height: 100px; }
+      .formation-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>⚽ Scheunentor zum Olymp ⚽</h1>
-            <p>Die ultimative Fußball-Ratings-App</p>
-        </div>
-
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('ratings')">📊 Bewertungen</div>
-            <div class="tab" onclick="switchTab('squad')">⚡ Traumaufstellung</div>
-            <div class="tab" onclick="switchTab('hall')">🏆 Die Götter des Fußballs</div>
-        </div>
-
-        <!-- RATINGS TAB -->
-        <div id="ratings" class="tab-content active">
-            <div class="player-form">
-                <h2 id="playerFormTitle" style="color: #D4AF37; margin-bottom: 20px;">➕ Neuen Spieler hinzufügen</h2>
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" id="playerName" placeholder="Spielername eingeben...">
-                </div>
-                <div class="form-group">
-                    <label>Bild-URL (optional)</label>
-                    <input type="url" id="playerImage" placeholder="https://example.com/image.jpg">
-                </div>
-                <div class="form-group">
-                    <label>Position</label>
-                    <select id="playerPosition">
-                        <option value="">-- Position wählen --</option>
-                        <option value="TW">TW - Torwart</option>
-                        <option value="IV">IV - Innenverteidiger</option>
-                        <option value="LV">LV - Linker Verteidiger</option>
-                        <option value="RV">RV - Rechter Verteidiger</option>
-                        <option value="LWB">LWB - Linker Wingback</option>
-                        <option value="RWB">RWB - Rechter Wingback</option>
-                        <option value="ZDM">ZDM - Zentraler defensiver Mittelfeldspieler</option>
-                        <option value="ZM">ZM - Zentraler Mittelfeldspieler</option>
-                        <option value="ZOM">ZOM - Zentraler offensiver Mittelfeldspieler</option>
-                        <option value="LM">LM - Linker Mittelfeldspieler</option>
-                        <option value="RM">RM - Rechter Mittelfeldspieler</option>
-                        <option value="LF">LF - Linker Flügelspieler</option>
-                        <option value="RF">RF - Rechter Flügelspieler</option>
-                        <option value="MS">MS - Mittelstürmer</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Alternative Positionen</label>
-                    <div class="alt-positions-input">
-                        <select id="altPositionSelect">
-                            <option value="">-- Position hinzufügen --</option>
-                            <option value="TW">TW</option>
-                            <option value="IV">IV</option>
-                            <option value="LV">LV</option>
-                            <option value="RV">RV</option>
-                            <option value="LWB">LWB</option>
-                            <option value="RWB">RWB</option>
-                            <option value="ZDM">ZDM</option>
-                            <option value="ZM">ZM</option>
-                            <option value="ZOM">ZOM</option>
-                            <option value="LM">LM</option>
-                            <option value="RM">RM</option>
-                            <option value="LF">LF</option>
-                            <option value="RF">RF</option>
-                            <option value="MS">MS</option>
-                        </select>
-                        <button type="button" onclick="addAltPosition()">➕ Hinzufügen</button>
-                    </div>
-                    <div id="altPositionsList" class="alt-positions-list"></div>
-                </div>
-                <div class="form-group">
-                    <label>Rating (0-99)</label>
-                    <input type="number" id="playerRating" min="0" max="99" placeholder="85">
-                </div>
-                <button id="savePlayerBtn" class="btn" onclick="savePlayer()">✨ Spieler hinzufügen</button>
-                <button id="cancelEditBtn" class="btn cancel-btn" onclick="cancelEdit()" style="display: none;">❌ Abbrechen</button>
-            </div>
-
-            <div id="playerList" class="player-list"></div>
-        </div>
-
-        <!-- SQUAD TAB -->
-        <div id="squad" class="tab-content">
-            <div class="formation-controls">
-                <h3>Formation wählen</h3>
-                <div class="form-group">
-                    <select id="formationSelect" onchange="changeFormation()">
-                        <option value="5-4-1">5-4-1</option>
-                        <option value="5-3-2">5-3-2</option>
-                        <option value="5-2-1-2">5-2-1-2</option>
-                        <option value="4-4-2">4-4-2</option>
-                        <option value="4-3-3">4-3-3</option>
-                        <option value="4-3-3 (2)">4-3-3 (2)</option>
-                        <option value="4-3-3 (3)">4-3-3 (3)</option>
-                        <option value="4-3-3 (4)">4-3-3 (4)</option>
-                        <option value="4-2-3-1">4-2-3-1</option>
-                        <option value="4-2-3-1 (2)">4-2-3-1 (2)</option>
-                        <option value="4-5-1">4-5-1</option>
-                        <option value="4-4-1-1">4-4-1-1</option>
-                        <option value="4-1-4-1">4-1-4-1</option>
-                        <option value="4-3-1-2">4-3-1-2</option>
-                        <option value="4-1-2-1-2">4-1-2-1-2</option>
-                        <option value="4-1-2-1-2 (2)">4-1-2-1-2 (2)</option>
-                        <option value="3-5-2">3-5-2</option>
-                        <option value="3-4-3">3-4-3</option>
-                        <option value="3-4-2-1">3-4-2-1</option>
-                        <option value="3-1-4-2">3-1-4-2</option>
-                        <option value="3-4-1-2">3-4-1-2</option>
-                    </select>
-                </div>
-                <button class="btn" onclick="clearSquad()">🔄 Aufstellung zurücksetzen</button>
-            </div>
-
-            <div id="pitch" class="pitch"></div>
-
-            <div class="bench-container">
-                <button class="bench-toggle" onclick="toggleBench()">
-                    <span id="benchToggleText">⬆️ Ersatzbank aufklappen</span>
-                </button>
-                <div id="benchSlots" class="bench-slots"></div>
-            </div>
-
-            <div class="saved-squads">
-                <h3>Aufstellung speichern</h3>
-                <div class="form-group">
-                    <input type="text" id="squadName" placeholder="Aufstellungsname eingeben...">
-                </div>
-                <button class="btn" onclick="saveSquad()">💾 Speichern</button>
-
-                <h3 style="margin-top: 30px;">Gespeicherte Aufstellungen</h3>
-                <div id="savedSquadsList"></div>
-            </div>
-        </div>
-
-        <!-- HALL OF FAME TAB -->
-        <div id="hall" class="tab-content">
-            <div class="header">
-                <h1 style="font-size: 2.2rem;">🏆 Die Götter des Fußballs 🏆</h1>
-                <p>Die Hall of Fame der besten Spieler</p>
-            </div>
-
-            <div class="hall-subtabs">
-                <div class="hall-subtab active" onclick="switchHallSubtab('hallRanking')">📊 Ranking</div>
-                <div class="hall-subtab" onclick="switchHallSubtab('hallPosition')">⚽ Nach Position</div>
-            </div>
-
-            <div id="hallRanking" class="hall-subcontent active"></div>
-            <div id="hallPosition" class="hall-subcontent"></div>
-        </div>
+  <div class="container">
+    <div class="header">
+      <h1>Scheunentor zum Olymp</h1>
+      <div class="subtitle">Die ultimative Fußball-Ratings-App</div>
     </div>
 
-    <!-- MODAL -->
-    <div id="squadModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Spieler für <span id="modalPosition"></span> wählen</h2>
-                <span class="close" onclick="closeSquadModal()">&times;</span>
-            </div>
-            <div id="squadPlayerList" class="squad-player-list"></div>
-        </div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('ratings')">⭐ Bewertungen</button>
+      <button class="tab-btn" onclick="switchTab('squad')">👥 Traumaufstellung</button>
+      <button class="tab-btn" onclick="switchTab('hof')">🏆 Die Götter des Fußballs</button>
     </div>
 
-    <script>
-        let players = JSON.parse(localStorage.getItem('players')) || [];
-        let currentSquad = JSON.parse(localStorage.getItem('currentSquad')) || {};
-        let currentBench = JSON.parse(localStorage.getItem('currentBench')) || {};
-        let currentFormation = localStorage.getItem('currentFormation') || '4-4-2';
-        let savedSquads = JSON.parse(localStorage.getItem('savedSquads')) || [];
-        let selectedPosition = null;
-        let tempAltPositions = [];
-        let editingPlayerId = null;
+    <!-- TAB 1: RATINGS -->
+    <div id="ratings" class="tab-content active">
+      <div class="form-group">
+        <label for="playerName">Spielername</label>
+        <input type="text" id="playerName" placeholder="z.B. Lionel Messi">
+      </div>
+      <div class="form-group">
+        <label for="playerImage">Bild-URL</label>
+        <input type="url" id="playerImage" placeholder="https://example.com/image.jpg">
+      </div>
+      <div class="form-group">
+        <label for="playerRating">Rating (0-99)</label>
+        <input type="number" id="playerRating" min="0" max="99" placeholder="z.B. 95">
+      </div>
+      <div class="form-group">
+        <label for="playerPosition">Hauptposition</label>
+        <select id="playerPosition">
+          <option value="">-- Position wählen --</option>
+          <option value="TW">TW (Torwart)</option>
+          <option value="LV">LV (Linksverteidiger)</option>
+          <option value="IV">IV (Innenverteidiger)</option>
+          <option value="RV">RV (Rechtsverteidiger)</option>
+          <option value="LM">LM (Linkes Mittelfeld)</option>
+          <option value="ZM">ZM (Zentrales Mittelfeld)</option>
+          <option value="RM">RM (Rechtes Mittelfeld)</option>
+          <option value="ZDM">ZDM (Defensives Mittelfeld)</option>
+          <option value="ZOM">ZOM (Offensives Mittelfeld)</option>
+          <option value="LF">LF (Linksaußen)</option>
+          <option value="RF">RF (Rechtsaußen)</option>
+          <option value="MS">MS (Mittelstürmer)</option>
+          <option value="ST">ST (Stürmer)</option>
+          <option value="LS">LS (Linker Stürmer)</option>
+          <option value="RS">RS (Rechter Stürmer)</option>
+        </select>
+      </div>
+      <div class="alt-positions-container">
+        <label>Alternative Positionen (optional)</label>
+        <div class="alt-positions-grid" id="altPositionsGrid"></div>
+      </div>
+      <button class="btn" id="submitBtn" onclick="addPlayer()">Spieler hinzufügen</button>
+      <button class="btn btn-secondary" id="cancelEditBtn" onclick="cancelEdit()" style="display:none; margin-left:10px;">Abbrechen</button>
 
-        // MIGRATION: Alte Spieler ohne altPositions reparieren
-        (function migrateOldPlayers() {
-            let updated = false;
-            players = players.map(p => {
-                if (!p.hasOwnProperty('altPositions')) {
-                    updated = true;
-                    return { ...p, altPositions: [] };
-                }
-                return p;
-            });
-            if (updated) {
-                localStorage.setItem('players', JSON.stringify(players));
-                console.log('✅ Migration abgeschlossen: altPositions hinzugefügt');
-            }
-        })();
+      <div class="reset-container">
+        <div class="reset-warning">⚠️ ACHTUNG: Diese Aktion löscht ALLE Daten unwiderruflich!</div>
+        <button class="btn btn-danger" onclick="resetAllData()">🗑️ Alle Daten löschen (Reset)</button>
+      </div>
 
-        const formations = {
-            '5-4-1': [
-                ['MS'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['LWB', 'IV', 'IV', 'IV', 'RWB'],
-                ['TW']
-            ],
-            '5-3-2': [
-                ['MS', 'MS'],
-                ['LM', 'ZM', 'RM'],
-                ['LWB', 'IV', 'IV', 'IV', 'RWB'],
-                ['TW']
-            ],
-            '5-2-1-2': [
-                ['MS', 'MS'],
-                ['ZOM'],
-                ['ZM', 'ZM'],
-                ['LWB', 'IV', 'IV', 'IV', 'RWB'],
-                ['TW']
-            ],
-            '4-4-2': [
-                ['MS', 'MS'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-3-3': [
-                ['LF', 'MS', 'RF'],
-                ['ZM', 'ZM', 'ZM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-3-3 (2)': [
-                ['LF', 'MS', 'RF'],
-                ['ZDM', 'ZM', 'ZDM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-3-3 (3)': [
-                ['LF', 'MS', 'RF'],
-                ['ZM', 'ZDM', 'ZM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-3-3 (4)': [
-                ['LF', 'MS', 'RF'],
-                ['ZM', 'ZM', 'ZM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-2-3-1': [
-                ['MS'],
-                ['LF', 'ZOM', 'RF'],
-                ['ZDM', 'ZDM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-2-3-1 (2)': [
-                ['MS'],
-                ['LM', 'ZOM', 'RM'],
-                ['ZDM', 'ZDM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-5-1': [
-                ['MS'],
-                ['LM', 'ZM', 'ZM', 'ZM', 'RM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-4-1-1': [
-                ['MS'],
-                ['ZOM'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-1-4-1': [
-                ['MS'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['ZDM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-3-1-2': [
-                ['MS', 'MS'],
-                ['ZOM'],
-                ['ZM', 'ZM', 'ZM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-1-2-1-2': [
-                ['MS', 'MS'],
-                ['ZOM'],
-                ['ZM', 'ZM'],
-                ['ZDM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '4-1-2-1-2 (2)': [
-                ['MS', 'MS'],
-                ['ZOM'],
-                ['LM', 'RM'],
-                ['ZDM'],
-                ['LV', 'IV', 'IV', 'RV'],
-                ['TW']
-            ],
-            '3-5-2': [
-                ['MS', 'MS'],
-                ['LM', 'ZM', 'ZM', 'ZM', 'RM'],
-                ['IV', 'IV', 'IV'],
-                ['TW']
-            ],
-            '3-4-3': [
-                ['LF', 'MS', 'RF'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['IV', 'IV', 'IV'],
-                ['TW']
-            ],
-            '3-4-2-1': [
-                ['MS'],
-                ['ZOM', 'ZOM'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['IV', 'IV', 'IV'],
-                ['TW']
-            ],
-            '3-1-4-2': [
-                ['MS', 'MS'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['ZDM'],
-                ['IV', 'IV', 'IV'],
-                ['TW']
-            ],
-            '3-4-1-2': [
-                ['MS', 'MS'],
-                ['ZOM'],
-                ['LM', 'ZM', 'ZM', 'RM'],
-                ['IV', 'IV', 'IV'],
-                ['TW']
-            ]
-        };
+      <div id="playersList" style="margin-top: 40px;"></div>
+    </div>
 
-        function getTier(rating) {
-            if (rating >= 95) return { name: 'Elite', class: 'elite', range: '95-99' };
-            if (rating >= 90) return { name: 'Gold', class: 'gold', range: '90-94' };
-            if (rating >= 85) return { name: 'Silber', class: 'silver', range: '85-89' };
-            if (rating >= 80) return { name: 'Bronze', class: 'bronze', range: '80-84' };
-            return { name: 'Champions League', class: 'champions', range: '0-79' };
+    <!-- TAB 2: TRAUMAUFSTELLUNG -->
+    <div id="squad" class="tab-content">
+      <div class="formation-selector">
+        <label>Formation wählen</label>
+        <div class="formation-grid" id="formationGrid"></div>
+      </div>
+
+      <div class="squad-management">
+        <h3 style="color: #D4AF37; margin-bottom: 15px;">Aufstellung speichern/laden</h3>
+        <div class="squad-controls">
+          <input type="text" id="squadName" placeholder="Aufstellungsname" style="flex: 1; min-width: 200px;">
+          <button class="btn" onclick="saveSquad()">💾 Speichern</button>
+          <button class="btn btn-secondary" onclick="clearSquad()">🗑️ Leeren</button>
+        </div>
+        <div class="squad-list" id="savedSquadsList"></div>
+      </div>
+
+      <div class="pitch" id="pitch"></div>
+
+      <div class="bench-container">
+        <button class="bench-toggle" onclick="toggleBench()">🪑 Ersatzbank (0/7)</button>
+        <div class="bench-slots" id="benchSlots"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: HALL OF FAME -->
+    <div id="hof" class="tab-content">
+      <div class="hof-header">
+        <div class="hof-title">Die Götter des Fußballs</div>
+        <div class="subtitle">Die Hall of Fame der besten Spieler</div>
+      </div>
+
+      <div class="hof-tabs">
+        <button class="hof-tab-btn active" onclick="switchHofTab('ranking')">📊 Ranking</button>
+        <button class="hof-tab-btn" onclick="switchHofTab('position')">⚽ Nach Position</button>
+      </div>
+
+      <div id="hof-ranking" class="hof-tab-content"></div>
+      <div id="hof-position" class="hof-tab-content" style="display:none;">
+        <div class="hof-tabs" style="margin-bottom: 20px;">
+          <button class="hof-tab-btn active" onclick="filterByPositionCategory('all')">Alle</button>
+          <button class="hof-tab-btn" onclick="filterByPositionCategory('GK')">Torhüter</button>
+          <button class="hof-tab-btn" onclick="filterByPositionCategory('DEF')">Verteidiger</button>
+          <button class="hof-tab-btn" onclick="filterByPositionCategory('MID')">Mittelfeld</button>
+          <button class="hof-tab-btn" onclick="filterByPositionCategory('ATT')">Angriff</button>
+        </div>
+        <div id="hof-position-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let players = JSON.parse(localStorage.getItem('players')) || [];
+    let editingIndex = null;
+    let currentFormation = null;
+    let squadPlayers = Array(11).fill(null);
+    let benchPlayers = Array(7).fill(null);
+    let savedSquads = JSON.parse(localStorage.getItem('savedSquads')) || [];
+
+    const formations = {
+      '4-3-3': [['ST'],['LF','ZOM','RF'],['LM','ZM','RM'],['LV','IV','IV','RV'],['TW']],
+      '4-4-2': [['ST','ST'],['LM','ZM','ZM','RM'],['LV','IV','IV','RV'],['TW']],
+      '4-2-3-1': [['ST'],['LF','ZOM','RF'],['ZDM','ZDM'],['LV','IV','IV','RV'],['TW']],
+      '3-5-2': [['ST','ST'],['LM','ZDM','ZM','ZOM','RM'],['IV','IV','IV'],['TW']],
+      '4-3-3 (Defensiv)': [['ST'],['LF','ZOM','RF'],['ZDM','ZM','ZM'],['LV','IV','IV','RV'],['TW']],
+      '4-3-3 (Angriff)': [['ST'],['LF','ZOM','RF'],['ZM','ZM','ZOM'],['LV','IV','IV','RV'],['TW']],
+      '4-2-3-1 (Breit)': [['ST'],['LM','ZOM','RM'],['ZDM','ZDM'],['LV','IV','IV','RV'],['TW']],
+      '4-1-2-1-2': [['ST','ST'],['ZOM'],['ZM','ZM'],['ZDM'],['LV','IV','IV','RV'],['TW']],
+      '3-4-3': [['LF','ST','RF'],['LM','ZM','ZM','RM'],['IV','IV','IV'],['TW']],
+      '5-3-2': [['ST','ST'],['LM','ZM','RM'],['LV','IV','IV','IV','RV'],['TW']],
+      '4-1-4-1': [['ST'],['LM','ZM','ZM','RM'],['ZDM'],['LV','IV','IV','RV'],['TW']],
+      '4-4-1-1': [['ST'],['ZOM'],['LM','ZM','ZM','RM'],['LV','IV','IV','RV'],['TW']],
+      '3-4-2-1': [['ST'],['ZOM','ZOM'],['LM','ZM','ZM','RM'],['IV','IV','IV'],['TW']],
+      '4-3-2-1': [['ST'],['ZOM','ZOM'],['LM','ZM','RM'],['LV','IV','IV','RV'],['TW']],
+      '5-4-1': [['ST'],['LM','ZM','ZM','RM'],['LV','IV','IV','IV','RV'],['TW']],
+      '4-5-1': [['ST'],['LM','ZDM','ZM','ZOM','RM'],['LV','IV','IV','RV'],['TW']],
+      '3-5-1-1': [['ST'],['ZOM'],['LM','ZDM','ZM','ZOM','RM'],['IV','IV','IV'],['TW']],
+      '4-1-3-2': [['ST','ST'],['LM','ZM','RM'],['ZDM'],['LV','IV','IV','RV'],['TW']],
+      '4-2-2-2': [['ST','ST'],['ZOM','ZOM'],['ZDM','ZDM'],['LV','IV','IV','RV'],['TW']],
+      '3-4-1-2': [['ST','ST'],['ZOM'],['LM','ZM','ZM','RM'],['IV','IV','IV'],['TW']],
+      '5-2-3': [['LF','ST','RF'],['ZM','ZM'],['LV','IV','IV','IV','RV'],['TW']]
+    };
+
+    const allPositions = ['TW','LV','IV','RV','LM','ZM','RM','ZDM','ZOM','LF','RF','MS','ST','LS','RS'];
+
+    // Migration: alte Spieler ohne altPositions ergänzen
+    (function migrateOldPlayers() {
+      let changed = false;
+      players = players.map(p => {
+        if (!p.altPositions) {
+          p.altPositions = [];
+          changed = true;
         }
-
-        function getPositionCategory(position) {
-            if (position === 'TW') return 'goalkeeper';
-            if (['IV', 'LV', 'RV', 'LWB', 'RWB'].includes(position)) return 'defender';
-            if (['ZDM', 'ZM', 'ZOM', 'LM', 'RM'].includes(position)) return 'midfielder';
-            if (['LF', 'RF', 'MS'].includes(position)) return 'forward';
-            return 'other';
-        }
-
-        function getPositionCategoryName(category) {
-            const names = {
-                'goalkeeper': 'Torhüter',
-                'defender': 'Verteidiger',
-                'midfielder': 'Mittelfeldspieler',
-                'forward': 'Stürmer'
-            };
-            return names[category] || category;
-        }
-
-        function addAltPosition() {
-            const select = document.getElementById('altPositionSelect');
-            const pos = select.value;
-            const mainPos = document.getElementById('playerPosition').value;
-
-            if (!pos) return;
-
-            if (pos === mainPos) {
-                alert('Diese Position ist bereits als Hauptposition ausgewählt!');
-                select.value = '';
-                return;
-            }
-
-            if (tempAltPositions.includes(pos)) {
-                alert('Diese Position wurde bereits hinzugefügt!');
-                select.value = '';
-                return;
-            }
-
-            tempAltPositions.push(pos);
-            select.value = '';
-            renderAltPositions();
-        }
-
-        function removeAltPosition(pos) {
-            tempAltPositions = tempAltPositions.filter(p => p !== pos);
-            renderAltPositions();
-        }
-
-        function renderAltPositions() {
-            const container = document.getElementById('altPositionsList');
-            container.innerHTML = '';
-
-            tempAltPositions.forEach(pos => {
-                const tag = document.createElement('div');
-                tag.className = 'alt-pos-tag';
-                tag.innerHTML = `
-                    <span>${pos}</span>
-                    <span class="alt-pos-remove" onclick="removeAltPosition('${pos}')">✖</span>
-                `;
-                container.appendChild(tag);
-            });
-        }
-
-        function savePlayer() {
-            const name = document.getElementById('playerName').value.trim();
-            const image = document.getElementById('playerImage').value.trim();
-            const position = document.getElementById('playerPosition').value;
-            const rating = parseInt(document.getElementById('playerRating').value);
-
-            if (!name || !position || isNaN(rating) || rating < 0 || rating > 99) {
-                alert('Bitte fülle alle Felder korrekt aus!');
-                return;
-            }
-
-            const player = {
-                id: editingPlayerId || Date.now(),
-                name,
-                image: image || 'https://via.placeholder.com/200x200?text=Kein+Bild',
-                position,
-                altPositions: [...tempAltPositions],
-                rating,
-                tier: getTier(rating)
-            };
-
-            if (editingPlayerId) {
-                const index = players.findIndex(p => p.id === editingPlayerId);
-                players[index] = player;
-            } else {
-                players.push(player);
-            }
-
-            localStorage.setItem('players', JSON.stringify(players));
-
-            cancelEdit();
-            renderPlayers();
-            renderHallOfFame();
-        }
-
-        function editPlayer(id) {
-            const player = players.find(p => p.id === id);
-            if (!player) return;
-
-            editingPlayerId = id;
-            document.getElementById('playerName').value = player.name;
-            document.getElementById('playerImage').value = player.image;
-            document.getElementById('playerPosition').value = player.position;
-            document.getElementById('playerRating').value = player.rating;
-            tempAltPositions = [...(player.altPositions || [])];
-
-            renderAltPositions();
-
-            document.getElementById('playerFormTitle').textContent = '✏️ Spieler bearbeiten';
-            document.getElementById('savePlayerBtn').textContent = '💾 Änderungen speichern';
-            document.getElementById('cancelEditBtn').style.display = 'inline-block';
-
-            switchTab('ratings');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function cancelEdit() {
-            editingPlayerId = null;
-            tempAltPositions = [];
-            
-            document.getElementById('playerName').value = '';
-            document.getElementById('playerImage').value = '';
-            document.getElementById('playerRating').value = '';
-            document.getElementById('altPositionsList').innerHTML = '';
-
-            document.getElementById('playerFormTitle').textContent = '➕ Neuen Spieler hinzufügen';
-            document.getElementById('savePlayerBtn').textContent = '✨ Spieler hinzufügen';
-            document.getElementById('cancelEditBtn').style.display = 'none';
-        }
-
-        function deletePlayer(id) {
-            if (confirm('Spieler wirklich löschen?')) {
-                players = players.filter(p => p.id !== id);
-                
-                for (let key in currentSquad) {
-                    if (currentSquad[key] === id) delete currentSquad[key];
-                }
-                for (let key in currentBench) {
-                    if (currentBench[key] === id) delete currentBench[key];
-                }
-
-                localStorage.setItem('players', JSON.stringify(players));
-                localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-                localStorage.setItem('currentBench', JSON.stringify(currentBench));
-
-                renderPlayers();
-                renderFormation();
-                renderBench();
-                renderHallOfFame();
-            }
-        }
-
-        function renderPlayers() {
-            const container = document.getElementById('playerList');
-            container.innerHTML = '';
-
-            if (players.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Spieler hinzugefügt. Füge deinen ersten Spieler hinzu! ⚽</p>';
-                return;
-            }
-
-            players.forEach(player => {
-                const altPos = player.altPositions && player.altPositions.length > 0 
-                    ? `<div style="margin-top: 8px; font-size: 0.85rem; color: #888;">Alt: ${player.altPositions.join(', ')}</div>`
-                    : '';
-
-                const card = document.createElement('div');
-                card.className = `player-card ${player.tier.class}`;
-                card.innerHTML = `
-                    <div class="tier-badge ${player.tier.class}">${player.tier.name}</div>
-                    <img src="${player.image}" alt="${player.name}" class="player-image" onerror="this.src='https://via.placeholder.com/200x200?text=Kein+Bild'">
-                    <div class="player-name">${player.name}</div>
-                    <div class="player-info">
-                        <span class="player-position">${player.position}</span>
-                        <span class="player-rating">${player.rating}</span>
-                    </div>
-                    ${altPos}
-                    <div class="player-actions">
-                        <button class="edit-btn" onclick="editPlayer(${player.id})">✏️ Bearbeiten</button>
-                        <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
-            document.querySelectorAll('.tab').forEach(t => {
-                if (t.textContent.includes('Bewertungen') && tab === 'ratings') t.classList.add('active');
-                if (t.textContent.includes('Traumaufstellung') && tab === 'squad') t.classList.add('active');
-                if (t.textContent.includes('Götter') && tab === 'hall') t.classList.add('active');
-            });
-            
-            document.getElementById(tab).classList.add('active');
-
-            if (tab === 'squad') {
-                renderFormation();
-                renderBench();
-                renderSavedSquads();
-            } else if (tab === 'hall') {
-                renderHallOfFame();
-            }
-        }
-
-        function switchHallSubtab(subtab) {
-            document.querySelectorAll('.hall-subtab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.hall-subcontent').forEach(c => c.classList.remove('active'));
-
-            event.target.classList.add('active');
-            document.getElementById(subtab).classList.add('active');
-        }
-
-        function changeFormation() {
-            currentFormation = document.getElementById('formationSelect').value;
-            localStorage.setItem('currentFormation', currentFormation);
-            renderFormation();
-        }
-
-        function renderFormation() {
-            const pitch = document.getElementById('pitch');
-            const formation = formations[currentFormation];
-            
-            pitch.innerHTML = '<div class="pitch-line"></div>';
-
-            formation.forEach((row, rowIndex) => {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'formation-row';
-                
-                row.forEach((position, posIndex) => {
-                    const slotId = `${rowIndex}-${posIndex}`;
-                    const playerId = currentSquad[slotId];
-                    const player = players.find(p => p.id === playerId);
-
-                    const slot = document.createElement('div');
-                    slot.className = `player-slot ${player ? 'filled' : ''}`;
-                    slot.onclick = () => openSquadModal(slotId, position);
-
-                    if (player) {
-                        slot.innerHTML = `
-                            <div class="player-slot-circle">
-                                <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/60x60?text=${position}'">
-                            </div>
-                            <div class="player-slot-name">${player.name}</div>
-                            <div class="player-slot-rating">${player.rating}</div>
-                        `;
-                    } else {
-                        slot.innerHTML = `
-                            <div class="player-slot-circle">${position}</div>
-                            <div class="player-slot-name">Leer</div>
-                        `;
-                    }
-
-                    rowDiv.appendChild(slot);
-                });
-
-                pitch.appendChild(rowDiv);
-            });
-        }
-
-        function renderBench() {
-            const benchSlots = document.getElementById('benchSlots');
-            benchSlots.innerHTML = '';
-
-            for (let i = 0; i < 7; i++) {
-                const playerId = currentBench[`bench-${i}`];
-                const player = players.find(p => p.id === playerId);
-
-                const slot = document.createElement('div');
-                slot.className = `player-slot ${player ? 'filled' : ''}`;
-                slot.onclick = () => openBenchModal(i);
-
-                if (player) {
-                    slot.innerHTML = `
-                        <div class="player-slot-circle">
-                            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/60x60?text=SUB'">
-                        </div>
-                        <div class="player-slot-name">${player.name}</div>
-                        <div class="player-slot-rating">${player.rating}</div>
-                    `;
-                } else {
-                    slot.innerHTML = `
-                        <div class="player-slot-circle">SUB</div>
-                        <div class="player-slot-name">Leer</div>
-                    `;
-                }
-
-                benchSlots.appendChild(slot);
-            }
-        }
-
-        function toggleBench() {
-            const benchSlots = document.getElementById('benchSlots');
-            const toggleText = document.getElementById('benchToggleText');
-            
-            benchSlots.classList.toggle('active');
-            
-            if (benchSlots.classList.contains('active')) {
-                toggleText.textContent = '⬇️ Ersatzbank zuklappen';
-            } else {
-                toggleText.textContent = '⬆️ Ersatzbank aufklappen';
-            }
-        }
-
-        function openSquadModal(slotId, position) {
-            selectedPosition = slotId;
-            document.getElementById('modalPosition').textContent = position;
-            
-            const modal = document.getElementById('squadModal');
-            const playerList = document.getElementById('squadPlayerList');
-            
-            playerList.innerHTML = '';
-
-            const removeOption = document.createElement('div');
-            removeOption.className = 'squad-player-item';
-            removeOption.innerHTML = '<strong style="color: #ff6b6b;">❌ Spieler entfernen</strong>';
-            removeOption.onclick = () => {
-                delete currentSquad[slotId];
-                localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-                renderFormation();
-                closeSquadModal();
-            };
-            playerList.appendChild(removeOption);
-
-            const usedPlayerIds = [...Object.values(currentSquad), ...Object.values(currentBench)];
-            const availablePlayers = players.filter(p => {
-                if (usedPlayerIds.includes(p.id)) return false;
-                
-                const allPositions = [p.position, ...(p.altPositions || [])];
-                return allPositions.includes(position);
-            });
-
-            if (availablePlayers.length === 0) {
-                playerList.innerHTML += '<p style="text-align: center; color: #888; padding: 20px;">Keine verfügbaren Spieler für diese Position.</p>';
-            }
-
-            availablePlayers.forEach(player => {
-                const item = document.createElement('div');
-                item.className = 'squad-player-item';
-                item.innerHTML = `
-                    <img src="${player.image}" alt="${player.name}" class="squad-player-img" onerror="this.src='https://via.placeholder.com/50x50?text=${player.position}'">
-                    <div>
-                        <strong>${player.name}</strong> (${player.position}) - ${player.rating}
-                    </div>
-                `;
-                item.onclick = () => {
-                    currentSquad[slotId] = player.id;
-                    localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-                    renderFormation();
-                    closeSquadModal();
-                };
-                playerList.appendChild(item);
-            });
-
-            modal.style.display = 'block';
-        }
-
-        function openBenchModal(benchIndex) {
-            const slotId = `bench-${benchIndex}`;
-            selectedPosition = slotId;
-            
-            const modal = document.getElementById('squadModal');
-            const playerList = document.getElementById('squadPlayerList');
-            
-            document.getElementById('modalPosition').textContent = `Ersatzbank Platz ${benchIndex + 1}`;
-            playerList.innerHTML = '';
-
-            const removeOption = document.createElement('div');
-            removeOption.className = 'squad-player-item';
-            removeOption.innerHTML = '<strong style="color: #ff6b6b;">❌ Spieler entfernen</strong>';
-            removeOption.onclick = () => {
-                delete currentBench[slotId];
-                localStorage.setItem('currentBench', JSON.stringify(currentBench));
-                renderBench();
-                closeSquadModal();
-            };
-            playerList.appendChild(removeOption);
-
-            const usedPlayerIds = [...Object.values(currentSquad), ...Object.values(currentBench)];
-            const availablePlayers = players.filter(p => !usedPlayerIds.includes(p.id));
-
-            availablePlayers.forEach(player => {
-                const item = document.createElement('div');
-                item.className = 'squad-player-item';
-                item.innerHTML = `
-                    <img src="${player.image}" alt="${player.name}" class="squad-player-img" onerror="this.src='https://via.placeholder.com/50x50?text=${player.position}'">
-                    <div>
-                        <strong>${player.name}</strong> (${player.position}) - ${player.rating}
-                    </div>
-                `;
-                item.onclick = () => {
-                    currentBench[slotId] = player.id;
-                    localStorage.setItem('currentBench', JSON.stringify(currentBench));
-                    renderBench();
-                    closeSquadModal();
-                };
-                playerList.appendChild(item);
-            });
-
-            modal.style.display = 'block';
-        }
-
-        function closeSquadModal() {
-            document.getElementById('squadModal').style.display = 'none';
-        }
-
-        function saveSquad() {
-            const name = document.getElementById('squadName').value.trim();
-            
-            if (!name) {
-                alert('Bitte gib einen Namen für die Aufstellung ein!');
-                return;
-            }
-
-            const squad = {
-                id: Date.now(),
-                name,
-                formation: currentFormation,
-                squad: {...currentSquad},
-                bench: {...currentBench}
-            };
-
-            savedSquads.push(squad);
-            localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
-
-            document.getElementById('squadName').value = '';
-            alert('Aufstellung gespeichert! ✅');
-            renderSavedSquads();
-        }
-
-        function loadSquad(id) {
-            const squad = savedSquads.find(s => s.id === id);
-            if (!squad) return;
-
-            currentFormation = squad.formation;
-            currentSquad = {...squad.squad};
-            currentBench = {...squad.bench};
-
-            document.getElementById('formationSelect').value = currentFormation;
-            localStorage.setItem('currentFormation', currentFormation);
-            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-            localStorage.setItem('currentBench', JSON.stringify(currentBench));
-
-            renderFormation();
-            renderBench();
-
-            alert(`Aufstellung "${squad.name}" geladen! ✅`);
-        }
-
-        function deleteSavedSquad(id) {
-            if (confirm('Gespeicherte Aufstellung wirklich löschen?')) {
-                savedSquads = savedSquads.filter(s => s.id !== id);
-                localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
-                renderSavedSquads();
-            }
-        }
-
-        function renderSavedSquads() {
-            const container = document.getElementById('savedSquadsList');
-            container.innerHTML = '';
-
-            if (savedSquads.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">Noch keine Aufstellungen gespeichert.</p>';
-                return;
-            }
-
-            savedSquads.forEach(squad => {
-                const card = document.createElement('div');
-                card.className = 'saved-squad-card';
-                card.innerHTML = `
-                    <div class="saved-squad-name">${squad.name}</div>
-                    <div class="saved-squad-formation">Formation: ${squad.formation}</div>
-                    <div class="saved-squad-actions">
-                        <button class="load-squad-btn" onclick="loadSquad(${squad.id})">📂 Laden</button>
-                        <button class="delete-squad-btn" onclick="deleteSavedSquad(${squad.id})">🗑️</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function clearSquad() {
-            if (confirm('Aufstellung wirklich zurücksetzen?')) {
-                currentSquad = {};
-                currentBench = {};
-                localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-                localStorage.setItem('currentBench', JSON.stringify(currentBench));
-                renderFormation();
-                renderBench();
-            }
-        }
-
-        function renderHallOfFame() {
-            renderHallRanking();
-            renderHallPosition();
-        }
-
-        function renderHallRanking() {
-            const container = document.getElementById('hallRanking');
-            container.innerHTML = '';
-
-            if (players.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Spieler vorhanden...</p>';
-                return;
-            }
-
-            const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
-
-            const grid = document.createElement('div');
-            grid.className = 'hall-player-grid';
-
-            sortedPlayers.forEach(player => {
-                const altPos = player.altPositions && player.altPositions.length > 0 
-                    ? `<div style="margin-top: 8px; font-size: 0.85rem; color: #888;">Alt: ${player.altPositions.join(', ')}</div>`
-                    : '';
-
-                const card = document.createElement('div');
-                card.className = `hall-player-card ${player.tier.class}`;
-                card.innerHTML = `
-                    <div class="tier-badge ${player.tier.class}">${player.tier.name}</div>
-                    <img src="${player.image}" alt="${player.name}" class="hall-player-image" onerror="this.src='https://via.placeholder.com/200x200?text=Kein+Bild'">
-                    <div class="hall-player-name">${player.name}</div>
-                    <div class="hall-player-info">
-                        <span class="hall-player-position">${player.position}</span>
-                        <span class="hall-player-rating">${player.rating}</span>
-                    </div>
-                    ${altPos}
-                    <div class="player-actions">
-                        <button class="edit-btn" onclick="editPlayer(${player.id})">✏️ Bearbeiten</button>
-                        <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-
-            container.appendChild(grid);
-        }
-
-        function renderHallPosition() {
-            const container = document.getElementById('hallPosition');
-            container.innerHTML = '';
-
-            if (players.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Spieler vorhanden...</p>';
-                return;
-            }
-
-            const categories = ['goalkeeper', 'defender', 'midfielder', 'forward'];
-
-            categories.forEach(category => {
-                const categoryPlayers = players
-                    .filter(p => getPositionCategory(p.position) === category)
-                    .sort((a, b) => b.rating - a.rating);
-
-                if (categoryPlayers.length > 0) {
-                    const section = document.createElement('div');
-                    section.className = 'hall-category';
-
-                    const title = document.createElement('div');
-                    title.className = 'hall-category-title';
-                    title.innerHTML = `
-                        <span>${getPositionCategoryName(category)}</span>
-                        <span>${categoryPlayers.length} Spieler</span>
-                    `;
-                    section.appendChild(title);
-
-                    const grid = document.createElement('div');
-                    grid.className = 'hall-player-grid';
-
-                    categoryPlayers.forEach(player => {
-                        const altPos = player.altPositions && player.altPositions.length > 0 
-                            ? `<div style="margin-top: 8px; font-size: 0.85rem; color: #888;">Alt: ${player.altPositions.join(', ')}</div>`
-                            : '';
-
-                        const card = document.createElement('div');
-                        card.className = `hall-player-card ${player.tier.class}`;
-                        card.innerHTML = `
-                            <div class="tier-badge ${player.tier.class}">${player.tier.name}</div>
-                            <img src="${player.image}" alt="${player.name}" class="hall-player-image" onerror="this.src='https://via.placeholder.com/200x200?text=Kein+Bild'">
-                            <div class="hall-player-name">${player.name}</div>
-                            <div class="hall-player-info">
-                                <span class="hall-player-position">${player.position}</span>
-                                <span class="hall-player-rating">${player.rating}</span>
-                            </div>
-                            ${altPos}
-                            <div class="player-actions">
-                                <button class="edit-btn" onclick="editPlayer(${player.id})">✏️ Bearbeiten</button>
-                                <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
-                            </div>
-                        `;
-                        grid.appendChild(card);
-                    });
-
-                    section.appendChild(grid);
-                    container.appendChild(section);
-                }
-            });
-        }
-
-        // INITIAL RENDER
-        document.getElementById('formationSelect').value = currentFormation;
+        return p;
+      });
+      if (changed) {
+        localStorage.setItem('players', JSON.stringify(players));
+      }
+    })();
+
+    function renderAltPositionsCheckboxes() {
+      const grid = document.getElementById('altPositionsGrid');
+      const mainPos = document.getElementById('playerPosition').value;
+      grid.innerHTML = '';
+      allPositions.filter(p => p !== mainPos).forEach(pos => {
+        const div = document.createElement('div');
+        div.className = 'alt-pos-checkbox';
+        div.innerHTML = `
+          <input type="checkbox" id="alt-${pos}" value="${pos}">
+          <label for="alt-${pos}">${pos}</label>
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    document.getElementById('playerPosition').addEventListener('change', renderAltPositionsCheckboxes);
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(tab).classList.add('active');
+      event.target.classList.add('active');
+      if (tab === 'ratings') renderPlayers();
+      if (tab === 'squad') { renderFormations(); renderSavedSquads(); }
+      if (tab === 'hof') renderHof();
+    }
+
+    function addPlayer() {
+      const name = document.getElementById('playerName').value.trim();
+      const image = document.getElementById('playerImage').value.trim();
+      const rating = parseInt(document.getElementById('playerRating').value);
+      const position = document.getElementById('playerPosition').value;
+
+      if (!name || !rating || !position || rating < 0 || rating > 99) {
+        alert('Bitte alle Felder korrekt ausfüllen!');
+        return;
+      }
+
+      const altPositions = Array.from(document.querySelectorAll('#altPositionsGrid input[type="checkbox"]:checked'))
+        .map(cb => cb.value);
+
+      const player = { name, image, rating, position, altPositions };
+
+      if (editingIndex !== null) {
+        players[editingIndex] = player;
+        editingIndex = null;
+        document.getElementById('submitBtn').textContent = 'Spieler hinzufügen';
+        document.getElementById('cancelEditBtn').style.display = 'none';
+      } else {
+        players.push(player);
+      }
+
+      localStorage.setItem('players', JSON.stringify(players));
+      clearForm();
+      renderPlayers();
+    }
+
+    function clearForm() {
+      document.getElementById('playerName').value = '';
+      document.getElementById('playerImage').value = '';
+      document.getElementById('playerRating').value = '';
+      document.getElementById('playerPosition').value = '';
+      renderAltPositionsCheckboxes();
+    }
+
+    function cancelEdit() {
+      editingIndex = null;
+      clearForm();
+      document.getElementById('submitBtn').textContent = 'Spieler hinzufügen';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    function editPlayer(index) {
+      const player = players[index];
+      document.getElementById('playerName').value = player.name;
+      document.getElementById('playerImage').value = player.image || '';
+      document.getElementById('playerRating').value = player.rating;
+      document.getElementById('playerPosition').value = player.position;
+      
+      renderAltPositionsCheckboxes();
+      
+      (player.altPositions || []).forEach(pos => {
+        const cb = document.getElementById('alt-' + pos);
+        if (cb) cb.checked = true;
+      });
+
+      editingIndex = index;
+      document.getElementById('submitBtn').textContent = 'Spieler aktualisieren';
+      document.getElementById('cancelEditBtn').style.display = 'inline-block';
+      
+      switchTab('ratings');
+      document.getElementById('playerName').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function deletePlayer(index) {
+      if (confirm('Spieler wirklich löschen?')) {
+        players.splice(index, 1);
+        localStorage.setItem('players', JSON.stringify(players));
         renderPlayers();
-        renderFormation();
+        renderHof();
+      }
+    }
+
+    function getTierClass(rating) {
+      if (rating >= 95) return 'tier-elite';
+      if (rating >= 90) return 'tier-gold';
+      if (rating >= 85) return 'tier-silver';
+      if (rating >= 80) return 'tier-bronze';
+      return 'tier-cl';
+    }
+
+    function getTierName(rating) {
+      if (rating >= 95) return 'Elite (95-99)';
+      if (rating >= 90) return 'Gold (90-94)';
+      if (rating >= 85) return 'Silber (85-89)';
+      if (rating >= 80) return 'Bronze (80-84)';
+      return 'Champions League (0-79)';
+    }
+
+    function renderPlayers() {
+      const container = document.getElementById('playersList');
+      if (players.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#aaa; padding:40px;">Noch keine Spieler vorhanden.</p>';
+        return;
+      }
+
+      const tiers = { elite: [], gold: [], silver: [], bronze: [], cl: [] };
+      players.forEach((p, i) => {
+        const tier = p.rating >= 95 ? 'elite' : p.rating >= 90 ? 'gold' : p.rating >= 85 ? 'silver' : p.rating >= 80 ? 'bronze' : 'cl';
+        tiers[tier].push({ ...p, index: i });
+      });
+
+      let html = '';
+      ['elite', 'gold', 'silver', 'bronze', 'cl'].forEach(tier => {
+        if (tiers[tier].length === 0) return;
+        const rating = tier === 'elite' ? 95 : tier === 'gold' ? 90 : tier === 'silver' ? 85 : tier === 'bronze' ? 80 : 0;
+        html += `<div class="tier-section">
+          <div class="tier-header ${getTierClass(rating)}">${getTierName(rating)}</div>
+          <div class="players-grid">`;
+        tiers[tier].forEach(p => {
+          const allPos = [p.position, ...(p.altPositions || [])];
+          const posHTML = allPos.map((pos, idx) => 
+            `<span class="position-tag ${idx === 0 ? 'primary' : ''}">${pos}</span>`
+          ).join('');
+          html += `<div class="player-card">
+            ${p.image ? `<img src="${p.image}" class="player-img" onerror="this.src='https://via.placeholder.com/250x200?text=Kein+Bild'">` : '<div class="player-img" style="background:#333;display:flex;align-items:center;justify-content:center;color:#666;">Kein Bild</div>'}
+            <div class="player-name">${p.name}</div>
+            <div class="player-rating" style="color:${p.rating >= 95 ? '#8B5CF6' : p.rating >= 90 ? '#D4AF37' : p.rating >= 85 ? '#C0C0C0' : p.rating >= 80 ? '#CD7F32' : '#003B7A'}">${p.rating}</div>
+            <div class="player-positions">${posHTML}</div>
+            <div class="action-buttons">
+              <button class="btn btn-secondary" onclick="editPlayer(${p.index})">✏️ Bearbeiten</button>
+              <button class="btn btn-danger" onclick="deletePlayer(${p.index})">🗑️ Löschen</button>
+            </div>
+          </div>`;
+        });
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function renderFormations() {
+      const grid = document.getElementById('formationGrid');
+      grid.innerHTML = '';
+      Object.keys(formations).forEach(f => {
+        const btn = document.createElement('button');
+        btn.className = 'formation-btn' + (currentFormation === f ? ' active' : '');
+        btn.textContent = f;
+        btn.onclick = () => selectFormation(f);
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectFormation(formation) {
+      currentFormation = formation;
+      renderFormations();
+      renderPitch();
+    }
+
+    function renderPitch() {
+      const pitch = document.getElementById('pitch');
+      if (!currentFormation) {
+        pitch.innerHTML = '<p style="text-align:center;color:#aaa;">Bitte wähle zuerst eine Formation.</p>';
+        return;
+      }
+
+      const rows = formations[currentFormation];
+      let html = '';
+      let slotIndex = 0;
+
+      rows.forEach((row, rowIdx) => {
+        html += '<div class="pitch-row">';
+        row.forEach(pos => {
+          const player = squadPlayers[slotIndex];
+          const filled = player ? ' filled' : '';
+          html += `<div class="pitch-slot${filled}" onclick="selectSquadSlot(${slotIndex}, '${pos}')">`;
+          if (player) {
+            html += `
+              ${player.image ? `<img src="${player.image}" onerror="this.src='https://via.placeholder.com/60?text=?'">` : '<div style="width:60px;height:60px;background:#666;border-radius:50%;"></div>'}
+              <div class="player-name-small">${player.name.split(' ').pop()}</div>
+              <div class="player-rating-small">${player.rating}</div>
+            `;
+          } else {
+            html += `<div style="color:#D4AF37;font-weight:bold;">${pos}</div>`;
+          }
+          html += '</div>';
+          slotIndex++;
+        });
+        html += '</div>';
+      });
+
+      pitch.innerHTML = html;
+      renderBench();
+    }
+
+    function renderBench() {
+      const container = document.getElementById('benchSlots');
+      let html = '';
+      for (let i = 0; i < 7; i++) {
+        const player = benchPlayers[i];
+        const filled = player ? ' filled' : '';
+        html += `<div class="pitch-slot${filled}" onclick="selectBenchSlot(${i})">`;
+        if (player) {
+          html += `
+            ${player.image ? `<img src="${player.image}" onerror="this.src='https://via.placeholder.com/60?text=?'">` : '<div style="width:60px;height:60px;background:#666;border-radius:50%;"></div>'}
+            <div class="player-name-small">${player.name.split(' ').pop()}</div>
+            <div class="player-rating-small">${player.rating}</div>
+          `;
+        } else {
+          html += '<div style="color:#D4AF37;font-weight:bold;">BANK</div>';
+        }
+        html += '</div>';
+      }
+      container.innerHTML = html;
+      updateBenchToggle();
+    }
+
+    function updateBenchToggle() {
+      const count = benchPlayers.filter(p => p !== null).length;
+      document.querySelector('.bench-toggle').textContent = `🪑 Ersatzbank (${count}/7)`;
+    }
+
+    function toggleBench() {
+      document.getElementById('benchSlots').classList.toggle('open');
+    }
+
+    function selectSquadSlot(index, requiredPos) {
+      if (squadPlayers[index]) {
+        if (confirm('Spieler entfernen?')) {
+          squadPlayers[index] = null;
+          renderPitch();
+        }
+        return;
+      }
+
+      const usedIds = [...squadPlayers, ...benchPlayers].filter(p => p).map((p, i) => players.findIndex(pl => pl.name === p.name && pl.rating === p.rating));
+      const available = players.filter((p, i) => {
+        if (usedIds.includes(i)) return false;
+        return p.position === requiredPos || (p.altPositions && p.altPositions.includes(requiredPos));
+      });
+
+      if (available.length === 0) {
+        alert(`Keine verfügbaren Spieler für Position ${requiredPos}`);
+        return;
+      }
+
+      showPlayerSelectionModal(available, (player) => {
+        squadPlayers[index] = player;
+        renderPitch();
+      });
+    }
+
+    function selectBenchSlot(index) {
+      if (benchPlayers[index]) {
+        if (confirm('Spieler entfernen?')) {
+          benchPlayers[index] = null;
+          renderBench();
+        }
+        return;
+      }
+
+      const usedIds = [...squadPlayers, ...benchPlayers].filter(p => p).map((p, i) => players.findIndex(pl => pl.name === p.name && pl.rating === p.rating));
+      const available = players.filter((p, i) => !usedIds.includes(i));
+
+      if (available.length === 0) {
+        alert('Keine verfügbaren Spieler mehr!');
+        return;
+      }
+
+      showPlayerSelectionModal(available, (player) => {
+        benchPlayers[index] = player;
         renderBench();
+      });
+    }
+
+    function showPlayerSelectionModal(availablePlayers, callback) {
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+      
+      const content = document.createElement('div');
+      content.style.cssText = 'background:linear-gradient(135deg, #1a1410 0%, #0a0a0a 100%);padding:30px;border-radius:20px;max-width:800px;width:100%;max-height:80vh;overflow-y:auto;border:2px solid #D4AF37;';
+      
+      let html = '<h2 style="color:#D4AF37;margin-bottom:20px;">Spieler auswählen</h2><div class="players-grid">';
+      availablePlayers.forEach(p => {
+        const allPos = [p.position, ...(p.altPositions || [])];
+        const posHTML = allPos.map((pos, idx) => 
+          `<span class="position-tag ${idx === 0 ? 'primary' : ''}">${pos}</span>`
+        ).join('');
+        html += `<div class="player-card" style="cursor:pointer;" onclick="window.modalCallback(${players.indexOf(p)})">
+          ${p.image ? `<img src="${p.image}" class="player-img" onerror="this.src='https://via.placeholder.com/250x200?text=Kein+Bild'">` : '<div class="player-img" style="background:#333;"></div>'}
+          <div class="player-name">${p.name}</div>
+          <div class="player-rating" style="color:${p.rating >= 95 ? '#8B5CF6' : p.rating >= 90 ? '#D4AF37' : p.rating >= 85 ? '#C0C0C0' : p.rating >= 80 ? '#CD7F32' : '#003B7A'}">${p.rating}</div>
+          <div class="player-positions">${posHTML}</div>
+        </div>`;
+      });
+      html += '</div><button class="btn btn-secondary" style="margin-top:20px;width:100%;" onclick="this.closest(\'.modal-wrapper\').remove()">❌ Abbrechen</button>';
+      
+      content.innerHTML = html;
+      modal.appendChild(content);
+      modal.className = 'modal-wrapper';
+      document.body.appendChild(modal);
+
+      window.modalCallback = (index) => {
+        callback(players[index]);
+        modal.remove();
+      };
+    }
+
+    function clearSquad() {
+      if (confirm('Aufstellung wirklich leeren?')) {
+        squadPlayers = Array(11).fill(null);
+        benchPlayers = Array(7).fill(null);
+        renderPitch();
+      }
+    }
+
+    function saveSquad() {
+      const name = document.getElementById('squadName').value.trim();
+      if (!name) {
+        alert('Bitte Namen eingeben!');
+        return;
+      }
+      if (!currentFormation) {
+        alert('Bitte Formation wählen!');
+        return;
+      }
+
+      const squad = {
+        name,
+        formation: currentFormation,
+        players: squadPlayers,
+        bench: benchPlayers
+      };
+
+      const existing = savedSquads.findIndex(s => s.name === name);
+      if (existing >= 0) {
+        if (confirm('Aufstellung existiert bereits. Überschreiben?')) {
+          savedSquads[existing] = squad;
+        } else {
+          return;
+        }
+      } else {
+        savedSquads.push(squad);
+      }
+
+      localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
+      document.getElementById('squadName').value = '';
+      renderSavedSquads();
+      alert('✅ Aufstellung gespeichert!');
+    }
+
+    function loadSquad(index) {
+      const squad = savedSquads[index];
+      currentFormation = squad.formation;
+      squadPlayers = squad.players;
+      benchPlayers = squad.bench;
+      renderFormations();
+      renderPitch();
+      alert(`✅ Aufstellung "${squad.name}" geladen!`);
+    }
+
+    function deleteSquad(index) {
+      if (confirm('Aufstellung wirklich löschen?')) {
+        savedSquads.splice(index, 1);
+        localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
         renderSavedSquads();
-        renderHallOfFame();
+      }
+    }
 
-        // MODAL CLOSE ON OUTSIDE CLICK
-        window.onclick = function(event) {
-            const modal = document.getElementById('squadModal');
-            if (event.target === modal) {
-                closeSquadModal();
-            }
-        }
+    function renderSavedSquads() {
+      const container = document.getElementById('savedSquadsList');
+      if (savedSquads.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#aaa;padding:20px;">Keine gespeicherten Aufstellungen.</p>';
+        return;
+      }
 
-        // SERVICE WORKER
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
+      let html = '';
+      savedSquads.forEach((s, i) => {
+        html += `<div class="squad-item">
+          <div>
+            <div class="squad-item-name">${s.name}</div>
+            <div style="font-size:0.85em;color:#aaa;">${s.formation}</div>
+          </div>
+          <div class="squad-item-buttons">
+            <button class="btn btn-secondary" onclick="loadSquad(${i})">📂 Laden</button>
+            <button class="btn btn-danger" onclick="deleteSquad(${i})">🗑️</button>
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function switchHofTab(tab) {
+      document.querySelectorAll('.hof-tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('hof-ranking').style.display = tab === 'ranking' ? 'block' : 'none';
+      document.getElementById('hof-position').style.display = tab === 'position' ? 'block' : 'none';
+    }
+
+    function renderHof() {
+      renderHofRanking();
+      filterByPositionCategory('all');
+    }
+
+    function renderHofRanking() {
+      const container = document.getElementById('hof-ranking');
+      const sorted = [...players].sort((a, b) => b.rating - a.rating);
+
+      if (sorted.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#aaa;padding:40px;">Noch keine Spieler in der Hall of Fame.</p>';
+        return;
+      }
+
+      const tiers = { elite: [], gold: [], silver: [], bronze: [], cl: [] };
+      sorted.forEach((p, i) => {
+        const tier = p.rating >= 95 ? 'elite' : p.rating >= 90 ? 'gold' : p.rating >= 85 ? 'silver' : p.rating >= 80 ? 'bronze' : 'cl';
+        tiers[tier].push({ ...p, index: players.findIndex(pl => pl.name === p.name && pl.rating === p.rating) });
+      });
+
+      let html = '';
+      ['elite', 'gold', 'silver', 'bronze', 'cl'].forEach(tier => {
+        if (tiers[tier].length === 0) return;
+        const rating = tier === 'elite' ? 95 : tier === 'gold' ? 90 : tier === 'silver' ? 85 : tier === 'bronze' ? 80 : 0;
+        html += `<div class="tier-section">
+          <div class="tier-header ${getTierClass(rating)}">${getTierName(rating)}</div>
+          <div class="players-grid">`;
+        tiers[tier].forEach(p => {
+          const allPos = [p.position, ...(p.altPositions || [])];
+          const posHTML = allPos.map((pos, idx) => 
+            `<span class="position-tag ${idx === 0 ? 'primary' : ''}">${pos}</span>`
+          ).join('');
+          html += `<div class="player-card">
+            ${p.image ? `<img src="${p.image}" class="player-img" onerror="this.src='https://via.placeholder.com/250x200?text=Kein+Bild'">` : '<div class="player-img" style="background:#333;"></div>'}
+            <div class="player-name">${p.name}</div>
+            <div class="player-rating" style="color:${p.rating >= 95 ? '#8B5CF6' : p.rating >= 90 ? '#D4AF37' : p.rating >= 85 ? '#C0C0C0' : p.rating >= 80 ? '#CD7F32' : '#003B7A'}">${p.rating}</div>
+            <div class="player-positions">${posHTML}</div>
+            <div class="action-buttons">
+              <button class="btn btn-secondary" onclick="editPlayer(${p.index})">✏️ Bearbeiten</button>
+              <button class="btn btn-danger" onclick="deletePlayer(${p.index})">🗑️ Löschen</button>
+            </div>
+          </div>`;
+        });
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function filterByPositionCategory(category) {
+      document.querySelectorAll('#hof-position .hof-tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const posMap = {
+        'GK': ['TW'],
+        'DEF': ['LV', 'IV', 'RV'],
+        'MID': ['LM', 'ZM', 'RM', 'ZDM', 'ZOM'],
+        'ATT': ['LF', 'RF', 'MS', 'ST', 'LS', 'RS']
+      };
+
+      let filtered = players;
+      if (category !== 'all') {
+        const positions = posMap[category];
+        filtered = players.filter(p => positions.includes(p.position));
+      }
+
+      const sorted = [...filtered].sort((a, b) => b.rating - a.rating);
+      const container = document.getElementById('hof-position-list');
+
+      if (sorted.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#aaa;padding:40px;">Keine Spieler in dieser Kategorie.</p>';
+        return;
+      }
+
+      const tiers = { elite: [], gold: [], silver: [], bronze: [], cl: [] };
+      sorted.forEach((p, i) => {
+        const tier = p.rating >= 95 ? 'elite' : p.rating >= 90 ? 'gold' : p.rating >= 85 ? 'silver' : p.rating >= 80 ? 'bronze' : 'cl';
+        tiers[tier].push({ ...p, index: players.findIndex(pl => pl.name === p.name && pl.rating === p.rating) });
+      });
+
+      let html = '';
+      ['elite', 'gold', 'silver', 'bronze', 'cl'].forEach(tier => {
+        if (tiers[tier].length === 0) return;
+        const rating = tier === 'elite' ? 95 : tier === 'gold' ? 90 : tier === 'silver' ? 85 : tier === 'bronze' ? 80 : 0;
+        html += `<div class="tier-section">
+          <div class="tier-header ${getTierClass(rating)}">${getTierName(rating)}</div>
+          <div class="players-grid">`;
+        tiers[tier].forEach(p => {
+          const allPos = [p.position, ...(p.altPositions || [])];
+          const posHTML = allPos.map((pos, idx) => 
+            `<span class="position-tag ${idx === 0 ? 'primary' : ''}">${pos}</span>`
+          ).join('');
+          html += `<div class="player-card">
+            ${p.image ? `<img src="${p.image}" class="player-img" onerror="this.src='https://via.placeholder.com/250x200?text=Kein+Bild'">` : '<div class="player-img" style="background:#333;"></div>'}
+            <div class="player-name">${p.name}</div>
+            <div class="player-rating" style="color:${p.rating >= 95 ? '#8B5CF6' : p.rating >= 90 ? '#D4AF37' : p.rating >= 85 ? '#C0C0C0' : p.rating >= 80 ? '#CD7F32' : '#003B7A'}">${p.rating}</div>
+            <div class="player-positions">${posHTML}</div>
+            <div class="action-buttons">
+              <button class="btn btn-secondary" onclick="editPlayer(${p.index})">✏️ Bearbeiten</button>
+              <button class="btn btn-danger" onclick="deletePlayer(${p.index})">🗑️ Löschen</button>
+            </div>
+          </div>`;
+        });
+        html += '</div></div>';
+      });
+      container.innerHTML = html;
+    }
+
+    function resetAllData() {
+      const confirm1 = confirm('⚠️ ACHTUNG: Alle Spieler, Aufstellungen und Daten werden UNWIDERRUFLICH gelöscht!\n\nFortfahren?');
+      if (!confirm1) return;
+
+      const confirm2 = confirm('🔴 LETZTE WARNUNG: Diese Aktion kann NICHT rückgängig gemacht werden!\n\nWirklich alle Daten löschen?');
+      if (!confirm2) return;
+
+      localStorage.removeItem('players');
+      localStorage.removeItem('savedSquads');
+      players = [];
+      savedSquads = [];
+      squadPlayers = Array(11).fill(null);
+      benchPlayers = Array(7).fill(null);
+      currentFormation = null;
+      editingIndex = null;
+      
+      clearForm();
+      renderPlayers();
+      renderFormations();
+      renderSavedSquads();
+      renderHof();
+      
+      alert('✅ Alle Daten wurden gelöscht!');
+    }
+
+    // Initial render
+    renderPlayers();
+    renderAltPositionsCheckboxes();
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 </body>
 </html>
