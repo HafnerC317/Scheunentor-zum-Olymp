@@ -1,1220 +1,688 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scheunentor zum Olymp - Football Ratings</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
-            color: #e8e8e8;
-            min-height: 100vh;
-            padding: 15px;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 30px 20px;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(0, 59, 122, 0.05) 100%);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        h1 {
-            font-size: 2.2rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            padding: 12px 30px;
-            background: rgba(20, 20, 20, 0.6);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            border-radius: 12px;
-            color: #D4AF37;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .tab:hover {
-            background: rgba(212, 175, 55, 0.1);
-            border-color: #D4AF37;
-            transform: translateY(-2px);
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            color: #0a0a0a;
-            border-color: #D4AF37;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .add-player {
-            background: rgba(20, 20, 20, 0.8);
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .add-player h2 {
-            color: #D4AF37;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #D4AF37;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            background: rgba(10, 10, 10, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 8px;
-            color: #e8e8e8;
-            font-size: 1rem;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #D4AF37;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            color: #0a0a0a;
-            padding: 12px 35px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
-        }
-
-        .filter-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .filter-btn {
-            padding: 10px 20px;
-            background: rgba(20, 20, 20, 0.6);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            border-radius: 10px;
-            color: #D4AF37;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .filter-btn:hover {
-            background: rgba(212, 175, 55, 0.1);
-            border-color: #D4AF37;
-        }
-
-        .filter-btn.active {
-            background: #D4AF37;
-            color: #0a0a0a;
-        }
-
-        .tier {
-            margin-bottom: 25px;
-            background: rgba(20, 20, 20, 0.6);
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid;
-        }
-
-        .tier.elite { border-color: #8B5CF6; }
-        .tier.gold { border-color: #D4AF37; }
-        .tier.silver { border-color: #C0C0C0; }
-        .tier.bronze { border-color: #CD7F32; }
-        .tier.cl { border-color: #003B7A; }
-
-        .tier-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .tier-title {
-            font-size: 1.5rem;
-            font-weight: 800;
-        }
-
-        .tier.elite .tier-title { color: #8B5CF6; }
-        .tier.gold .tier-title { color: #D4AF37; }
-        .tier.silver .tier-title { color: #C0C0C0; }
-        .tier.bronze .tier-title { color: #CD7F32; }
-        .tier.cl .tier-title { color: #003B7A; }
-
-        .tier-range {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .players-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 15px;
-        }
-
-        .player-card {
-            background: rgba(10, 10, 10, 0.8);
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .player-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
-        }
-
-        .player-image {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .player-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #D4AF37;
-            margin-bottom: 8px;
-        }
-
-        .player-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .player-rating {
-            font-size: 1.8rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .player-position {
-            background: rgba(212, 175, 55, 0.2);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            color: #D4AF37;
-            font-size: 0.85rem;
-        }
-
-        .btn-delete {
-            width: 100%;
-            padding: 8px;
-            background: rgba(220, 38, 38, 0.2);
-            border: 1px solid rgba(220, 38, 38, 0.5);
-            border-radius: 8px;
-            color: #ef4444;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .btn-delete:hover {
-            background: rgba(220, 38, 38, 0.3);
-        }
-
-        /* HISTORIE */
-        .history-section {
-            margin-top: 50px;
-            padding-top: 30px;
-            border-top: 2px solid rgba(212, 175, 55, 0.3);
-        }
-
-        .history-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: 900;
-            color: #D4AF37;
-            margin-bottom: 30px;
-        }
-
-        .history-list {
-            background: rgba(20, 20, 20, 0.6);
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .history-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: rgba(10, 10, 10, 0.8);
-            border-radius: 10px;
-            margin-bottom: 12px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .history-item:hover {
-            transform: translateX(5px);
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .history-rank {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: #D4AF37;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        .history-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .history-info {
-            flex: 1;
-        }
-
-        .history-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #D4AF37;
-            margin-bottom: 4px;
-        }
-
-        .history-details {
-            font-size: 0.9rem;
-            color: #888;
-        }
-
-        .history-rating {
-            font-size: 1.8rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            min-width: 60px;
-            text-align: center;
-        }
-
-        /* TRAUMAUFSTELLUNG */
-        .formation-selector {
-            margin-bottom: 25px;
-            background: rgba(20, 20, 20, 0.8);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-        }
-
-        .formation-selector label {
-            color: #D4AF37;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-right: 15px;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .formation-selector select {
-            width: 100%;
-            padding: 12px;
-            background: rgba(10, 10, 10, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 8px;
-            color: #e8e8e8;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .pitch {
-            background: linear-gradient(180deg, #1a4d2e 0%, #0f2919 100%);
-            border-radius: 15px;
-            padding: 30px 15px;
-            position: relative;
-            min-height: 600px;
-            border: 3px solid rgba(212, 175, 55, 0.3);
-            margin-bottom: 20px;
-        }
-
-        .pitch::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .pitch-line {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-        }
-
-        .formation-line {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin: 20px 0;
-            position: relative;
-            z-index: 1;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .player-slot {
-            background: rgba(10, 10, 10, 0.9);
-            border: 2px solid #D4AF37;
-            border-radius: 12px;
-            padding: 12px;
-            min-width: 110px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .player-slot:hover {
-            background: rgba(212, 175, 55, 0.1);
-            transform: scale(1.05);
-        }
-
-        .player-slot.filled {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(10, 10, 10, 0.9) 100%);
-        }
-
-        .slot-image {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .slot-rating {
-            font-size: 1.2rem;
-            font-weight: 900;
-            color: #D4AF37;
-            margin-top: 5px;
-        }
-
-        .slot-position {
-            font-size: 0.85rem;
-            color: #D4AF37;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .slot-name {
-            font-size: 0.75rem;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        /* ERSATZBANK */
-        .bench-container {
-            background: rgba(20, 20, 20, 0.9);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.4s ease;
-        }
-
-        .bench-toggle {
-            width: 100%;
-            padding: 15px;
-            background: rgba(212, 175, 55, 0.1);
-            border: none;
-            color: #D4AF37;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .bench-toggle:hover {
-            background: rgba(212, 175, 55, 0.2);
-        }
-
-        .bench-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease;
-        }
-
-        .bench-content.open {
-            max-height: 400px;
-            padding: 20px;
-        }
-
-        .bench-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 12px;
-        }
-
-        .bench-slot {
-            background: rgba(10, 10, 10, 0.8);
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .bench-slot:hover {
-            background: rgba(212, 175, 55, 0.1);
-            border-color: #D4AF37;
-        }
-
-        .bench-slot.filled {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(10, 10, 10, 0.8) 100%);
-        }
-
-        .bench-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            background: rgba(212, 175, 55, 0.1);
-        }
-
-        .bench-rating {
-            font-size: 1rem;
-            font-weight: 900;
-            color: #D4AF37;
-        }
-
-        .bench-name {
-            font-size: 0.7rem;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #1a1410 0%, #0a0a0a 100%);
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 500px;
-            width: 100%;
-            border: 2px solid #D4AF37;
-        }
-
-        .modal-content h3 {
-            color: #D4AF37;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-        }
-
-        .modal-content select {
-            width: 100%;
-            padding: 12px;
-            background: rgba(10, 10, 10, 0.8);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 8px;
-            color: #e8e8e8;
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-        }
-
-        .btn-cancel {
-            flex: 1;
-            padding: 12px;
-            background: rgba(220, 38, 38, 0.2);
-            border: 1px solid rgba(220, 38, 38, 0.5);
-            border-radius: 8px;
-            color: #ef4444;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .btn-confirm {
-            flex: 1;
-            padding: 12px;
-            background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-            color: #0a0a0a;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .logo {
-                width: 80px;
-                height: 80px;
-            }
-
-            .tab {
-                padding: 10px 20px;
-                font-size: 0.9rem;
-            }
-
-            .players-grid {
-                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            }
-
-            .player-slot {
-                min-width: 90px;
-                padding: 10px;
-            }
-
-            .slot-image {
-                width: 60px;
-                height: 60px;
-            }
-
-            .slot-rating {
-                font-size: 1rem;
-            }
-
-            .history-rank {
-                font-size: 1.2rem;
-                min-width: 35px;
-            }
-
-            .history-image {
-                width: 50px;
-                height: 50px;
-            }
-
-            .history-rating {
-                font-size: 1.5rem;
-            }
-
-            .formation-line {
-                gap: 8px;
-            }
-        }
-
-        @media (min-width: 1200px) {
-            .container {
-                max-width: 1000px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <img src="https://i.imgur.com/vCwczZs.png" alt="Scheunentor zum Olymp Logo" class="logo">
-            <h1>Scheunentor zum Olymp</h1>
-        </header>
-
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('ratings')">📊 RATINGS</div>
-            <div class="tab" onclick="switchTab('squad')">⚡ TRAUMAUFSTELLUNG</div>
-        </div>
-
-        <!-- RATINGS TAB -->
-        <div id="ratings-tab" class="tab-content active">
-            <div class="add-player">
-                <h2>➕ Spieler hinzufügen</h2>
-                <div class="form-group">
-                    <label>Spielername</label>
-                    <input type="text" id="player-name" placeholder="z.B. Cristiano Ronaldo">
-                </div>
-                <div class="form-group">
-                    <label>Bild-URL (optional)</label>
-                    <input type="text" id="player-image" placeholder="https://... (Link zum Spielerbild)">
-                </div>
-                <div class="form-group">
-                    <label>Rating (0-99)</label>
-                    <input type="number" id="player-rating" min="0" max="99" placeholder="z.B. 95">
-                </div>
-                <div class="form-group">
-                    <label>Position</label>
-                    <select id="player-position">
-                        <option value="">Position wählen</option>
-                        <option value="TW">TW - Torwart</option>
-                        <option value="LV">LV - Linksverteidiger</option>
-                        <option value="IV">IV - Innenverteidiger</option>
-                        <option value="RV">RV - Rechtsverteidiger</option>
-                        <option value="ZDM">ZDM - Zentrales defensives Mittelfeld</option>
-                        <option value="ZM">ZM - Zentrales Mittelfeld</option>
-                        <option value="ZOM">ZOM - Zentrales offensives Mittelfeld</option>
-                        <option value="LM">LM - Linkes Mittelfeld</option>
-                        <option value="RM">RM - Rechtes Mittelfeld</option>
-                        <option value="LF">LF - Linksaußen</option>
-                        <option value="RF">RF - Rechtsaußen</option>
-                        <option value="ST">ST - Stürmer</option>
-                    </select>
-                </div>
-                <button class="btn-primary" onclick="addPlayer()">Spieler hinzufügen</button>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('ratings')">⭐ Bewertungen</div>
+        <div class="tab" onclick="switchTab('squad')">🏆 Traumaufstellung</div>
+    </div>
+
+    <!-- Bewertungen Tab -->
+    <div id="ratings" class="tab-content active">
+        <div class="glass-card">
+            <h2 style="margin-bottom: 20px; color: #D4AF37;">➕ Neuen Spieler hinzufügen</h2>
+            
+            <div class="input-group">
+                <label>Spielername</label>
+                <input type="text" id="playerName" placeholder="z.B. Cristiano Ronaldo">
             </div>
 
-            <div class="filter-section">
-                <button class="filter-btn active" onclick="filterPlayers('all')">Alle</button>
-                <button class="filter-btn" onclick="filterPlayers('Torwart')">Torwart</button>
-                <button class="filter-btn" onclick="filterPlayers('Verteidiger')">Verteidiger</button>
-                <button class="filter-btn" onclick="filterPlayers('Mittelfeld')">Mittelfeld</button>
-                <button class="filter-btn" onclick="filterPlayers('Stürmer')">Stürmer</button>
+            <div class="input-group">
+                <label>Bild-URL</label>
+                <input type="url" id="playerImage" placeholder="https://...">
             </div>
 
-            <div id="players-list"></div>
-
-            <!-- HISTORIE -->
-            <div class="history-section">
-                <h2 class="history-title">📜 HALL OF FAME</h2>
-                <div class="history-list" id="history-list"></div>
-            </div>
-        </div>
-
-        <!-- TRAUMAUFSTELLUNG TAB -->
-        <div id="squad-tab" class="tab-content">
-            <div class="formation-selector">
-                <label>Formation:</label>
-                <select id="formation-select" onchange="changeFormation()">
-                    <option value="4-3-3">4-3-3</option>
-                    <option value="4-4-2">4-4-2</option>
-                    <option value="4-2-3-1">4-2-3-1</option>
-                    <option value="4-3-2-1">4-3-2-1</option>
-                    <option value="4-1-4-1">4-1-4-1</option>
-                    <option value="3-5-2">3-5-2</option>
-                    <option value="3-4-3">3-4-3</option>
-                    <option value="5-3-2">5-3-2</option>
-                    <option value="4-3-1-2">4-3-1-2</option>
-                    <option value="4-1-2-1-2">4-1-2-1-2</option>
+            <div class="input-group">
+                <label>Position</label>
+                <select id="playerPosition">
+                    <option value="TW">TW - Torwart</option>
+                    <option value="IV">IV - Innenverteidiger</option>
+                    <option value="LV">LV - Linksverteidiger</option>
+                    <option value="RV">RV - Rechtsverteidiger</option>
+                    <option value="LWB">LWB - Linker Wingback</option>
+                    <option value="RWB">RWB - Rechter Wingback</option>
+                    <option value="ZDM">ZDM - Zentrales defensives Mittelfeld</option>
+                    <option value="ZM">ZM - Zentrales Mittelfeld</option>
+                    <option value="ZOM">ZOM - Zentrales offensives Mittelfeld</option>
+                    <option value="LM">LM - Linkes Mittelfeld</option>
+                    <option value="RM">RM - Rechtes Mittelfeld</option>
+                    <option value="LF">LF - Linksaußen</option>
+                    <option value="RF">RF - Rechtsaußen</option>
+                    <option value="MS">MS - Mittelstürmer</option>
                 </select>
             </div>
 
-            <div class="pitch" id="pitch">
-                <div class="pitch-line"></div>
+            <div class="input-group">
+                <label>Rating (0-99)</label>
+                <input type="number" id="playerRating" min="0" max="99" placeholder="z.B. 95">
             </div>
 
-            <div class="bench-container">
-                <button class="bench-toggle" onclick="toggleBench()">Ersatzbank aufklappen ▲</button>
-                <div class="bench-content" id="bench-content">
-                    <div class="bench-grid" id="bench-grid"></div>
-                </div>
-            </div>
+            <button class="btn" onclick="addPlayer()">✨ Spieler hinzufügen</button>
+        </div>
+
+        <div class="player-grid" id="playerList"></div>
+    </div>
+
+    <!-- Traumaufstellung Tab -->
+    <div id="squad" class="tab-content">
+        <div class="glass-card formation-selector">
+            <h2 style="margin-bottom: 20px; color: #D4AF37;">⚙️ Formation wählen</h2>
+            <select id="formationSelect" onchange="changeFormation()" style="margin-bottom: 15px;">
+                <optgroup label="Defensiv">
+                    <option value="5-4-1">5-4-1</option>
+                    <option value="5-3-2">5-3-2</option>
+                    <option value="5-2-1-2">5-2-1-2</option>
+                </optgroup>
+                <optgroup label="Ausgewogen">
+                    <option value="4-4-2" selected>4-4-2</option>
+                    <option value="4-3-3">4-3-3</option>
+                    <option value="4-3-3 (2)">4-3-3 (Defensive)</option>
+                    <option value="4-3-3 (3)">4-3-3 (Angriff)</option>
+                    <option value="4-3-3 (4)">4-3-3 (Falsche 9)</option>
+                    <option value="4-2-3-1">4-2-3-1</option>
+                    <option value="4-2-3-1 (2)">4-2-3-1 (Breit)</option>
+                    <option value="4-5-1">4-5-1</option>
+                    <option value="4-4-1-1">4-4-1-1</option>
+                    <option value="4-1-4-1">4-1-4-1</option>
+                    <option value="4-3-1-2">4-3-1-2</option>
+                    <option value="4-1-2-1-2">4-1-2-1-2</option>
+                    <option value="4-1-2-1-2 (2)">4-1-2-1-2 (Schmal)</option>
+                </optgroup>
+                <optgroup label="Offensiv">
+                    <option value="3-5-2">3-5-2</option>
+                    <option value="3-4-3">3-4-3</option>
+                    <option value="3-4-2-1">3-4-2-1</option>
+                    <option value="3-1-4-2">3-1-4-2</option>
+                    <option value="3-4-1-2">3-4-1-2</option>
+                </optgroup>
+            </select>
+            <button class="btn btn-secondary" onclick="clearSquad()">🔄 Aufstellung zurücksetzen</button>
+        </div>
+
+        <div class="pitch" id="pitch">
+            <div class="pitch-line"></div>
+        </div>
+
+        <div class="bench-container">
+            <button class="bench-toggle" onclick="toggleBench()">
+                <span id="benchToggleText">⬆️ Ersatzbank aufklappen</span>
+            </button>
+            <div class="bench-slots" id="benchSlots"></div>
         </div>
     </div>
 
-    <!-- MODAL -->
-    <div class="modal" id="player-modal">
-        <div class="modal-content">
-            <h3>Spieler auswählen</h3>
-            <select id="modal-player-select"></select>
-            <div class="modal-buttons">
-                <button class="btn-cancel" onclick="closeModal()">Abbrechen</button>
-                <button class="btn-confirm" onclick="confirmPlayer()">Bestätigen</button>
-            </div>
+    <!-- Hall of Fame -->
+    <div class="hall-of-fame">
+        <h2 class="hall-title">🏛️ Die Götter des Fußballs 🏛️</h2>
+        
+        <div class="hall-filters">
+            <button class="hall-filter-btn active" onclick="filterHall('all')">Alle</button>
+            <button class="hall-filter-btn" onclick="filterHall('goalkeeper')">Torwart</button>
+            <button class="hall-filter-btn" onclick="filterHall('defender')">Verteidiger</button>
+            <button class="hall-filter-btn" onclick="filterHall('midfielder')">Mittelfeld</button>
+            <button class="hall-filter-btn" onclick="filterHall('forward')">Stürmer</button>
         </div>
+
+        <div id="hallOfFame"></div>
     </div>
+</div>
 
-    <script>
-        let players = JSON.parse(localStorage.getItem('players')) || [];
-        let currentFilter = 'all';
-        let currentFormation = '4-3-3';
-        let squadPlayers = JSON.parse(localStorage.getItem('squadPlayers')) || {};
-        let benchPlayers = JSON.parse(localStorage.getItem('benchPlayers')) || {};
-        let currentSlot = null;
-        let isBench = false;
+<!-- Squad Player Selection Modal -->
+<div id="squadModal" class="squad-modal">
+    <div class="squad-modal-content">
+        <h3>Spieler für Position <span id="modalPosition"></span> auswählen</h3>
+        <div class="squad-player-list" id="squadPlayerList"></div>
+        <button class="close-modal" onclick="closeSquadModal()">Schließen</button>
+    </div>
+</div>
 
-        const formations = {
-            '4-3-3': {
-                lines: [
-                    [{pos: 'ST', label: 'ST'}],
-                    [{pos: 'LF', label: 'LF'}, {pos: 'RF', label: 'RF'}],
-                    [{pos: 'ZM', label: 'LZM'}, {pos: 'ZM', label: 'ZM'}, {pos: 'ZM', label: 'RZM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '4-4-2': {
-                lines: [
-                    [{pos: 'ST', label: 'LST'}, {pos: 'ST', label: 'RST'}],
-                    [{pos: 'LM', label: 'LM'}, {pos: 'ZM', label: 'LZM'}, {pos: 'ZM', label: 'RZM'}, {pos: 'RM', label: 'RM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '4-2-3-1': {
-                lines: [
-                    [{pos: 'ST', label: 'ST'}],
-                    [{pos: 'LF', label: 'LF'}, {pos: 'ZOM', label: 'ZOM'}, {pos: 'RF', label: 'RF'}],
-                    [{pos: 'ZDM', label: 'LZDM'}, {pos: 'ZDM', label: 'RZDM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '4-3-2-1': {
-                lines: [
-                    [{pos: 'ST', label: 'ST'}],
-                    [{pos: 'ZOM', label: 'LZOM'}, {pos: 'ZOM', label: 'RZOM'}],
-                    [{pos: 'LM', label: 'LM'}, {pos: 'ZM', label: 'ZM'}, {pos: 'RM', label: 'RM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '4-1-4-1': {
-                lines: [
-                    [{pos: 'ST', label: 'ST'}],
-                    [{pos: 'LM', label: 'LM'}, {pos: 'ZM', label: 'LZM'}, {pos: 'ZM', label: 'RZM'}, {pos: 'RM', label: 'RM'}],
-                    [{pos: 'ZDM', label: 'ZDM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '3-5-2': {
-                lines: [
-                    [{pos: 'ST', label: 'LST'}, {pos: 'ST', label: 'RST'}],
-                    [{pos: 'LM', label: 'LM'}, {pos: 'ZM', label: 'LZM'}, {pos: 'ZM', label: 'ZM'}, {pos: 'ZM', label: 'RZM'}, {pos: 'RM', label: 'RM'}],
-                    [{pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'ZIV'}, {pos: 'IV', label: 'RIV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '3-4-3': {
-                lines: [
-                    [{pos: 'LF', label: 'LF'}, {pos: 'ST', label: 'ST'}, {pos: 'RF', label: 'RF'}],
-                    [{pos: 'LM', label: 'LM'}, {pos: 'ZM', label: 'LZM'}, {pos: 'ZM', label: 'RZM'}, {pos: 'RM', label: 'RM'}],
-                    [{pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'ZIV'}, {pos: 'IV', label: 'RIV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '5-3-2': {
-                lines: [
-                    [{pos: 'ST', label: 'LST'}, {pos: 'ST', label: 'RST'}],
-                    [{pos: 'LM', label: 'LM'}, {pos: 'ZM', label: 'ZM'}, {pos: 'RM', label: 'RM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'ZIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '4-3-1-2': {
-                lines: [
-                    [{pos: 'ST', label: 'LST'}, {pos: 'ST', label: 'RST'}],
-                    [{pos: 'ZOM', label: 'ZOM'}],
-                    [{pos: 'ZM', label: 'LZM'}, {pos: 'ZM', label: 'ZM'}, {pos: 'ZM', label: 'RZM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            },
-            '4-1-2-1-2': {
-                lines: [
-                    [{pos: 'ST', label: 'LST'}, {pos: 'ST', label: 'RST'}],
-                    [{pos: 'ZOM', label: 'ZOM'}],
-                    [{pos: 'ZM', label: 'LZM'}, {pos: 'ZM', label: 'RZM'}],
-                    [{pos: 'ZDM', label: 'ZDM'}],
-                    [{pos: 'LV', label: 'LV'}, {pos: 'IV', label: 'LIV'}, {pos: 'IV', label: 'RIV'}, {pos: 'RV', label: 'RV'}],
-                    [{pos: 'TW', label: 'TW'}]
-                ]
-            }
-        };
+<script>
+    let players = JSON.parse(localStorage.getItem('players')) || [];
+    let currentSquad = JSON.parse(localStorage.getItem('currentSquad')) || {};
+    let currentBench = JSON.parse(localStorage.getItem('currentBench')) || {};
+    let currentFormation = localStorage.getItem('currentFormation') || '4-4-2';
+    let selectedPosition = null;
+    let currentHallFilter = 'all';
 
-        const positionCategories = {
-            'Torwart': ['TW'],
-            'Verteidiger': ['LV', 'IV', 'RV'],
-            'Mittelfeld': ['ZDM', 'ZM', 'ZOM', 'LM', 'RM'],
-            'Stürmer': ['LF', 'RF', 'ST']
-        };
+    const formations = {
+        '5-4-1': [
+            ['MS'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['LWB', 'IV', 'IV', 'IV', 'RWB'],
+            ['TW']
+        ],
+        '5-3-2': [
+            ['MS', 'MS'],
+            ['LM', 'ZM', 'RM'],
+            ['LWB', 'IV', 'IV', 'IV', 'RWB'],
+            ['TW']
+        ],
+        '5-2-1-2': [
+            ['MS', 'MS'],
+            ['ZOM'],
+            ['ZM', 'ZM'],
+            ['LWB', 'IV', 'IV', 'IV', 'RWB'],
+            ['TW']
+        ],
+        '4-4-2': [
+            ['MS', 'MS'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-3-3': [
+            ['MS'],
+            ['LF', 'ZOM', 'RF'],
+            ['ZM', 'ZM', 'ZM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-3-3 (2)': [
+            ['MS'],
+            ['LF', 'ZOM', 'RF'],
+            ['ZDM', 'ZM', 'ZDM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-3-3 (3)': [
+            ['MS'],
+            ['LF', 'ZOM', 'RF'],
+            ['ZM', 'ZDM', 'ZM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-3-3 (4)': [
+            ['LF', 'MS', 'RF'],
+            ['ZM', 'ZM', 'ZM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-2-3-1': [
+            ['MS'],
+            ['LF', 'ZOM', 'RF'],
+            ['ZDM', 'ZDM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-2-3-1 (2)': [
+            ['MS'],
+            ['LM', 'ZOM', 'RM'],
+            ['ZDM', 'ZDM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-5-1': [
+            ['MS'],
+            ['LM', 'ZM', 'ZM', 'ZM', 'RM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-4-1-1': [
+            ['MS'],
+            ['ZOM'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-1-4-1': [
+            ['MS'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['ZDM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-3-1-2': [
+            ['MS', 'MS'],
+            ['ZOM'],
+            ['ZM', 'ZM', 'ZM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-1-2-1-2': [
+            ['MS', 'MS'],
+            ['ZOM'],
+            ['ZM', 'ZM'],
+            ['ZDM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '4-1-2-1-2 (2)': [
+            ['MS', 'MS'],
+            ['ZOM'],
+            ['LM', 'RM'],
+            ['ZDM'],
+            ['LV', 'IV', 'IV', 'RV'],
+            ['TW']
+        ],
+        '3-5-2': [
+            ['MS', 'MS'],
+            ['LM', 'ZM', 'ZM', 'ZM', 'RM'],
+            ['IV', 'IV', 'IV'],
+            ['TW']
+        ],
+        '3-4-3': [
+            ['LF', 'MS', 'RF'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['IV', 'IV', 'IV'],
+            ['TW']
+        ],
+        '3-4-2-1': [
+            ['MS'],
+            ['ZOM', 'ZOM'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['IV', 'IV', 'IV'],
+            ['TW']
+        ],
+        '3-1-4-2': [
+            ['MS', 'MS'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['ZDM'],
+            ['IV', 'IV', 'IV'],
+            ['TW']
+        ],
+        '3-4-1-2': [
+            ['MS', 'MS'],
+            ['ZOM'],
+            ['LM', 'ZM', 'ZM', 'RM'],
+            ['IV', 'IV', 'IV'],
+            ['TW']
+        ]
+    };
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tab + '-tab').classList.add('active');
+    function getTier(rating) {
+        if (rating >= 95) return { name: 'Elite', class: 'elite', range: '95-99' };
+        if (rating >= 90) return { name: 'Gold', class: 'gold', range: '90-94' };
+        if (rating >= 85) return { name: 'Silber', class: 'silver', range: '85-89' };
+        if (rating >= 80) return { name: 'Bronze', class: 'bronze', range: '80-84' };
+        return { name: 'Champions League', class: 'champions', range: '0-79' };
+    }
+
+    function getPositionCategory(position) {
+        if (position === 'TW') return 'goalkeeper';
+        if (['IV', 'LV', 'RV', 'LWB', 'RWB'].includes(position)) return 'defender';
+        if (['ZDM', 'ZM', 'ZOM', 'LM', 'RM'].includes(position)) return 'midfielder';
+        if (['LF', 'RF', 'MS'].includes(position)) return 'forward';
+        return 'other';
+    }
+
+    function addPlayer() {
+        const name = document.getElementById('playerName').value.trim();
+        const image = document.getElementById('playerImage').value.trim();
+        const position = document.getElementById('playerPosition').value;
+        const rating = parseInt(document.getElementById('playerRating').value);
+
+        if (!name || !position || isNaN(rating) || rating < 0 || rating > 99) {
+            alert('Bitte fülle alle Felder korrekt aus!');
+            return;
         }
 
-        function addPlayer() {
-            const name = document.getElementById('player-name').value.trim();
-            const image = document.getElementById('player-image').value.trim();
-            const rating = parseInt(document.getElementById('player-rating').value);
-            const position = document.getElementById('player-position').value;
+        const player = {
+            id: Date.now(),
+            name,
+            image: image || 'https://via.placeholder.com/200x200?text=Kein+Bild',
+            position,
+            rating,
+            tier: getTier(rating)
+        };
 
-            if (!name || !rating || !position) {
-                alert('Bitte alle Pflichtfelder ausfüllen!');
-                return;
+        players.push(player);
+        localStorage.setItem('players', JSON.stringify(players));
+
+        document.getElementById('playerName').value = '';
+        document.getElementById('playerImage').value = '';
+        document.getElementById('playerRating').value = '';
+
+        renderPlayers();
+        renderHallOfFame();
+    }
+
+    function deletePlayer(id) {
+        if (confirm('Spieler wirklich löschen?')) {
+            players = players.filter(p => p.id !== id);
+            
+            // Remove from squad and bench
+            for (let key in currentSquad) {
+                if (currentSquad[key] === id) delete currentSquad[key];
             }
-
-            if (rating < 0 || rating > 99) {
-                alert('Rating muss zwischen 0 und 99 liegen!');
-                return;
+            for (let key in currentBench) {
+                if (currentBench[key] === id) delete currentBench[key];
             }
-
-            players.push({
-                id: Date.now(),
-                name,
-                image: image || 'https://via.placeholder.com/200x200/1a1410/D4AF37?text=Player',
-                rating,
-                position
-            });
 
             localStorage.setItem('players', JSON.stringify(players));
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            localStorage.setItem('currentBench', JSON.stringify(currentBench));
 
-            document.getElementById('player-name').value = '';
-            document.getElementById('player-image').value = '';
-            document.getElementById('player-rating').value = '';
-            document.getElementById('player-position').value = '';
+            renderPlayers();
+            renderFormation();
+            renderBench();
+            renderHallOfFame();
+        }
+    }
 
-            displayPlayers();
-            displayHistory();
+    function renderPlayers() {
+        const container = document.getElementById('playerList');
+        container.innerHTML = '';
+
+        if (players.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Spieler hinzugefügt. Füge deinen ersten Spieler hinzu! ⚽</p>';
+            return;
         }
 
-        function deletePlayer(id) {
-            if (confirm('Spieler wirklich löschen?')) {
-                players = players.filter(p => p.id !== id);
-                localStorage.setItem('players', JSON.stringify(players));
-                displayPlayers();
-                displayHistory();
-            }
-        }
-
-        function getTier(rating) {
-            if (rating >= 95) return { name: 'Elite', class: 'elite', range: '95-99' };
-            if (rating >= 90) return { name: 'Gold', class: 'gold', range: '90-94' };
-            if (rating >= 85) return { name: 'Silber', class: 'silver', range: '85-89' };
-            if (rating >= 80) return { name: 'Bronze', class: 'bronze', range: '80-84' };
-            return { name: 'Champions League', class: 'cl', range: '0-79' };
-        }
-
-        function filterPlayers(category) {
-            currentFilter = category;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            displayPlayers();
-        }
-
-        function displayPlayers() {
-            let filteredPlayers = players;
-
-            if (currentFilter !== 'all') {
-                const positions = positionCategories[currentFilter];
-                filteredPlayers = players.filter(p => positions.includes(p.position));
-            }
-
-            const tiers = {
-                elite: [],
-                gold: [],
-                silver: [],
-                bronze: [],
-                cl: []
-            };
-
-            filteredPlayers.forEach(player => {
-                const tier = getTier(player.rating);
-                tiers[tier.class].push(player);
-            });
-
-            Object.keys(tiers).forEach(tierClass => {
-                tiers[tierClass].sort((a, b) => b.rating - a.rating);
-            });
-
-            const container = document.getElementById('players-list');
-            container.innerHTML = '';
-
-            const tierOrder = ['elite', 'gold', 'silver', 'bronze', 'cl'];
-            tierOrder.forEach(tierClass => {
-                if (tiers[tierClass].length > 0) {
-                    const tier = getTier(tiers[tierClass][0].rating);
-                    const tierDiv = document.createElement('div');
-                    tierDiv.className = `tier ${tierClass}`;
-                    tierDiv.innerHTML = `
-                        <div class="tier-header">
-                            <div class="tier-title">${tier.name}</div>
-                            <div class="tier-range">${tier.range}</div>
-                        </div>
-                        <div class="players-grid">
-                            ${tiers[tierClass].map(player => `
-                                <div class="player-card">
-                                    <img src="${player.image}" alt="${player.name}" class="player-image" onerror="this.src='https://via.placeholder.com/200x200/1a1410/D4AF37?text=Player'">
-                                    <div class="player-name">${player.name}</div>
-                                    <div class="player-info">
-                                        <div class="player-rating">${player.rating}</div>
-                                        <div class="player-position">${player.position}</div>
-                                    </div>
-                                    <button class="btn-delete" onclick="deletePlayer(${player.id})">Löschen</button>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                    container.appendChild(tierDiv);
-                }
-            });
-        }
-
-        function displayHistory() {
-            const historyContainer = document.getElementById('history-list');
-            const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
-
-            if (sortedPlayers.length === 0) {
-                historyContainer.innerHTML = '<p style="text-align:center; color:#888; padding:20px;">Noch keine Spieler vorhanden</p>';
-                return;
-            }
-
-            historyContainer.innerHTML = sortedPlayers.map((player, index) => `
-                <div class="history-item">
-                    <div class="history-rank">#${index + 1}</div>
-                    <img src="${player.image}" alt="${player.name}" class="history-image" onerror="this.src='https://via.placeholder.com/60x60/1a1410/D4AF37?text=?'">
-                    <div class="history-info">
-                        <div class="history-name">${player.name}</div>
-                        <div class="history-details">${player.position} • ${getTier(player.rating).name}</div>
-                    </div>
-                    <div class="history-rating">${player.rating}</div>
+        players.forEach(player => {
+            const card = document.createElement('div');
+            card.className = `player-card ${player.tier.class}`;
+            card.innerHTML = `
+                <div class="tier-badge ${player.tier.class}">${player.tier.name}</div>
+                <img src="${player.image}" alt="${player.name}" class="player-image" onerror="this.src='https://via.placeholder.com/200x200?text=Kein+Bild'">
+                <div class="player-name">${player.name}</div>
+                <div class="player-info">
+                    <span class="player-position">${player.position}</span>
+                    <span class="player-rating">${player.rating}</span>
                 </div>
-            `).join('');
-        }
+                <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
+            `;
+            container.appendChild(card);
+        });
+    }
 
-        function changeFormation() {
-            currentFormation = document.getElementById('formation-select').value;
-            renderPitch();
-        }
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-        function renderPitch() {
-            const pitch = document.getElementById('pitch');
-            const formation = formations[currentFormation];
-            
-            pitch.innerHTML = '<div class="pitch-line"></div>';
+        event.target.classList.add('active');
+        document.getElementById(tab).classList.add('active');
 
-            formation.lines.forEach((line, lineIndex) => {
-                const lineDiv = document.createElement('div');
-                lineDiv.className = 'formation-line';
-
-                line.forEach((slot, slotIndex) => {
-                    const slotId = `${lineIndex}-${slotIndex}`;
-                    const player = squadPlayers[slotId];
-
-                    const slotDiv = document.createElement('div');
-                    slotDiv.className = `player-slot ${player ? 'filled' : ''}`;
-                    slotDiv.onclick = () => openPlayerModal(slotId, slot.pos, false);
-
-                    if (player) {
-                        slotDiv.innerHTML = `
-                            <div class="slot-position">${slot.label}</div>
-                            <img src="${player.image}" class="slot-image" onerror="this.src='https://via.placeholder.com/70x70/1a1410/D4AF37?text=?'">
-                            <div class="slot-rating">${player.rating}</div>
-                            <div class="slot-name">${player.name}</div>
-                        `;
-                    } else {
-                        slotDiv.innerHTML = `
-                            <div class="slot-position">${slot.label}</div>
-                            <div style="color: #666; font-size: 0.85rem; margin-top: 10px;">Leer</div>
-                        `;
-                    }
-
-                    lineDiv.appendChild(slotDiv);
-                });
-
-                pitch.appendChild(lineDiv);
-            });
-
+        if (tab === 'squad') {
+            renderFormation();
             renderBench();
         }
+    }
 
-        function renderBench() {
-            const benchGrid = document.getElementById('bench-grid');
-            benchGrid.innerHTML = '';
+    function changeFormation() {
+        currentFormation = document.getElementById('formationSelect').value;
+        localStorage.setItem('currentFormation', currentFormation);
+        renderFormation();
+    }
 
-            for (let i = 0; i < 7; i++) {
-                const player = benchPlayers[i];
-                const slotDiv = document.createElement('div');
-                slotDiv.className = `bench-slot ${player ? 'filled' : ''}`;
-                slotDiv.onclick = () => openPlayerModal(i, null, true);
+    function renderFormation() {
+        const pitch = document.getElementById('pitch');
+        const formation = formations[currentFormation];
+        
+        pitch.innerHTML = '<div class="pitch-line"></div>';
+
+        formation.forEach((row, rowIndex) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'formation-row';
+            
+            row.forEach((position, posIndex) => {
+                const slotId = `${rowIndex}-${posIndex}`;
+                const playerId = currentSquad[slotId];
+                const player = players.find(p => p.id === playerId);
+
+                const slot = document.createElement('div');
+                slot.className = `player-slot ${player ? 'filled' : ''}`;
+                slot.onclick = () => openSquadModal(slotId, position);
 
                 if (player) {
-                    slotDiv.innerHTML = `
-                        <img src="${player.image}" class="bench-image" onerror="this.src='https://via.placeholder.com/60x60/1a1410/D4AF37?text=?'">
-                        <div class="bench-rating">${player.rating}</div>
-                        <div class="bench-name">${player.name}</div>
+                    slot.innerHTML = `
+                        <div class="player-slot-circle">
+                            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/60x60?text=${position}'">
+                        </div>
+                        <div class="player-slot-name">${player.name}</div>
+                        <div class="player-slot-rating">${player.rating}</div>
                     `;
                 } else {
-                    slotDiv.innerHTML = `
-                        <div style="color: #666; font-size: 0.75rem; margin-top: 20px;">Leer</div>
+                    slot.innerHTML = `
+                        <div class="player-slot-circle">${position}</div>
+                        <div class="player-slot-name">Leer</div>
                     `;
                 }
 
-                benchGrid.appendChild(slotDiv);
-            }
-        }
-
-        function toggleBench() {
-            const content = document.getElementById('bench-content');
-            const button = event.target;
-            
-            if (content.classList.contains('open')) {
-                content.classList.remove('open');
-                button.textContent = 'Ersatzbank aufklappen ▲';
-            } else {
-                content.classList.add('open');
-                button.textContent = 'Ersatzbank einklappen ▼';
-            }
-        }
-
-        function openPlayerModal(slotId, requiredPos, bench) {
-            currentSlot = slotId;
-            isBench = bench;
-            
-            const modal = document.getElementById('player-modal');
-            const select = document.getElementById('modal-player-select');
-            
-            let availablePlayers = players;
-            
-            if (!bench && requiredPos) {
-                availablePlayers = players.filter(p => p.position === requiredPos);
-            }
-            
-            availablePlayers.sort((a, b) => b.rating - a.rating);
-            
-            select.innerHTML = '<option value="">-- Spieler wählen --</option>';
-            availablePlayers.forEach(player => {
-                select.innerHTML += `<option value="${player.id}">${player.name} (${player.rating}) - ${player.position}</option>`;
+                rowDiv.appendChild(slot);
             });
-            
-            modal.classList.add('active');
-        }
 
-        function closeModal() {
-            document.getElementById('player-modal').classList.remove('active');
-            currentSlot = null;
-            isBench = false;
-        }
+            pitch.appendChild(rowDiv);
+        });
+    }
 
-        function confirmPlayer() {
-            const playerId = parseInt(document.getElementById('modal-player-select').value);
-            
-            if (!playerId) {
-                alert('Bitte einen Spieler auswählen!');
-                return;
-            }
-            
+    function renderBench() {
+        const benchSlots = document.getElementById('benchSlots');
+        benchSlots.innerHTML = '';
+
+        for (let i = 0; i < 7; i++) {
+            const playerId = currentBench[`bench-${i}`];
             const player = players.find(p => p.id === playerId);
-            
-            if (isBench) {
-                benchPlayers[currentSlot] = player;
-                localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
+
+            const slot = document.createElement('div');
+            slot.className = `player-slot ${player ? 'filled' : ''}`;
+            slot.onclick = () => openBenchModal(i);
+
+            if (player) {
+                slot.innerHTML = `
+                    <div class="player-slot-circle">
+                        <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/60x60?text=SUB'">
+                    </div>
+                    <div class="player-slot-name">${player.name}</div>
+                    <div class="player-slot-rating">${player.rating}</div>
+                `;
             } else {
-                squadPlayers[currentSlot] = player;
-                localStorage.setItem('squadPlayers', JSON.stringify(squadPlayers));
+                slot.innerHTML = `
+                    <div class="player-slot-circle">SUB</div>
+                    <div class="player-slot-name">Leer</div>
+                `;
             }
-            
-            closeModal();
-            renderPitch();
+
+            benchSlots.appendChild(slot);
+        }
+    }
+
+    function toggleBench() {
+        const benchSlots = document.getElementById('benchSlots');
+        const toggleText = document.getElementById('benchToggleText');
+        
+        benchSlots.classList.toggle('active');
+        
+        if (benchSlots.classList.contains('active')) {
+            toggleText.textContent = '⬇️ Ersatzbank zuklappen';
+        } else {
+            toggleText.textContent = '⬆️ Ersatzbank aufklappen';
+        }
+    }
+
+    function openSquadModal(slotId, position) {
+        selectedPosition = slotId;
+        document.getElementById('modalPosition').textContent = position;
+        
+        const modal = document.getElementById('squadModal');
+        const playerList = document.getElementById('squadPlayerList');
+        
+        playerList.innerHTML = '';
+
+        // Add "Remove Player" option
+        const removeOption = document.createElement('div');
+        removeOption.className = 'squad-player-item';
+        removeOption.innerHTML = '<strong style="color: #ff6b6b;">❌ Spieler entfernen</strong>';
+        removeOption.onclick = () => {
+            delete currentSquad[slotId];
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            renderFormation();
+            closeSquadModal();
+        };
+        playerList.appendChild(removeOption);
+
+        // Filter available players
+        const usedPlayerIds = Object.values(currentSquad);
+        const availablePlayers = players.filter(p => !usedPlayerIds.includes(p.id));
+
+        availablePlayers.forEach(player => {
+            const item = document.createElement('div');
+            item.className = 'squad-player-item';
+            item.innerHTML = `
+                <img src="${player.image}" alt="${player.name}" class="squad-player-img" onerror="this.src='https://via.placeholder.com/50x50?text=${player.position}'">
+                <div>
+                    <strong>${player.name}</strong> (${player.position}) - ${player.rating}
+                </div>
+            `;
+            item.onclick = () => {
+                currentSquad[slotId] = player.id;
+                localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+                renderFormation();
+                closeSquadModal();
+            };
+            playerList.appendChild(item);
+        });
+
+        modal.style.display = 'block';
+    }
+
+    function openBenchModal(benchIndex) {
+        const slotId = `bench-${benchIndex}`;
+        selectedPosition = slotId;
+        
+        const modal = document.getElementById('squadModal');
+        const playerList = document.getElementById('squadPlayerList');
+        
+        document.getElementById('modalPosition').textContent = `Ersatzbank Platz ${benchIndex + 1}`;
+        playerList.innerHTML = '';
+
+        // Add "Remove Player" option
+        const removeOption = document.createElement('div');
+        removeOption.className = 'squad-player-item';
+        removeOption.innerHTML = '<strong style="color: #ff6b6b;">❌ Spieler entfernen</strong>';
+        removeOption.onclick = () => {
+            delete currentBench[slotId];
+            localStorage.setItem('currentBench', JSON.stringify(currentBench));
+            renderBench();
+            closeSquadModal();
+        };
+        playerList.appendChild(removeOption);
+
+        // Filter available players
+        const usedPlayerIds = [...Object.values(currentSquad), ...Object.values(currentBench)];
+        const availablePlayers = players.filter(p => !usedPlayerIds.includes(p.id));
+
+        availablePlayers.forEach(player => {
+            const item = document.createElement('div');
+            item.className = 'squad-player-item';
+            item.innerHTML = `
+                <img src="${player.image}" alt="${player.name}" class="squad-player-img" onerror="this.src='https://via.placeholder.com/50x50?text=${player.position}'">
+                <div>
+                    <strong>${player.name}</strong> (${player.position}) - ${player.rating}
+                </div>
+            `;
+            item.onclick = () => {
+                currentBench[slotId] = player.id;
+                localStorage.setItem('currentBench', JSON.stringify(currentBench));
+                renderBench();
+                closeSquadModal();
+            };
+            playerList.appendChild(item);
+        });
+
+        modal.style.display = 'block';
+    }
+
+    function closeSquadModal() {
+        document.getElementById('squadModal').style.display = 'none';
+    }
+
+    function clearSquad() {
+        if (confirm('Aufstellung wirklich zurücksetzen?')) {
+            currentSquad = {};
+            currentBench = {};
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            localStorage.setItem('currentBench', JSON.stringify(currentBench));
+            renderFormation();
+            renderBench();
+        }
+    }
+
+    function filterHall(category) {
+        currentHallFilter = category;
+        
+        document.querySelectorAll('.hall-filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        renderHallOfFame();
+    }
+
+    function renderHallOfFame() {
+        const container = document.getElementById('hallOfFame');
+        container.innerHTML = '';
+
+        if (players.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Legenden vorhanden...</p>';
+            return;
         }
 
-        // INIT
-        displayPlayers();
-        displayHistory();
-        renderPitch();
-    </script>
-</body>
-</html>
+        // Filter players by category
+        let filteredPlayers = players;
+        if (currentHallFilter !== 'all') {
+            filteredPlayers = players.filter(p => getPositionCategory(p.position) === currentHallFilter);
+        }
+
+        // Group by tier
+        const tiers = ['elite', 'gold', 'silver', 'bronze', 'champions'];
+        const tierNames = {
+            elite: 'Elite',
+            gold: 'Gold',
+            silver: 'Silber',
+            bronze: 'Bronze',
+            champions: 'Champions League'
+        };
+        const tierRanges = {
+            elite: '95-99',
+            gold: '90-94',
+            silver: '85-89',
+            bronze: '80-84',
+            champions: '0-79'
+        };
+
+        tiers.forEach(tier => {
+            const tierPlayers = filteredPlayers
+                .filter(p => p.tier.class === tier)
+                .sort((a, b) => b.rating - a.rating);
+
+            if (tierPlayers.length > 0) {
+                const section = document.createElement('div');
+                section.className = `hall-tier-section ${tier}`;
+                
+                const title = document.createElement('div');
+                title.className = `hall-tier-title ${tier}`;
+                title.innerHTML = `
+                    <span>${tierNames[tier]}</span>
+                    <span>${tierRanges[tier]} • ${tierPlayers.length} Spieler</span>
+                `;
+                section.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'hall-player-grid';
+
+                tierPlayers.forEach(player => {
+                    const card = document.createElement('div');
+                    card.className = `hall-player-card ${tier}`;
+                    card.innerHTML = `
+                        <img src="${player.image}" alt="${player.name}" class="hall-player-image" onerror="this.src='https://via.placeholder.com/180x120?text=Kein+Bild'">
+                        <div class="hall-player-name">${player.name}</div>
+                        <div class="hall-player-info">
+                            <span class="hall-player-position">${player.position}</span>
+                            <span class="hall-player-rating">${player.rating}</span>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                section.appendChild(grid);
+                container.appendChild(section);
+            }
+        });
+    }
+
+    // Initialize
+    document.getElementById('formationSelect').value = currentFormation;
+    renderPlayers();
+    renderFormation();
+    renderBench();
+    renderHallOfFame();
+
+    // Close modal on outside click
+    window.onclick = function(event) {
+        const modal = document.getElementById('squadModal');
+        if (event.target === modal) {
+            closeSquadModal();
+        }
+    }
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+</script>
