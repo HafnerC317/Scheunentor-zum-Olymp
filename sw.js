@@ -2,8 +2,10 @@ const CACHE_NAME = 'scheunentor-v1';
 const urlsToCache = [
   '/Scheunentor-zum-Olymp/',
   '/Scheunentor-zum-Olymp/index.html',
-  '/Scheunentor-zum-Olymp/style.css',
-  '/Scheunentor-zum-Olymp/app.js'
+  '/Scheunentor-zum-Olymp/styles.css',
+  '/Scheunentor-zum-Olymp/app.js',
+  '/Scheunentor-zum-Olymp/manifest.json',
+  'https://i.imgur.com/vCwczZs.png'
 ];
 
 self.addEventListener('install', event => {
