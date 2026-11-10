@@ -36,13 +36,15 @@
             padding: 20px;
             margin-bottom: 30px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            text-align: center;
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             border: 2px solid #D4AF37;
         }
@@ -870,24 +872,24 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="altPositionsSelect">Alternative Positionen (optional)</label>
-                    <select id="altPositionsSelect" multiple size="5">
-                        <option value="TW">TW</option>
-                        <option value="LV">LV</option>
-                        <option value="IV">IV</option>
-                        <option value="RV">RV</option>
-                        <option value="LM">LM</option>
-                        <option value="ZM">ZM</option>
-                        <option value="RM">RM</option>
-                        <option value="ZDM">ZDM</option>
-                        <option value="ZOM">ZOM</option>
-                        <option value="LF">LF</option>
-                        <option value="RF">RF</option>
-                        <option value="MS">MS</option>
-                        <option value="ST">ST</option>
-                        <option value="LS">LS</option>
-                        <option value="RS">RS</option>
-                    </select>
+                    <label>Alternative Positionen (optional)</label>
+                    <div class="position-filters" id="altPositionButtons">
+                        <div class="position-filter" data-pos="TW">TW</div>
+                        <div class="position-filter" data-pos="LV">LV</div>
+                        <div class="position-filter" data-pos="IV">IV</div>
+                        <div class="position-filter" data-pos="RV">RV</div>
+                        <div class="position-filter" data-pos="LM">LM</div>
+                        <div class="position-filter" data-pos="ZM">ZM</div>
+                        <div class="position-filter" data-pos="RM">RM</div>
+                        <div class="position-filter" data-pos="ZDM">ZDM</div>
+                        <div class="position-filter" data-pos="ZOM">ZOM</div>
+                        <div class="position-filter" data-pos="LF">LF</div>
+                        <div class="position-filter" data-pos="RF">RF</div>
+                        <div class="position-filter" data-pos="MS">MS</div>
+                        <div class="position-filter" data-pos="ST">ST</div>
+                        <div class="position-filter" data-pos="LS">LS</div>
+                        <div class="position-filter" data-pos="RS">RS</div>
+                    </div>
                     <div class="alt-positions-selected" id="altPositionsDisplay"></div>
                 </div>
 
@@ -1167,26 +1169,29 @@
             'forward': ['LF', 'RF', 'MS', 'ST', 'LS', 'RS']
         };
 
-        // ========== ALTERNATIVE POSITIONS HANDLER ==========
-        const altPositionsSelect = document.getElementById('altPositionsSelect');
-        const altPositionsDisplay = document.getElementById('altPositionsDisplay');
+        // ========== ALTERNATIVE POSITIONS BUTTON HANDLER ==========
         let selectedAltPositions = [];
 
-        altPositionsSelect.addEventListener('change', function() {
-            const selected = Array.from(this.selectedOptions).map(opt => opt.value);
-            
-            selected.forEach(pos => {
-                if (!selectedAltPositions.includes(pos)) {
+        document.querySelectorAll('#altPositionButtons .position-filter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const pos = this.dataset.pos;
+                
+                if (selectedAltPositions.includes(pos)) {
+                    selectedAltPositions = selectedAltPositions.filter(p => p !== pos);
+                    this.classList.remove('active');
+                } else {
                     selectedAltPositions.push(pos);
+                    this.classList.add('active');
                 }
+                
+                renderAltPositions();
             });
-            
-            renderAltPositions();
-            this.selectedIndex = -1;
         });
 
         function renderAltPositions() {
-            altPositionsDisplay.innerHTML = '';
+            const display = document.getElementById('altPositionsDisplay');
+            display.innerHTML = '';
+            
             selectedAltPositions.forEach(pos => {
                 const tag = document.createElement('div');
                 tag.className = 'alt-position-tag';
@@ -1194,13 +1199,18 @@
                     ${pos}
                     <span class="alt-position-remove" data-pos="${pos}">✕</span>
                 `;
-                altPositionsDisplay.appendChild(tag);
+                display.appendChild(tag);
             });
 
             document.querySelectorAll('.alt-position-remove').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const pos = this.getAttribute('data-pos');
                     selectedAltPositions = selectedAltPositions.filter(p => p !== pos);
+                    
+                    document.querySelectorAll('#altPositionButtons .position-filter').forEach(b => {
+                        if (b.dataset.pos === pos) b.classList.remove('active');
+                    });
+                    
                     renderAltPositions();
                 });
             });
@@ -1216,7 +1226,6 @@
             const position = document.getElementById('playerPosition').value;
             const rating = parseInt(document.getElementById('playerRating').value);
 
-            // CHECK FOR DUPLICATE NAMES
             const existingPlayer = players.find(p => 
                 p.name.toLowerCase() === name.toLowerCase() && p.id !== id
             );
@@ -1249,8 +1258,11 @@
             selectedAltPositions = [];
             renderAltPositions();
             
+            document.querySelectorAll('#altPositionButtons .position-filter').forEach(b => {
+                b.classList.remove('active');
+            });
+            
             renderOlymp();
-            alert(id ? '✅ Spieler aktualisiert!' : '✅ Spieler hinzugefügt!');
         });
 
         // ========== TAB NAVIGATION ==========
@@ -1281,9 +1293,9 @@
         });
 
         // ========== POSITION FILTERS ==========
-        document.querySelectorAll('.position-filter').forEach(filter => {
+        document.querySelectorAll('#olymp-position .position-filter').forEach(filter => {
             filter.addEventListener('click', function() {
-                document.querySelectorAll('.position-filter').forEach(f => f.classList.remove('active'));
+                document.querySelectorAll('#olymp-position .position-filter').forEach(f => f.classList.remove('active'));
                 this.classList.add('active');
                 renderPositionView(this.dataset.filter);
             });
@@ -1419,6 +1431,15 @@
             document.getElementById('playerRating').value = player.rating;
             
             selectedAltPositions = player.altPositions ? [...player.altPositions] : [];
+            
+            document.querySelectorAll('#altPositionButtons .position-filter').forEach(btn => {
+                if (selectedAltPositions.includes(btn.dataset.pos)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
             renderAltPositions();
 
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1448,7 +1469,7 @@
             localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
 
             renderOlymp();
-            renderPositionView(document.querySelector('.position-filter.active').dataset.filter);
+            renderPositionView(document.querySelector('#olymp-position .position-filter.active').dataset.filter);
             renderFormation();
             renderBench();
         };
@@ -1659,7 +1680,6 @@
             localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
             document.getElementById('squadName').value = '';
             renderSavedSquads();
-            alert('✅ Aufstellung gespeichert!');
         });
 
         document.getElementById('clearSquadBtn').addEventListener('click', function() {
@@ -1716,7 +1736,6 @@
             document.getElementById('formationSelect').value = squad.formation;
             renderFormation();
             renderBench();
-            alert('✅ Aufstellung geladen!');
         };
 
         window.deleteSquad = function(id) {
