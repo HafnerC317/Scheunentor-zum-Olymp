@@ -121,7 +121,6 @@
             border-radius: 8px;
             color: #ffffff;
             font-size: 1rem;
-            cursor: pointer;
         }
 
         input:focus, select:focus {
@@ -141,19 +140,30 @@
         select option {
             background: #1a1410;
             color: #ffffff;
-            padding: 10px;
-            font-size: 1rem;
         }
 
-        select optgroup {
-            background: #0a0a0a;
-            color: #D4AF37;
+        .alternative-positions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .alt-pos-tag {
+            background: rgba(212, 175, 55, 0.2);
+            padding: 5px 12px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            border: 1px solid #D4AF37;
+        }
+
+        .alt-pos-remove {
+            cursor: pointer;
+            color: #ff6b6b;
             font-weight: bold;
-            font-size: 1.1rem;
-        }
-
-        select::-ms-expand {
-            display: none;
         }
 
         .btn {
@@ -262,23 +272,42 @@
         .tier-badge.bronze { background: #CD7F32; }
         .tier-badge.champions { background: #003B7A; }
 
-        .delete-btn {
-            width: 100%;
+        .player-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .edit-btn, .delete-btn {
+            flex: 1;
             padding: 10px;
-            background: rgba(220, 38, 38, 0.2);
-            border: 1px solid #dc2626;
-            color: #ff6b6b;
+            border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s ease;
         }
 
+        .edit-btn {
+            background: rgba(212, 175, 55, 0.2);
+            color: #D4AF37;
+            border: 1px solid #D4AF37;
+        }
+
+        .edit-btn:hover {
+            background: rgba(212, 175, 55, 0.3);
+        }
+
+        .delete-btn {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid #dc2626;
+            color: #ff6b6b;
+        }
+
         .delete-btn:hover {
             background: rgba(220, 38, 38, 0.4);
         }
 
-        /* Traumaufstellung Styles */
         .formation-selector {
             margin-bottom: 30px;
         }
@@ -452,7 +481,6 @@
             background: rgba(220, 38, 38, 0.4);
         }
 
-        /* Ersatzbank Styles */
         .bench-container {
             margin-top: 20px;
         }
@@ -488,7 +516,63 @@
             gap: 15px;
         }
 
-        /* Hall of Fame Styles */
+        .saved-squads {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .saved-squad-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #D4AF37;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .saved-squad-card:hover {
+            background: rgba(212, 175, 55, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .saved-squad-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #D4AF37;
+            margin-bottom: 8px;
+        }
+
+        .saved-squad-formation {
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .saved-squad-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .load-squad-btn, .delete-squad-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .load-squad-btn {
+            background: rgba(212, 175, 55, 0.2);
+            color: #D4AF37;
+        }
+
+        .delete-squad-btn {
+            background: rgba(220, 38, 38, 0.2);
+            color: #ff6b6b;
+        }
+
         .hall-title {
             text-align: center;
             font-size: 2rem;
@@ -691,8 +775,10 @@
         <!-- Bewertungen Tab -->
         <div id="ratings" class="tab-content active">
             <div class="glass-card">
-                <h2 style="margin-bottom: 20px; color: #D4AF37;">➕ Neuen Spieler hinzufügen</h2>
+                <h2 style="margin-bottom: 20px; color: #D4AF37;" id="playerFormTitle">➕ Neuen Spieler hinzufügen</h2>
                 
+                <input type="hidden" id="editPlayerId">
+
                 <div class="input-group">
                     <label>Spielername</label>
                     <input type="text" id="playerName" placeholder="z.B. Cristiano Ronaldo">
@@ -704,7 +790,7 @@
                 </div>
 
                 <div class="input-group">
-                    <label>Position</label>
+                    <label>Hauptposition</label>
                     <select id="playerPosition">
                         <option value="TW">TW - Torwart</option>
                         <option value="IV">IV - Innenverteidiger</option>
@@ -724,11 +810,34 @@
                 </div>
 
                 <div class="input-group">
+                    <label>Alternative Positionen</label>
+                    <select id="altPositionSelect" onchange="addAltPosition()">
+                        <option value="">Position hinzufügen...</option>
+                        <option value="TW">TW - Torwart</option>
+                        <option value="IV">IV - Innenverteidiger</option>
+                        <option value="LV">LV - Linksverteidiger</option>
+                        <option value="RV">RV - Rechtsverteidiger</option>
+                        <option value="LWB">LWB - Linker Wingback</option>
+                        <option value="RWB">RWB - Rechter Wingback</option>
+                        <option value="ZDM">ZDM - Zentrales defensives Mittelfeld</option>
+                        <option value="ZM">ZM - Zentrales Mittelfeld</option>
+                        <option value="ZOM">ZOM - Zentrales offensives Mittelfeld</option>
+                        <option value="LM">LM - Linkes Mittelfeld</option>
+                        <option value="RM">RM - Rechtes Mittelfeld</option>
+                        <option value="LF">LF - Linksaußen</option>
+                        <option value="RF">RF - Rechtsaußen</option>
+                        <option value="MS">MS - Mittelstürmer</option>
+                    </select>
+                    <div class="alternative-positions" id="altPositionsList"></div>
+                </div>
+
+                <div class="input-group">
                     <label>Rating (0-99)</label>
                     <input type="number" id="playerRating" min="0" max="99" placeholder="z.B. 95">
                 </div>
 
-                <button class="btn" onclick="addPlayer()">✨ Spieler hinzufügen</button>
+                <button class="btn" onclick="savePlayer()" id="savePlayerBtn">✨ Spieler hinzufügen</button>
+                <button class="btn btn-secondary" onclick="cancelEdit()" id="cancelEditBtn" style="display: none; margin-top: 10px;">❌ Abbrechen</button>
             </div>
 
             <div class="player-grid" id="playerList"></div>
@@ -767,6 +876,13 @@
                         <option value="3-4-1-2">3-4-1-2</option>
                     </optgroup>
                 </select>
+
+                <div class="input-group" style="margin-top: 20px;">
+                    <label>Name der Aufstellung</label>
+                    <input type="text" id="squadName" placeholder="z.B. Champions League Finale">
+                </div>
+                
+                <button class="btn" onclick="saveSquad()" style="margin-top: 10px;">💾 Aufstellung speichern</button>
                 <button class="btn btn-secondary" onclick="clearSquad()">🔄 Aufstellung zurücksetzen</button>
             </div>
 
@@ -779,6 +895,11 @@
                     <span id="benchToggleText">⬆️ Ersatzbank aufklappen</span>
                 </button>
                 <div class="bench-slots" id="benchSlots"></div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 30px;">
+                <h2 style="margin-bottom: 20px; color: #D4AF37;">📂 Gespeicherte Aufstellungen</h2>
+                <div class="saved-squads" id="savedSquadsList"></div>
             </div>
         </div>
 
@@ -817,7 +938,10 @@
         let currentSquad = JSON.parse(localStorage.getItem('currentSquad')) || {};
         let currentBench = JSON.parse(localStorage.getItem('currentBench')) || {};
         let currentFormation = localStorage.getItem('currentFormation') || '4-4-2';
+        let savedSquads = JSON.parse(localStorage.getItem('savedSquads')) || [];
         let selectedPosition = null;
+        let tempAltPositions = [];
+        let editingPlayerId = null;
 
         const formations = {
             '5-4-1': [
@@ -987,7 +1111,51 @@
             return names[category] || category;
         }
 
-        function addPlayer() {
+        function addAltPosition() {
+            const select = document.getElementById('altPositionSelect');
+            const pos = select.value;
+            const mainPos = document.getElementById('playerPosition').value;
+
+            if (!pos) return;
+
+            if (pos === mainPos) {
+                alert('Diese Position ist bereits als Hauptposition ausgewählt!');
+                select.value = '';
+                return;
+            }
+
+            if (tempAltPositions.includes(pos)) {
+                alert('Diese Position wurde bereits hinzugefügt!');
+                select.value = '';
+                return;
+            }
+
+            tempAltPositions.push(pos);
+            select.value = '';
+            renderAltPositions();
+        }
+
+        function removeAltPosition(pos) {
+            tempAltPositions = tempAltPositions.filter(p => p !== pos);
+            renderAltPositions();
+        }
+
+        function renderAltPositions() {
+            const container = document.getElementById('altPositionsList');
+            container.innerHTML = '';
+
+            tempAltPositions.forEach(pos => {
+                const tag = document.createElement('div');
+                tag.className = 'alt-pos-tag';
+                tag.innerHTML = `
+                    <span>${pos}</span>
+                    <span class="alt-pos-remove" onclick="removeAltPosition('${pos}')">✖</span>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        function savePlayer() {
             const name = document.getElementById('playerName').value.trim();
             const image = document.getElementById('playerImage').value.trim();
             const position = document.getElementById('playerPosition').value;
@@ -999,23 +1167,61 @@
             }
 
             const player = {
-                id: Date.now(),
+                id: editingPlayerId || Date.now(),
                 name,
                 image: image || 'https://via.placeholder.com/200x200?text=Kein+Bild',
                 position,
+                altPositions: [...tempAltPositions],
                 rating,
                 tier: getTier(rating)
             };
 
-            players.push(player);
+            if (editingPlayerId) {
+                const index = players.findIndex(p => p.id === editingPlayerId);
+                players[index] = player;
+            } else {
+                players.push(player);
+            }
+
             localStorage.setItem('players', JSON.stringify(players));
 
+            cancelEdit();
+            renderPlayers();
+            renderHallOfFame();
+        }
+
+        function editPlayer(id) {
+            const player = players.find(p => p.id === id);
+            if (!player) return;
+
+            editingPlayerId = id;
+            document.getElementById('playerName').value = player.name;
+            document.getElementById('playerImage').value = player.image;
+            document.getElementById('playerPosition').value = player.position;
+            document.getElementById('playerRating').value = player.rating;
+            tempAltPositions = [...(player.altPositions || [])];
+
+            renderAltPositions();
+
+            document.getElementById('playerFormTitle').textContent = '✏️ Spieler bearbeiten';
+            document.getElementById('savePlayerBtn').textContent = '💾 Änderungen speichern';
+            document.getElementById('cancelEditBtn').style.display = 'block';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingPlayerId = null;
+            tempAltPositions = [];
+            
             document.getElementById('playerName').value = '';
             document.getElementById('playerImage').value = '';
             document.getElementById('playerRating').value = '';
+            document.getElementById('altPositionsList').innerHTML = '';
 
-            renderPlayers();
-            renderHallOfFame();
+            document.getElementById('playerFormTitle').textContent = '➕ Neuen Spieler hinzufügen';
+            document.getElementById('savePlayerBtn').textContent = '✨ Spieler hinzufügen';
+            document.getElementById('cancelEditBtn').style.display = 'none';
         }
 
         function deletePlayer(id) {
@@ -1050,6 +1256,10 @@
             }
 
             players.forEach(player => {
+                const altPos = player.altPositions && player.altPositions.length > 0 
+                    ? `<div style="margin-top: 8px; font-size: 0.85rem; color: #888;">Alt: ${player.altPositions.join(', ')}</div>`
+                    : '';
+
                 const card = document.createElement('div');
                 card.className = `player-card ${player.tier.class}`;
                 card.innerHTML = `
@@ -1060,7 +1270,11 @@
                         <span class="player-position">${player.position}</span>
                         <span class="player-rating">${player.rating}</span>
                     </div>
-                    <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
+                    ${altPos}
+                    <div class="player-actions">
+                        <button class="edit-btn" onclick="editPlayer(${player.id})">✏️ Bearbeiten</button>
+                        <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
@@ -1076,6 +1290,7 @@
             if (tab === 'squad') {
                 renderFormation();
                 renderBench();
+                renderSavedSquads();
             } else if (tab === 'hall') {
                 renderHallOfFame();
             }
@@ -1200,8 +1415,17 @@
             };
             playerList.appendChild(removeOption);
 
-            const usedPlayerIds = Object.values(currentSquad);
-            const availablePlayers = players.filter(p => !usedPlayerIds.includes(p.id));
+            const usedPlayerIds = [...Object.values(currentSquad), ...Object.values(currentBench)];
+            const availablePlayers = players.filter(p => {
+                if (usedPlayerIds.includes(p.id)) return false;
+                
+                const allPositions = [p.position, ...(p.altPositions || [])];
+                return allPositions.includes(position);
+            });
+
+            if (availablePlayers.length === 0) {
+                playerList.innerHTML += '<p style="text-align: center; color: #888; padding: 20px;">Keine verfügbaren Spieler für diese Position.</p>';
+            }
 
             availablePlayers.forEach(player => {
                 const item = document.createElement('div');
@@ -1271,6 +1495,81 @@
 
         function closeSquadModal() {
             document.getElementById('squadModal').style.display = 'none';
+        }
+
+        function saveSquad() {
+            const name = document.getElementById('squadName').value.trim();
+            
+            if (!name) {
+                alert('Bitte gib einen Namen für die Aufstellung ein!');
+                return;
+            }
+
+            const squad = {
+                id: Date.now(),
+                name,
+                formation: currentFormation,
+                squad: {...currentSquad},
+                bench: {...currentBench}
+            };
+
+            savedSquads.push(squad);
+            localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
+
+            document.getElementById('squadName').value = '';
+            alert('Aufstellung gespeichert! ✅');
+            renderSavedSquads();
+        }
+
+        function loadSquad(id) {
+            const squad = savedSquads.find(s => s.id === id);
+            if (!squad) return;
+
+            currentFormation = squad.formation;
+            currentSquad = {...squad.squad};
+            currentBench = {...squad.bench};
+
+            document.getElementById('formationSelect').value = currentFormation;
+            localStorage.setItem('currentFormation', currentFormation);
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            localStorage.setItem('currentBench', JSON.stringify(currentBench));
+
+            renderFormation();
+            renderBench();
+
+            alert(`Aufstellung "${squad.name}" geladen! ✅`);
+        }
+
+        function deleteSavedSquad(id) {
+            if (confirm('Gespeicherte Aufstellung wirklich löschen?')) {
+                savedSquads = savedSquads.filter(s => s.id !== id);
+                localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
+                renderSavedSquads();
+            }
+        }
+
+        function renderSavedSquads() {
+            const container = document.getElementById('savedSquadsList');
+            container.innerHTML = '';
+
+            if (savedSquads.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #888; padding: 20px;">Noch keine Aufstellungen gespeichert.</p>';
+                return;
+            }
+
+            savedSquads.forEach(squad => {
+                const card = document.createElement('div');
+                card.className = 'saved-squad-card';
+                card.innerHTML = `
+                    <div class="saved-squad-name">${squad.name}</div>
+                    <div class="saved-squad-formation">Formation: ${squad.formation}</div>
+                    <div class="saved-squad-actions">
+                        <button class="load-squad-btn" onclick="loadSquad(${squad.id})">📂 Laden</button>
+                        <button class="delete-squad-btn" onclick="deleteSavedSquad(${squad.id})">🗑️</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         function clearSquad() {
@@ -1375,6 +1674,7 @@
         renderPlayers();
         renderFormation();
         renderBench();
+        renderSavedSquads();
         renderHallOfFame();
 
         window.onclick = function(event) {
