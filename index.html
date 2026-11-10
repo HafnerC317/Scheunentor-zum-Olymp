@@ -130,7 +130,6 @@
             box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
         }
 
-        /* Dropdown-Optionen lesbar machen */
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23D4AF37' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
@@ -490,10 +489,6 @@
         }
 
         /* Hall of Fame Styles */
-        .hall-of-fame {
-            margin-top: 40px;
-        }
-
         .hall-title {
             text-align: center;
             font-size: 2rem;
@@ -504,62 +499,61 @@
             background-clip: text;
         }
 
-        .hall-filters {
+        .hall-subtabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
-            justify-content: center;
         }
 
-        .hall-filter-btn {
-            padding: 10px 20px;
+        .hall-subtab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
             background: rgba(212, 175, 55, 0.1);
             border: 2px solid #D4AF37;
             border-radius: 8px;
-            color: #D4AF37;
             cursor: pointer;
+            text-align: center;
             font-weight: bold;
             transition: all 0.3s ease;
+            color: #D4AF37;
         }
 
-        .hall-filter-btn:hover {
+        .hall-subtab:hover {
             background: rgba(212, 175, 55, 0.2);
         }
 
-        .hall-filter-btn.active {
+        .hall-subtab.active {
             background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
             color: #0a0a0a;
         }
 
-        .hall-tier-section {
+        .hall-subcontent {
+            display: none;
+        }
+
+        .hall-subcontent.active {
+            display: block;
+        }
+
+        .hall-category {
             margin-bottom: 30px;
             padding: 20px;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 15px;
-            border: 2px solid;
+            border: 2px solid rgba(212, 175, 55, 0.3);
         }
 
-        .hall-tier-section.elite { border-color: #8B5CF6; }
-        .hall-tier-section.gold { border-color: #D4AF37; }
-        .hall-tier-section.silver { border-color: #C0C0C0; }
-        .hall-tier-section.bronze { border-color: #CD7F32; }
-        .hall-tier-section.champions { border-color: #003B7A; }
-
-        .hall-tier-title {
+        .hall-category-title {
             font-size: 1.5rem;
             font-weight: bold;
+            color: #D4AF37;
             margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
-        .hall-tier-title.elite { color: #8B5CF6; }
-        .hall-tier-title.gold { color: #D4AF37; }
-        .hall-tier-title.silver { color: #C0C0C0; }
-        .hall-tier-title.bronze { color: #CD7F32; }
-        .hall-tier-title.champions { color: #003B7A; }
 
         .hall-player-grid {
             display: grid;
@@ -676,7 +670,7 @@
                 font-size: 0.9rem;
             }
 
-            .hall-tier-title {
+            .hall-category-title {
                 font-size: 1.2rem;
             }
         }
@@ -685,12 +679,13 @@
 <body>
     <div class="container">
         <img src="https://i.imgur.com/vCwczZs.png" alt="Scheunentor zum Olymp Logo" class="logo" onerror="this.style.display='none'">
-        <h1>⚽ Scheunentor zum Olymp ⚽</h1>
+        <h1>Scheunentor zum Olymp</h1>
         <p class="subtitle">Deine persönliche Fußball-Bewertungsplattform</p>
 
         <div class="tabs">
             <div class="tab active" onclick="switchTab('ratings')">⭐ Bewertungen</div>
             <div class="tab" onclick="switchTab('squad')">🏆 Traumaufstellung</div>
+            <div class="tab" onclick="switchTab('hall')">🏛️ Götter des Fußballs</div>
         </div>
 
         <!-- Bewertungen Tab -->
@@ -787,19 +782,24 @@
             </div>
         </div>
 
-        <!-- Hall of Fame -->
-        <div class="hall-of-fame">
+        <!-- Hall of Fame Tab -->
+        <div id="hall" class="tab-content">
             <h2 class="hall-title">🏛️ Die Götter des Fußballs 🏛️</h2>
             
-            <div class="hall-filters">
-                <button class="hall-filter-btn active" onclick="filterHall('all')">Alle</button>
-                <button class="hall-filter-btn" onclick="filterHall('goalkeeper')">Torwart</button>
-                <button class="hall-filter-btn" onclick="filterHall('defender')">Verteidiger</button>
-                <button class="hall-filter-btn" onclick="filterHall('midfielder')">Mittelfeld</button>
-                <button class="hall-filter-btn" onclick="filterHall('forward')">Stürmer</button>
+            <div class="hall-subtabs">
+                <div class="hall-subtab active" onclick="switchHallSubtab('ranking')">📊 Ranking</div>
+                <div class="hall-subtab" onclick="switchHallSubtab('position')">⚽ Position</div>
             </div>
 
-            <div id="hallOfFame"></div>
+            <!-- Ranking Subtab -->
+            <div id="ranking" class="hall-subcontent active">
+                <div id="hallRanking"></div>
+            </div>
+
+            <!-- Position Subtab -->
+            <div id="position" class="hall-subcontent">
+                <div id="hallPosition"></div>
+            </div>
         </div>
     </div>
 
@@ -818,7 +818,6 @@
         let currentBench = JSON.parse(localStorage.getItem('currentBench')) || {};
         let currentFormation = localStorage.getItem('currentFormation') || '4-4-2';
         let selectedPosition = null;
-        let currentHallFilter = 'all';
 
         const formations = {
             '5-4-1': [
@@ -978,6 +977,16 @@
             return 'other';
         }
 
+        function getPositionCategoryName(category) {
+            const names = {
+                'goalkeeper': 'Torhüter',
+                'defender': 'Verteidiger',
+                'midfielder': 'Mittelfeldspieler',
+                'forward': 'Stürmer'
+            };
+            return names[category] || category;
+        }
+
         function addPlayer() {
             const name = document.getElementById('playerName').value.trim();
             const image = document.getElementById('playerImage').value.trim();
@@ -1067,7 +1076,17 @@
             if (tab === 'squad') {
                 renderFormation();
                 renderBench();
+            } else if (tab === 'hall') {
+                renderHallOfFame();
             }
+        }
+
+        function switchHallSubtab(subtab) {
+            document.querySelectorAll('.hall-subtab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.hall-subcontent').forEach(c => c.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(subtab).classList.add('active');
         }
 
         function changeFormation() {
@@ -1265,70 +1284,76 @@
             }
         }
 
-        function filterHall(category) {
-            currentHallFilter = category;
-            
-            document.querySelectorAll('.hall-filter-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            renderHallOfFame();
+        function renderHallOfFame() {
+            renderHallRanking();
+            renderHallPosition();
         }
 
-        function renderHallOfFame() {
-            const container = document.getElementById('hallOfFame');
+        function renderHallRanking() {
+            const container = document.getElementById('hallRanking');
             container.innerHTML = '';
 
             if (players.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Legenden vorhanden...</p>';
+                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Spieler vorhanden...</p>';
                 return;
             }
 
-            let filteredPlayers = players;
-            if (currentHallFilter !== 'all') {
-                filteredPlayers = players.filter(p => getPositionCategory(p.position) === currentHallFilter);
+            const sortedPlayers = [...players].sort((a, b) => b.rating - a.rating);
+
+            const grid = document.createElement('div');
+            grid.className = 'hall-player-grid';
+
+            sortedPlayers.forEach(player => {
+                const card = document.createElement('div');
+                card.className = `hall-player-card ${player.tier.class}`;
+                card.innerHTML = `
+                    <img src="${player.image}" alt="${player.name}" class="hall-player-image" onerror="this.src='https://via.placeholder.com/180x120?text=Kein+Bild'">
+                    <div class="hall-player-name">${player.name}</div>
+                    <div class="hall-player-info">
+                        <span class="hall-player-position">${player.position}</span>
+                        <span class="hall-player-rating">${player.rating}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            container.appendChild(grid);
+        }
+
+        function renderHallPosition() {
+            const container = document.getElementById('hallPosition');
+            container.innerHTML = '';
+
+            if (players.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #888; padding: 40px;">Noch keine Spieler vorhanden...</p>';
+                return;
             }
 
-            const tiers = ['elite', 'gold', 'silver', 'bronze', 'champions'];
-            const tierNames = {
-                elite: 'Elite',
-                gold: 'Gold',
-                silver: 'Silber',
-                bronze: 'Bronze',
-                champions: 'Champions League'
-            };
-            const tierRanges = {
-                elite: '95-99',
-                gold: '90-94',
-                silver: '85-89',
-                bronze: '80-84',
-                champions: '0-79'
-            };
+            const categories = ['goalkeeper', 'defender', 'midfielder', 'forward'];
 
-            tiers.forEach(tier => {
-                const tierPlayers = filteredPlayers
-                    .filter(p => p.tier.class === tier)
+            categories.forEach(category => {
+                const categoryPlayers = players
+                    .filter(p => getPositionCategory(p.position) === category)
                     .sort((a, b) => b.rating - a.rating);
 
-                if (tierPlayers.length > 0) {
+                if (categoryPlayers.length > 0) {
                     const section = document.createElement('div');
-                    section.className = `hall-tier-section ${tier}`;
-                    
+                    section.className = 'hall-category';
+
                     const title = document.createElement('div');
-                    title.className = `hall-tier-title ${tier}`;
+                    title.className = 'hall-category-title';
                     title.innerHTML = `
-                        <span>${tierNames[tier]}</span>
-                        <span>${tierRanges[tier]} • ${tierPlayers.length} Spieler</span>
+                        <span>${getPositionCategoryName(category)}</span>
+                        <span>${categoryPlayers.length} Spieler</span>
                     `;
                     section.appendChild(title);
 
                     const grid = document.createElement('div');
                     grid.className = 'hall-player-grid';
 
-                    tierPlayers.forEach(player => {
+                    categoryPlayers.forEach(player => {
                         const card = document.createElement('div');
-                        card.className = `hall-player-card ${tier}`;
+                        card.className = `hall-player-card ${player.tier.class}`;
                         card.innerHTML = `
                             <img src="${player.image}" alt="${player.name}" class="hall-player-image" onerror="this.src='https://via.placeholder.com/180x120?text=Kein+Bild'">
                             <div class="hall-player-name">${player.name}</div>
