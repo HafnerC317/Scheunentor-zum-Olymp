@@ -1,10 +1,10 @@
-const CACHE_NAME = 'scheunentor-v1';
+const CACHE_NAME = 'scheunentor-v1.3';
 const urlsToCache = [
-  '/Scheunentor-zum-Olymp/',
-  '/Scheunentor-zum-Olymp/index.html',
-  '/Scheunentor-zum-Olymp/styles.css',
-  '/Scheunentor-zum-Olymp/app.js',
-  '/Scheunentor-zum-Olymp/manifest.json',
+  '/',
+  '/index.html',
+  '/styles.css',
+  '/app.js',
+  '/manifest.json',
   'https://i.imgur.com/vCwczZs.png'
 ];
 
@@ -13,6 +13,22 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
   );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
