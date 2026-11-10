@@ -1,210 +1,1928 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0a0a0a">
-  <title>Scheunentor zum Olymp</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/png" href="https://i.imgur.com/vCwczZs.png">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheunentor zum Olymp</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/png" href="https://i.imgur.com/vCwczZs.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid #D4AF37;
+        }
+
+        h1 {
+            color: #D4AF37;
+            font-size: 2em;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 30px;
+            background: rgba(26, 20, 16, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            color: #D4AF37;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .tab:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+            color: #0a0a0a;
+            border-color: #D4AF37;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #D4AF37;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(26, 20, 16, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #D4AF37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+
+        select {
+            cursor: pointer;
+            background-color: #2a2420;
+            color: #fff;
+        }
+
+        select option {
+            background-color: #2a2420;
+            color: #fff;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+            color: #0a0a0a;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(212, 175, 55, 0.2);
+            color: #D4AF37;
+            border: 2px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.8);
+            color: #fff;
+        }
+
+        .tier-section {
+            margin-bottom: 40px;
+        }
+
+        .tier-header {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .tier-elite { background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%); }
+        .tier-gold { background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%); color: #0a0a0a; }
+        .tier-silver { background: linear-gradient(135deg, #C0C0C0 0%, #E8E8E8 100%); color: #0a0a0a; }
+        .tier-bronze { background: linear-gradient(135deg, #CD7F32 0%, #E69858 100%); }
+        .tier-champions { background: linear-gradient(135deg, #003B7A 0%, #005BAA 100%); }
+
+        .player-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .player-card {
+            background: rgba(26, 20, 16, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .player-card:hover {
+            border-color: #D4AF37;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .player-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #D4AF37;
+        }
+
+        .player-name {
+            font-size: 1.3em;
+            color: #D4AF37;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .player-rating {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .player-positions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .position-badge {
+            background: rgba(212, 175, 55, 0.3);
+            color: #D4AF37;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .player-actions button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: rgba(212, 175, 55, 0.3);
+            color: #D4AF37;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .btn-delete {
+            background: rgba(220, 53, 69, 0.8);
+            color: #fff;
+        }
+
+        .formation-selector {
+            margin-bottom: 20px;
+        }
+
+        .field {
+            background: linear-gradient(to bottom, #2d5016 0%, #1a3409 100%);
+            border: 3px solid #fff;
+            border-radius: 10px;
+            padding: 30px 20px;
+            position: relative;
+            min-height: 600px;
+            margin-bottom: 20px;
+        }
+
+        .field-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .midfield-line {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        .formation-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            min-height: 120px;
+        }
+
+        .player-slot {
+            width: 90px;
+            height: 90px;
+            background: rgba(212, 175, 55, 0.3);
+            border: 2px solid #D4AF37;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 0.9em;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .player-slot:hover {
+            background: rgba(212, 175, 55, 0.5);
+            transform: scale(1.05);
+        }
+
+        .player-slot.filled {
+            background-size: cover;
+            background-position: center;
+            border-color: #F4D03F;
+        }
+
+        .player-slot-info {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75em;
+            white-space: nowrap;
+            color: #D4AF37;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .slot-rating {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #D4AF37;
+            color: #0a0a0a;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85em;
+            border: 2px solid #0a0a0a;
+        }
+
+        .slot-actions {
+            display: flex;
+            position: absolute;
+            bottom: -65px;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .slot-btn {
+            padding: 6px 12px;
+            font-size: 0.75em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .slot-btn-change {
+            background: rgba(212, 175, 55, 0.9);
+            color: #0a0a0a;
+        }
+
+        .slot-btn-change:hover {
+            background: #D4AF37;
+            transform: scale(1.05);
+        }
+
+        .slot-btn-remove {
+            background: rgba(220, 53, 69, 0.9);
+            color: #fff;
+        }
+
+        .slot-btn-remove:hover {
+            background: #dc3545;
+            transform: scale(1.05);
+        }
+
+        .squad-management {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(26, 20, 16, 0.6);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+        }
+
+        .squad-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .saved-squads {
+            margin-top: 20px;
+        }
+
+        .saved-squad-item {
+            background: rgba(26, 20, 16, 0.8);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .saved-squad-info {
+            flex: 1;
+        }
+
+        .saved-squad-name {
+            color: #D4AF37;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .saved-squad-formation {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .saved-squad-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #1a1410;
+            border: 2px solid #D4AF37;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .modal-title {
+            color: #D4AF37;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .modal-close {
+            background: rgba(220, 53, 69, 0.8);
+            color: #fff;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .modal-players {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .modal-player-card {
+            background: rgba(26, 20, 16, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal-player-card:hover {
+            border-color: #D4AF37;
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .modal-player-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #666;
+        }
+
+        .modal-player-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal-player-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #D4AF37;
+        }
+
+        .modal-player-name {
+            color: #D4AF37;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .modal-player-rating {
+            color: #fff;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .modal-player-positions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .modal-position-badge {
+            background: rgba(212, 175, 55, 0.3);
+            color: #D4AF37;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .bench-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(26, 20, 16, 0.6);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+        }
+
+        .bench-toggle {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+            color: #0a0a0a;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .bench-slots {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 15px;
+            justify-items: center;
+        }
+
+        .bench-slots.active {
+            display: grid;
+        }
+
+        .olymp-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .olymp-tab {
+            padding: 12px 30px;
+            background: rgba(26, 20, 16, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            color: #D4AF37;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .olymp-tab:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+        }
+
+        .olymp-tab.active {
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+            color: #0a0a0a;
+            border-color: #D4AF37;
+        }
+
+        .position-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .position-filter {
+            padding: 10px 20px;
+            background: rgba(26, 20, 16, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            color: #D4AF37;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .position-filter:hover {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #D4AF37;
+        }
+
+        .position-filter.active {
+            background: linear-gradient(135deg, #D4AF37 0%, #F4D03F 100%);
+            color: #0a0a0a;
+        }
+
+        .reset-container {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid rgba(220, 53, 69, 0.3);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .reset-warning {
+            color: #ff6b6b;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .alt-positions-dropdown {
+            position: relative;
+        }
+
+        .alt-positions-selected {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .alt-position-tag {
+            background: rgba(212, 175, 55, 0.3);
+            color: #D4AF37;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alt-position-remove {
+            cursor: pointer;
+            font-weight: bold;
+            color: #ff6b6b;
+            transition: color 0.3s;
+        }
+
+        .alt-position-remove:hover {
+            color: #ff0000;
+        }
+
+        .player-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .player-list-item {
+            background: rgba(26, 20, 16, 0.8);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+
+        .player-list-item:hover {
+            border-color: #D4AF37;
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .player-list-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #D4AF37;
+            flex-shrink: 0;
+        }
+
+        .player-list-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .player-list-name {
+            font-size: 1.2em;
+            color: #D4AF37;
+            font-weight: bold;
+            min-width: 150px;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.3s;
+        }
+
+        .player-list-name:hover {
+            color: #F4D03F;
+        }
+
+        .player-list-position {
+            font-size: 1em;
+            color: #fff;
+            font-weight: bold;
+            min-width: 60px;
+        }
+
+        .player-list-altpos {
+            font-size: 0.85em;
+            color: #999;
+            flex: 1;
+        }
+
+        .player-list-rating {
+            font-size: 1.8em;
+            font-weight: bold;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .player-list-actions {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .player-list-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .player-list-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .player-list-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .player-list-rating {
+                text-align: left;
+            }
+
+            .player-list-actions {
+                width: 100%;
+            }
+
+            .player-list-actions button {
+                flex: 1;
+            }
+
+            .player-slot {
+                width: 70px;
+                height: 70px;
+            }
+
+            .formation-row {
+                min-height: 100px;
+            }
+
+            .slot-actions {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .slot-btn {
+                padding: 5px 8px;
+                font-size: 0.7em;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <img src="https://i.imgur.com/vCwczZs.png" alt="Logo" class="logo">
+            <h1>Scheunentor zum Olymp</h1>
+        </header>
 
-  <!-- HEADER -->
-  <header class="header">
-    <img src="https://i.imgur.com/vCwczZs.png" alt="Logo" class="logo">
-    <h1>⚽ Scheunentor zum Olymp</h1>
-    <img src="https://i.imgur.com/vCwczZs.png" alt="Ball" class="logo">
-    
-    <div class="sync-controls">
-      <span id="syncStatus">⚠️ Sync inaktiv</span>
-      <button id="syncNowBtn" class="btn-sync">🔄 Sync</button>
-      <button id="resetTokenBtn" class="btn-sync btn-danger">🗑️ Token</button>
-    </div>
-  </header>
+        <div class="tabs">
+            <div class="tab active" data-tab="ratings">📊 Bewertungen</div>
+            <div class="tab" data-tab="squad">🏆 Traumaufstellung</div>
+            <div class="tab" data-tab="olymp">🌟 Der Olymp</div>
+        </div>
 
-  <!-- NAVIGATION -->
-  <nav class="tabs">
-    <button class="tab-btn active" data-tab="ratingsTab">📊 Bewertungen</button>
-    <button class="tab-btn" data-tab="squadTab">⚽ Traumaufstellung</button>
-    <button class="tab-btn" data-tab="olympTab">🏆 Der Olymp</button>
-  </nav>
+        <!-- TAB: Bewertungen -->
+        <div class="tab-content active" id="ratings">
+            <form id="playerForm">
+                <input type="hidden" id="editPlayerId">
+                <input type="hidden" id="playerWikiLink">
+                
+                <div class="form-group">
+                    <label for="playerName">Spielername *</label>
+                    <input type="text" id="playerName" required placeholder="z.B. Lionel Messi">
+                </div>
 
-  <!-- MAIN CONTAINER -->
-  <main class="container">
+                <div class="form-group">
+                    <label for="playerImage">Bild-URL *</label>
+                    <input type="url" id="playerImage" required placeholder="https://...">
+                </div>
 
-    <!-- TAB: BEWERTUNGEN -->
-    <div id="ratingsTab" class="tab-content active">
-      
-      <!-- Spieler hinzufügen -->
-      <section class="card">
-        <h2>➕ Spieler hinzufügen</h2>
-        <form id="addPlayerForm" class="player-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Name</label>
-              <input type="text" id="playerName" placeholder="z.B. Lionel Messi" required>
-              <div id="nameSuggestions" class="suggestions-list"></div>
+                <div class="form-group">
+                    <label for="playerPosition">Position *</label>
+                    <select id="playerPosition" required>
+                        <option value="">-- Wähle Position --</option>
+                        <option value="TW">TW (Torwart)</option>
+                        <option value="LV">LV (Linksverteidiger)</option>
+                        <option value="IV">IV (Innenverteidiger)</option>
+                        <option value="RV">RV (Rechtsverteidiger)</option>
+                        <option value="ZDM">ZDM (Defensives Mittelfeld)</option>
+                        <option value="ZM">ZM (Zentrales Mittelfeld)</option>
+                        <option value="ZOM">ZOM (Offensives Mittelfeld)</option>
+                        <option value="LM">LM (Linkes Mittelfeld)</option>
+                        <option value="RM">RM (Rechtes Mittelfeld)</option>
+                        <option value="LF">LF (Linksaußen)</option>
+                        <option value="ST">ST (Stürmer)</option>
+                        <option value="RF">RF (Rechtsaußen)</option>
+                        <option value="MS">MS (Mittelstürmer)</option>
+                        <option value="LS">LS (Linksstürmer)</option>
+                        <option value="RS">RS (Rechtsstürmer)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Alternative Positionen (optional)</label>
+                    <div class="position-filters" id="altPositionButtons">
+                        <div class="position-filter" data-pos="TW">TW</div>
+                        <div class="position-filter" data-pos="LV">LV</div>
+                        <div class="position-filter" data-pos="IV">IV</div>
+                        <div class="position-filter" data-pos="RV">RV</div>
+                        <div class="position-filter" data-pos="ZDM">ZDM</div>
+                        <div class="position-filter" data-pos="ZM">ZM</div>
+                        <div class="position-filter" data-pos="ZOM">ZOM</div>
+                        <div class="position-filter" data-pos="LM">LM</div>
+                        <div class="position-filter" data-pos="RM">RM</div>
+                        <div class="position-filter" data-pos="LF">LF</div>
+                        <div class="position-filter" data-pos="ST">ST</div>
+                        <div class="position-filter" data-pos="RF">RF</div>
+                        <div class="position-filter" data-pos="MS">MS</div>
+                        <div class="position-filter" data-pos="LS">LS</div>
+                        <div class="position-filter" data-pos="RS">RS</div>
+                    </div>
+                    <div class="alt-positions-selected" id="altPositionsDisplay"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="playerRating">Rating (0-99) *</label>
+                    <input type="number" id="playerRating" min="0" max="99" required placeholder="z.B. 92">
+                </div>
+
+                <button type="submit" class="btn">Spieler hinzufügen</button>
+            </form>
+
+            <div class="reset-container">
+                <div class="reset-warning">⚠️ Achtung: Diese Aktion löscht alle Daten unwiderruflich!</div>
+                <button class="btn btn-danger" id="resetAllBtn">🗑️ Alle Daten zurücksetzen</button>
             </div>
+        </div>
+
+        <!-- TAB: Traumaufstellung -->
+        <div class="tab-content" id="squad">
+            <div class="formation-selector">
+                <div class="form-group">
+                    <label for="formationSelect">Formation wählen</label>
+                    <select id="formationSelect">
+                        <option value="4-4-2">4-4-2</option>
+                        <option value="4-3-3">4-3-3</option>
+                        <option value="4-3-3-def">4-3-3 (Defensive)</option>
+                        <option value="4-3-3-hold">4-3-3 (Holding)</option>
+                        <option value="4-3-3-attack">4-3-3 (Attack)</option>
+                        <option value="4-3-3-false9">4-3-3 (False 9)</option>
+                        <option value="3-5-2">3-5-2</option>
+                        <option value="4-2-3-1">4-2-3-1</option>
+                        <option value="4-2-3-1-wide">4-2-3-1 (Wide)</option>
+                        <option value="4-3-2-1">4-3-2-1</option>
+                        <option value="3-4-3">3-4-3</option>
+                        <option value="5-3-2">5-3-2</option>
+                        <option value="4-1-4-1">4-1-4-1</option>
+                        <option value="4-5-1">4-5-1</option>
+                        <option value="3-4-2-1">3-4-2-1</option>
+                        <option value="4-1-2-1-2">4-1-2-1-2</option>
+                        <option value="4-2-2-2">4-2-2-2</option>
+                        <option value="4-4-1-1">4-4-1-1</option>
+                        <option value="3-1-4-2">3-1-4-2</option>
+                        <option value="5-4-1">5-4-1</option>
+                        <option value="4-3-1-2">4-3-1-2</option>
+                        <option value="3-5-1-1">3-5-1-1</option>
+                        <option value="5-2-3">5-2-3</option>
+                        <option value="4-2-4">4-2-4</option>
+                        <option value="3-3-3-1">3-3-3-1</option>
+                        <option value="4-1-3-2">4-1-3-2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="field-line midfield-line"></div>
+                <div class="center-circle"></div>
+                <div id="formationDisplay"></div>
+            </div>
+
+            <div class="bench-container">
+                <button class="bench-toggle" id="benchToggle">🪑 Ersatzbank aufklappen</button>
+                <div class="bench-slots" id="benchSlots"></div>
+            </div>
+
+            <div class="squad-management">
+                <h3 style="color: #D4AF37; margin-bottom: 15px;">💾 Aufstellung speichern/laden</h3>
+                <div class="form-group">
+                    <label for="squadName">Name der Aufstellung</label>
+                    <input type="text" id="squadName" placeholder="z.B. Meine Traumelf">
+                </div>
+                <div class="squad-actions">
+                    <button class="btn" id="saveSquadBtn">💾 Aufstellung speichern</button>
+                    <button class="btn btn-secondary" id="clearSquadBtn">🗑️ Aufstellung leeren</button>
+                </div>
+                <div class="saved-squads" id="savedSquadsList"></div>
+            </div>
+        </div>
+
+        <!-- TAB: Der Olymp -->
+        <div class="tab-content" id="olymp">
+            <h2 style="color: #D4AF37; text-align: center; margin-bottom: 30px;">🏛️ Die Götter des Fußballs</h2>
             
-            <div class="form-group">
-              <label>Position</label>
-              <select id="playerPosition" required>
-                <option value="TW">TW - Torwart</option>
-                <option value="LV">LV - Linker Verteidiger</option>
-                <option value="IV">IV - Innenverteidiger</option>
-                <option value="RV">RV - Rechter Verteidiger</option>
-                <option value="LM">LM - Linkes Mittelfeld</option>
-                <option value="RM">RM - Rechtes Mittelfeld</option>
-                <option value="ZDM">ZDM - Zentrales defensives Mittelfeld</option>
-                <option value="ZM">ZM - Zentrales Mittelfeld</option>
-                <option value="ZOM">ZOM - Zentrales offensives Mittelfeld</option>
-                <option value="LF">LF - Linker Flügel</option>
-                <option value="RF">RF - Rechter Flügel</option>
-                <option value="ST">ST - Stürmer</option>
-                <option value="LS">LS - Linker Stürmer</option>
-                <option value="RS">RS - Rechter Stürmer</option>
-              </select>
+            <div class="olymp-tabs">
+                <div class="olymp-tab active" data-olymp="ranking">📊 Ranking</div>
+                <div class="olymp-tab" data-olymp="position">⚽ Nach Position</div>
             </div>
+
+            <div id="olymp-ranking" class="olymp-content active">
+                <div id="rankingDisplay"></div>
+            </div>
+
+            <div id="olymp-position" class="olymp-content" style="display: none;">
+                <div class="position-filters">
+                    <div class="position-filter active" data-filter="goalkeeper">🧤 Torhüter</div>
+                    <div class="position-filter" data-filter="defender">🛡️ Verteidiger</div>
+                    <div class="position-filter" data-filter="midfielder">⚙️ Mittelfeld</div>
+                    <div class="position-filter" data-filter="forward">⚡ Angriff</div>
+                </div>
+                <div id="positionDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal für Spielerauswahl -->
+    <div class="modal" id="playerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Spieler auswählen</div>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <div class="modal-players" id="modalPlayers"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== MIGRATION & INITIALIZATION ==========
+        (function migrateOldPlayers() {
+            const players = JSON.parse(localStorage.getItem('players') || '[]');
+            let migrated = false;
+            players.forEach(p => {
+                if (!p.altPositions) {
+                    p.altPositions = [];
+                    migrated = true;
+                }
+                if (!p.wikiLink) {
+                    p.wikiLink = '';
+                    migrated = true;
+                }
+            });
+            if (migrated) {
+                localStorage.setItem('players', JSON.stringify(players));
+            }
+        })();
+
+        let players = JSON.parse(localStorage.getItem('players') || '[]');
+        let currentSquad = JSON.parse(localStorage.getItem('currentSquad') || '{}');
+        let savedSquads = JSON.parse(localStorage.getItem('savedSquads') || '[]');
+        let benchPlayers = JSON.parse(localStorage.getItem('benchPlayers') || '[]');
+
+        const formations = {
+            '4-4-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-3-3': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-3-3-def': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZDM' }, { pos: 'ZDM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-3-3-hold': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZDM' }, { pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-3-3-attack': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZOM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-3-3-false9': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '3-5-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-2-3-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'LF' }, { pos: 'ZOM' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZDM' }, { pos: 'ZDM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-2-3-1-wide': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZOM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'ZDM' }, { pos: 'ZDM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-3-2-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'ZOM' }, { pos: 'ZOM' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '3-4-3': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '5-3-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-1-4-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'ZDM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-5-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '3-4-2-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'ZOM' }, { pos: 'ZOM' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-1-2-1-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'ZOM' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'ZDM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-2-2-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'ZOM' }, { pos: 'ZOM' }]},
+                {row: [{ pos: 'ZDM' }, { pos: 'ZDM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-4-1-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'ZOM' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '3-1-4-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'ZDM' }]},
+                {row: [{ pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '5-4-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-3-1-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'ZOM' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '3-5-1-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'ZOM' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '5-2-3': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-2-4': [
+                {row: [{ pos: 'LF' }, { pos: 'ST' }, { pos: 'ST' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '3-3-3-1': [
+                {row: [{ pos: 'ST' }]},
+                {row: [{ pos: 'LF' }, { pos: 'ZOM' }, { pos: 'RF' }]},
+                {row: [{ pos: 'ZM' }, { pos: 'ZM' }, { pos: 'ZM' }]},
+                {row: [{ pos: 'IV' }, { pos: 'IV' }, { pos: 'IV' }]},
+                {row: [{ pos: 'TW' }]}
+            ],
+            '4-1-3-2': [
+                {row: [{ pos: 'ST' }, { pos: 'ST' }]},
+                {row: [{ pos: 'LM' }, { pos: 'ZOM' }, { pos: 'RM' }]},
+                {row: [{ pos: 'ZDM' }]},
+                {row: [{ pos: 'LV' }, { pos: 'IV' }, { pos: 'IV' }, { pos: 'RV' }]},
+                {row: [{ pos: 'TW' }]}
+            ]
+        };
+
+        const positionMap = {
+            'goalkeeper': ['TW'],
+            'defender': ['LV', 'IV', 'RV'],
+            'midfielder': ['ZDM', 'ZM', 'ZOM', 'LM', 'RM'],
+            'forward': ['LF', 'ST', 'RF', 'MS', 'LS', 'RS']
+        };
+
+        // ========== WIKIPEDIA SEARCH ==========
+        async function getWikipediaLink(playerName) {
+            try {
+                const searchUrl = `https://de.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(playerName)}&limit=1&namespace=0&format=json&origin=*`;
+                const response = await fetch(searchUrl);
+                const data = await response.json();
+                
+                if (data && data[3] && data[3][0]) {
+                    return data[3][0];
+                }
+                return '';
+            } catch (error) {
+                console.error('Wikipedia-Suche fehlgeschlagen:', error);
+                return '';
+            }
+        }
+
+        // ========== HELPER: GET ALL USED PLAYER IDs ==========
+        function getUsedPlayerIds() {
+            const used = new Set();
             
-            <div class="form-group">
-              <label>Rating (0-99)</label>
-              <input type="number" id="playerRating" min="0" max="99" placeholder="95" required>
-            </div>
-          </div>
+            if (currentSquad.players) {
+                Object.values(currentSquad.players).forEach(id => used.add(id));
+            }
+            
+            benchPlayers.forEach(id => {
+                if (id) used.add(id);
+            });
+            
+            return used;
+        }
 
-          <div class="form-group">
-            <label>Alternative Positionen</label>
-            <div id="altPositionsContainer" class="alt-positions-grid"></div>
-          </div>
-          
-          <div class="form-group">
-            <label>Bild-URL (optional)</label>
-            <input type="url" id="playerImage" placeholder="https://beispiel.de/bild.jpg">
-          </div>
-          
-          <button type="submit" class="btn btn-primary">💾 Spieler speichern</button>
-        </form>
-      </section>
+        // ========== ALTERNATIVE POSITIONS BUTTON HANDLER ==========
+        let selectedAltPositions = [];
 
-      <!-- Spielerliste -->
-      <section class="card">
-        <h2>📋 Alle Spieler</h2>
-        <div id="playersList" class="players-grid"></div>
-      </section>
-
-    </div>
-
-    <!-- TAB: TRAUMAUFSTELLUNG -->
-    <div id="squadTab" class="tab-content">
-      
-      <!-- Formation Selector -->
-      <section class="card">
-        <div class="formation-header">
-          <h2>⚽ Aktuelle Formation: <span id="currentFormation">4-3-3</span></h2>
-          <button id="formationBtn" class="btn btn-primary">🔧 Formation ändern</button>
-        </div>
-      </section>
-
-      <!-- Spielfeld -->
-      <section class="card">
-        <div class="football-field">
-          <div id="squadField" class="squad-grid"></div>
-        </div>
-      </section>
-
-      <!-- Ersatzbank -->
-      <section class="card">
-        <button id="benchToggle" class="btn btn-secondary">🔼 Bank aufklappen</button>
-        <div id="benchSlots" class="bench-grid"></div>
-      </section>
-
-      <!-- Aufstellungen speichern/laden -->
-      <section class="card">
-        <h3>💾 Aufstellungen verwalten</h3>
-        <div class="squad-slots">
-          <div class="squad-slot-controls">
-            <button id="saveSquad1" class="btn btn-save">💾 Slot 1</button>
-            <button id="loadSquad1" class="btn btn-load">📂 Laden 1</button>
-          </div>
-          <div class="squad-slot-controls">
-            <button id="saveSquad2" class="btn btn-save">💾 Slot 2</button>
-            <button id="loadSquad2" class="btn btn-load">📂 Laden 2</button>
-          </div>
-          <div class="squad-slot-controls">
-            <button id="saveSquad3" class="btn btn-save">💾 Slot 3</button>
-            <button id="loadSquad3" class="btn btn-load">📂 Laden 3</button>
-          </div>
-          <div class="squad-slot-controls">
-            <button id="saveSquad4" class="btn btn-save">💾 Slot 4</button>
-            <button id="loadSquad4" class="btn btn-load">📂 Laden 4</button>
-          </div>
-          <div class="squad-slot-controls">
-            <button id="saveSquad5" class="btn btn-save">💾 Slot 5</button>
-            <button id="loadSquad5" class="btn btn-load">📂 Laden 5</button>
-          </div>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- TAB: DER OLYMP -->
-    <div id="olympTab" class="tab-content">
-      
-      <section class="card">
-        <h2>🏆 Die Götter des Fußballs</h2>
-        
-        <div class="olymp-tabs">
-          <button class="olymp-tab-btn active" data-olymp-tab="ranking">🥇 Ranking</button>
-          <button class="olymp-tab-btn" data-olymp-tab="positions">📍 Nach Position</button>
-        </div>
-
-        <div id="ranking" class="olymp-tab-content active">
-          <div id="olympRanking"></div>
-        </div>
-
-        <div id="positions" class="olymp-tab-content">
-          <div id="olympPositions"></div>
-        </div>
-
-      </section>
-
-    </div>
-
-  </main>
-
-  <!-- FORMATION MODAL -->
-  <div id="formationModal" class="modal">
-    <div class="modal-content">
-      <span class="modal-close">&times;</span>
-      <h2>🔧 Formation wählen</h2>
-      <div id="formationGrid" class="formation-grid"></div>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-  <script>
-    // PWA Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('✅ Service Worker registriert'))
-        .catch(err => console.error('❌ SW-Fehler:', err));
-    }
-
-    // Olymp Sub-Tabs
-    document.addEventListener('DOMContentLoaded', () => {
-      const olympTabs = document.querySelectorAll('.olymp-tab-btn');
-      olympTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-          olympTabs.forEach(t => t.classList.remove('active'));
-          document.querySelectorAll('.olymp-tab-content').forEach(c => c.classList.remove('active'));
-          tab.classList.add('active');
-          document.getElementById(tab.dataset.olympTab).classList.add('active');
+        document.querySelectorAll('#altPositionButtons .position-filter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const pos = this.dataset.pos;
+                
+                if (selectedAltPositions.includes(pos)) {
+                    selectedAltPositions = selectedAltPositions.filter(p => p !== pos);
+                    this.classList.remove('active');
+                } else {
+                    selectedAltPositions.push(pos);
+                    this.classList.add('active');
+                }
+                
+                renderAltPositions();
+            });
         });
-      });
-    });
-  </script>
 
+        function renderAltPositions() {
+            const display = document.getElementById('altPositionsDisplay');
+            display.innerHTML = '';
+            
+            selectedAltPositions.forEach(pos => {
+                const tag = document.createElement('div');
+                tag.className = 'alt-position-tag';
+                tag.innerHTML = `
+                    ${pos}
+                    <span class="alt-position-remove" data-pos="${pos}">✕</span>
+                `;
+                display.appendChild(tag);
+            });
+
+            document.querySelectorAll('.alt-position-remove').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const pos = this.getAttribute('data-pos');
+                    selectedAltPositions = selectedAltPositions.filter(p => p !== pos);
+                    
+                    document.querySelectorAll('#altPositionButtons .position-filter').forEach(b => {
+                        if (b.dataset.pos === pos) b.classList.remove('active');
+                    });
+                    
+                    renderAltPositions();
+                });
+            });
+        }
+
+        // ========== PLAYER FORM ==========
+        document.getElementById('playerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('editPlayerId').value;
+            const name = document.getElementById('playerName').value.trim();
+            const image = document.getElementById('playerImage').value.trim();
+            const position = document.getElementById('playerPosition').value;
+            const rating = parseInt(document.getElementById('playerRating').value);
+
+            const existingPlayer = players.find(p => 
+                p.name.toLowerCase() === name.toLowerCase() && p.id !== id
+            );
+            
+            if (existingPlayer) {
+                alert('⚠️ Ein Spieler mit diesem Namen existiert bereits!');
+                return;
+            }
+
+            let wikiLink = document.getElementById('playerWikiLink').value;
+            
+            if (!id || !wikiLink) {
+                wikiLink = await getWikipediaLink(name);
+            }
+
+            const player = {
+                id: id || Date.now().toString(),
+                name,
+                image,
+                position,
+                altPositions: [...selectedAltPositions],
+                rating,
+                wikiLink
+            };
+
+            if (id) {
+                const index = players.findIndex(p => p.id === id);
+                players[index] = player;
+            } else {
+                players.push(player);
+            }
+
+            localStorage.setItem('players', JSON.stringify(players));
+            
+            this.reset();
+            document.getElementById('editPlayerId').value = '';
+            document.getElementById('playerWikiLink').value = '';
+            selectedAltPositions = [];
+            renderAltPositions();
+            
+            document.querySelectorAll('#altPositionButtons .position-filter').forEach(b => {
+                b.classList.remove('active');
+            });
+            
+            renderOlymp();
+        });
+
+        // ========== TAB NAVIGATION ==========
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ========== OLYMP TABS ==========
+        document.querySelectorAll('.olymp-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.olymp-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                const target = this.dataset.olymp;
+                document.getElementById('olymp-ranking').style.display = target === 'ranking' ? 'block' : 'none';
+                document.getElementById('olymp-position').style.display = target === 'position' ? 'block' : 'none';
+
+                if (target === 'position') {
+                    renderPositionView('goalkeeper');
+                }
+            });
+        });
+
+        // ========== POSITION FILTERS ==========
+        document.querySelectorAll('#olymp-position .position-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('#olymp-position .position-filter').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+                renderPositionView(this.dataset.filter);
+            });
+        });
+
+        function renderPositionView(category) {
+            const positions = positionMap[category];
+            const filtered = players.filter(p => positions.includes(p.position));
+            const sorted = filtered.sort((a, b) => b.rating - a.rating);
+
+            const container = document.getElementById('positionDisplay');
+            container.innerHTML = '';
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">Keine Spieler in dieser Kategorie.</p>';
+                return;
+            }
+
+            const list = document.createElement('div');
+            list.className = 'player-list';
+
+            sorted.forEach(player => {
+                const item = document.createElement('div');
+                item.className = 'player-list-item';
+                
+                const tierColor = getTierColor(player.rating);
+                const altPosText = player.altPositions && player.altPositions.length > 0 
+                    ? player.altPositions.join(', ') 
+                    : 'Keine';
+
+                item.innerHTML = `
+                    <img src="${player.image}" alt="${player.name}" class="player-list-image" onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
+                    <div class="player-list-info">
+                        <div class="player-list-name" onclick="openWiki('${player.wikiLink}')">${player.name}</div>
+                        <div class="player-list-position">${player.position}</div>
+                        <div class="player-list-altpos">Alt: ${altPosText}</div>
+                        <div class="player-list-rating" style="color: ${tierColor}">${player.rating}</div>
+                    </div>
+                    <div class="player-list-actions">
+                        <button class="btn-edit" onclick="editPlayer('${player.id}')">✏️ Bearbeiten</button>
+                        <button class="btn-delete" onclick="deletePlayer('${player.id}')">🗑️ Löschen</button>
+                    </div>
+                `;
+
+                list.appendChild(item);
+            });
+
+            container.appendChild(list);
+        }
+
+        // ========== RENDER OLYMP (RANKING) ==========
+        function renderOlymp() {
+            const container = document.getElementById('rankingDisplay');
+            container.innerHTML = '';
+
+            const tiers = {
+                elite: players.filter(p => p.rating >= 95 && p.rating <= 99),
+                gold: players.filter(p => p.rating >= 90 && p.rating <= 94),
+                silver: players.filter(p => p.rating >= 85 && p.rating <= 89),
+                bronze: players.filter(p => p.rating >= 80 && p.rating <= 84),
+                champions: players.filter(p => p.rating >= 0 && p.rating <= 79)
+            };
+
+            const tierNames = {
+                elite: 'Elite (95-99)',
+                gold: 'Gold (90-94)',
+                silver: 'Silber (85-89)',
+                bronze: 'Bronze (80-84)',
+                champions: 'Champions League (0-79)'
+            };
+
+            Object.keys(tiers).forEach(tier => {
+                if (tiers[tier].length === 0) return;
+
+                const section = document.createElement('div');
+                section.className = 'tier-section';
+
+                const header = document.createElement('div');
+                header.className = `tier-header tier-${tier}`;
+                header.textContent = tierNames[tier];
+                section.appendChild(header);
+
+                const list = document.createElement('div');
+                list.className = 'player-list';
+
+                tiers[tier].sort((a, b) => b.rating - a.rating).forEach(player => {
+                    const item = document.createElement('div');
+                    item.className = 'player-list-item';
+                    
+                    const tierColor = getTierColor(player.rating);
+                    const altPosText = player.altPositions && player.altPositions.length > 0 
+                        ? player.altPositions.join(', ') 
+                        : 'Keine';
+
+                    item.innerHTML = `
+                        <img src="${player.image}" alt="${player.name}" class="player-list-image" onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
+                        <div class="player-list-info">
+                            <div class="player-list-name" onclick="openWiki('${player.wikiLink}')">${player.name}</div>
+                            <div class="player-list-position">${player.position}</div>
+                            <div class="player-list-altpos">Alt: ${altPosText}</div>
+                            <div class="player-list-rating" style="color: ${tierColor}">${player.rating}</div>
+                        </div>
+                        <div class="player-list-actions">
+                            <button class="btn-edit" onclick="editPlayer('${player.id}')">✏️ Bearbeiten</button>
+                            <button class="btn-delete" onclick="deletePlayer('${player.id}')">🗑️ Löschen</button>
+                        </div>
+                    `;
+
+                    list.appendChild(item);
+                });
+
+                section.appendChild(list);
+                container.appendChild(section);
+            });
+        }
+
+        function getTierColor(rating) {
+            if (rating >= 95) return '#8B5CF6';
+            if (rating >= 90) return '#D4AF37';
+            if (rating >= 85) return '#C0C0C0';
+            if (rating >= 80) return '#CD7F32';
+            return '#003B7A';
+        }
+
+        window.openWiki = function(url) {
+            if (url) {
+                window.open(url, '_blank');
+            }
+        };
+
+        window.editPlayer = function(id) {
+            const player = players.find(p => p.id === id);
+            if (!player) return;
+
+            document.getElementById('editPlayerId').value = player.id;
+            document.getElementById('playerName').value = player.name;
+            document.getElementById('playerImage').value = player.image;
+            document.getElementById('playerPosition').value = player.position;
+            document.getElementById('playerRating').value = player.rating;
+            document.getElementById('playerWikiLink').value = player.wikiLink || '';
+            
+            selectedAltPositions = player.altPositions ? [...player.altPositions] : [];
+            
+            document.querySelectorAll('#altPositionButtons .position-filter').forEach(btn => {
+                if (selectedAltPositions.includes(btn.dataset.pos)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            renderAltPositions();
+
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('.tab[data-tab="ratings"]').classList.add('active');
+            document.getElementById('ratings').classList.add('active');
+
+            document.getElementById('playerForm').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.deletePlayer = function(id) {
+            if (!confirm('🗑️ Spieler wirklich löschen?')) return;
+
+            players = players.filter(p => p.id !== id);
+            localStorage.setItem('players', JSON.stringify(players));
+
+            if (currentSquad.players) {
+                Object.keys(currentSquad.players).forEach(slotId => {
+                    if (currentSquad.players[slotId] === id) {
+                        delete currentSquad.players[slotId];
+                    }
+                });
+                localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            }
+
+            benchPlayers = benchPlayers.filter(bId => bId !== id);
+            localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
+
+            renderOlymp();
+            renderPositionView(document.querySelector('#olymp-position .position-filter.active').dataset.filter);
+            renderFormation();
+            renderBench();
+        };
+
+        // ========== FORMATION ==========
+        document.getElementById('formationSelect').addEventListener('change', function() {
+            currentSquad.formation = this.value;
+            currentSquad.players = {};
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            renderFormation();
+        });
+
+        function renderFormation() {
+            const formation = formations[currentSquad.formation || '4-4-2'];
+            const container = document.getElementById('formationDisplay');
+            container.innerHTML = '';
+
+            let slotIndex = 0;
+            formation.forEach(line => {
+                const row = document.createElement('div');
+                row.className = 'formation-row';
+
+                line.row.forEach(slot => {
+                    const slotId = `slot-${slotIndex}`;
+                    const playerId = currentSquad.players ? currentSquad.players[slotId] : null;
+                    const player = playerId ? players.find(p => p.id === playerId) : null;
+
+                    const slotDiv = document.createElement('div');
+                    slotDiv.className = 'player-slot' + (player ? ' filled' : '');
+                    slotDiv.dataset.slotId = slotId;
+                    slotDiv.dataset.position = slot.pos;
+
+                    if (player) {
+                        slotDiv.style.backgroundImage = `url(${player.image})`;
+                        slotDiv.innerHTML = `
+                            <div class="player-slot-info">${player.name}</div>
+                            <div class="slot-rating">${player.rating}</div>
+                            <div class="slot-actions">
+                                <button class="slot-btn slot-btn-change" onclick="openPlayerModal('${slotId}', '${slot.pos}')">Wechseln</button>
+                                <button class="slot-btn slot-btn-remove" onclick="removeFromSlot('${slotId}')">Entfernen</button>
+                            </div>
+                        `;
+                    } else {
+                        slotDiv.textContent = slot.pos;
+                        slotDiv.onclick = () => openPlayerModal(slotId, slot.pos);
+                    }
+
+                    row.appendChild(slotDiv);
+                    slotIndex++;
+                });
+
+                container.appendChild(row);
+            });
+        }
+
+        window.openPlayerModal = function(slotId, position) {
+            const usedIds = getUsedPlayerIds();
+            
+            const currentPlayerId = currentSquad.players ? currentSquad.players[slotId] : null;
+            if (currentPlayerId) {
+                usedIds.delete(currentPlayerId);
+            }
+
+            const eligible = players.filter(p => 
+                p.position === position || 
+                (p.altPositions && p.altPositions.includes(position))
+            );
+
+            const modalPlayers = document.getElementById('modalPlayers');
+            modalPlayers.innerHTML = '';
+
+            if (eligible.length === 0) {
+                modalPlayers.innerHTML = '<p style="text-align: center; color: #999;">Keine passenden Spieler verfügbar.</p>';
+            } else {
+                eligible.forEach(player => {
+                    const isUsed = usedIds.has(player.id);
+                    const allPositions = [player.position, ...(player.altPositions || [])];
+                    
+                    const card = document.createElement('div');
+                    card.className = 'modal-player-card' + (isUsed ? ' disabled' : '');
+                    
+                    if (!isUsed) {
+                        card.onclick = () => assignPlayer(slotId, player.id);
+                    }
+
+                    card.innerHTML = `
+                        <img src="${player.image}" class="modal-player-image" onerror="this.src='https://via.placeholder.com/180?text=No+Image'">
+                        <div class="modal-player-name">${player.name}${isUsed ? ' (bereits in Aufstellung)' : ''}</div>
+                        <div class="modal-player-rating">${player.rating}</div>
+                        <div class="modal-player-positions">
+                            ${allPositions.map(pos => `<span class="modal-position-badge">${pos}</span>`).join('')}
+                        </div>
+                    `;
+
+                    modalPlayers.appendChild(card);
+                });
+            }
+
+            document.getElementById('playerModal').classList.add('active');
+        };
+
+        function assignPlayer(slotId, playerId) {
+            if (!currentSquad.players) currentSquad.players = {};
+            currentSquad.players[slotId] = playerId;
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            document.getElementById('playerModal').classList.remove('active');
+            renderFormation();
+        }
+
+        window.removeFromSlot = function(slotId) {
+            if (currentSquad.players && currentSquad.players[slotId]) {
+                delete currentSquad.players[slotId];
+                localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+                renderFormation();
+            }
+        };
+
+        document.getElementById('modalClose').addEventListener('click', function() {
+            document.getElementById('playerModal').classList.remove('active');
+        });
+
+        // ========== BENCH ==========
+        document.getElementById('benchToggle').addEventListener('click', function() {
+            document.getElementById('benchSlots').classList.toggle('active');
+            this.textContent = document.getElementById('benchSlots').classList.contains('active') 
+                ? '🔽 Ersatzbank einklappen' 
+                : '🪑 Ersatzbank aufklappen';
+        });
+
+        function renderBench() {
+            const container = document.getElementById('benchSlots');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 7; i++) {
+                const playerId = benchPlayers[i];
+                const player = playerId ? players.find(p => p.id === playerId) : null;
+
+                const slot = document.createElement('div');
+                slot.className = 'player-slot' + (player ? ' filled' : '');
+                slot.dataset.benchIndex = i;
+
+                if (player) {
+                    slot.style.backgroundImage = `url(${player.image})`;
+                    slot.innerHTML = `
+                        <div class="player-slot-info">${player.name}</div>
+                        <div class="slot-rating">${player.rating}</div>
+                        <div class="slot-actions">
+                            <button class="slot-btn slot-btn-change" onclick="openBenchModal(${i})">Wechseln</button>
+                            <button class="slot-btn slot-btn-remove" onclick="removeFromBench(${i})">Entfernen</button>
+                        </div>
+                    `;
+                } else {
+                    slot.textContent = 'Bank';
+                    slot.onclick = () => openBenchModal(i);
+                }
+
+                container.appendChild(slot);
+            }
+        }
+
+        window.openBenchModal = function(index) {
+            const usedIds = getUsedPlayerIds();
+            
+            const currentBenchId = benchPlayers[index];
+            if (currentBenchId) {
+                usedIds.delete(currentBenchId);
+            }
+
+            const modalPlayers = document.getElementById('modalPlayers');
+            modalPlayers.innerHTML = '';
+
+            if (players.length === 0) {
+                modalPlayers.innerHTML = '<p style="text-align: center; color: #999;">Keine Spieler verfügbar.</p>';
+            } else {
+                players.forEach(player => {
+                    const isUsed = usedIds.has(player.id);
+                    const allPositions = [player.position, ...(player.altPositions || [])];
+                    
+                    const card = document.createElement('div');
+                    card.className = 'modal-player-card' + (isUsed ? ' disabled' : '');
+                    
+                    if (!isUsed) {
+                        card.onclick = () => assignToBench(index, player.id);
+                    }
+
+                    card.innerHTML = `
+                        <img src="${player.image}" class="modal-player-image" onerror="this.src='https://via.placeholder.com/180?text=No+Image'">
+                        <div class="modal-player-name">${player.name}${isUsed ? ' (bereits in Aufstellung)' : ''}</div>
+                        <div class="modal-player-rating">${player.rating}</div>
+                        <div class="modal-player-positions">
+                            ${allPositions.map(pos => `<span class="modal-position-badge">${pos}</span>`).join('')}
+                        </div>
+                    `;
+
+                    modalPlayers.appendChild(card);
+                });
+            }
+
+            document.getElementById('playerModal').classList.add('active');
+        };
+
+        function assignToBench(index, playerId) {
+            benchPlayers[index] = playerId;
+            localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
+            document.getElementById('playerModal').classList.remove('active');
+            renderBench();
+        }
+
+        window.removeFromBench = function(index) {
+            benchPlayers.splice(index, 1);
+            localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
+            renderBench();
+        };
+
+        // ========== SQUAD MANAGEMENT ==========
+        document.getElementById('saveSquadBtn').addEventListener('click', function() {
+            const name = document.getElementById('squadName').value.trim();
+            if (!name) {
+                alert('⚠️ Bitte gib einen Namen für die Aufstellung ein!');
+                return;
+            }
+
+            const squad = {
+                id: Date.now().toString(),
+                name,
+                formation: currentSquad.formation || '4-4-2',
+                players: { ...currentSquad.players },
+                bench: [...benchPlayers]
+            };
+
+            savedSquads.push(squad);
+            localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
+            document.getElementById('squadName').value = '';
+            renderSavedSquads();
+        });
+
+        document.getElementById('clearSquadBtn').addEventListener('click', function() {
+            if (!confirm('🗑️ Aktuelle Aufstellung wirklich leeren?')) return;
+            currentSquad = { formation: '4-4-2', players: {} };
+            benchPlayers = [];
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
+            renderFormation();
+            renderBench();
+        });
+
+        function renderSavedSquads() {
+            const container = document.getElementById('savedSquadsList');
+            container.innerHTML = '';
+
+            if (savedSquads.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; margin-top: 20px;">Keine gespeicherten Aufstellungen.</p>';
+                return;
+            }
+
+            savedSquads.forEach(squad => {
+                const item = document.createElement('div');
+                item.className = 'saved-squad-item';
+
+                item.innerHTML = `
+                    <div class="saved-squad-info">
+                        <div class="saved-squad-name">${squad.name}</div>
+                        <div class="saved-squad-formation">Formation: ${squad.formation}</div>
+                    </div>
+                    <div class="saved-squad-actions">
+                        <button class="btn btn-secondary" onclick="loadSquad('${squad.id}')">📥 Laden</button>
+                        <button class="btn btn-danger" onclick="deleteSquad('${squad.id}')">🗑️ Löschen</button>
+                    </div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        window.loadSquad = function(id) {
+            const squad = savedSquads.find(s => s.id === id);
+            if (!squad) return;
+
+            currentSquad = {
+                formation: squad.formation,
+                players: { ...squad.players }
+            };
+            benchPlayers = [...squad.bench];
+
+            localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
+            localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
+
+            document.getElementById('formationSelect').value = squad.formation;
+            renderFormation();
+            renderBench();
+        };
+
+        window.deleteSquad = function(id) {
+            if (!confirm('🗑️ Gespeicherte Aufstellung wirklich löschen?')) return;
+            savedSquads = savedSquads.filter(s => s.id !== id);
+            localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
+            renderSavedSquads();
+        };
+
+        // ========== RESET ALL ==========
+        document.getElementById('resetAllBtn').addEventListener('click', function() {
+            if (!confirm('⚠️ ACHTUNG! Alle Daten werden unwiderruflich gelöscht. Fortfahren?')) return;
+            if (!confirm('🚨 LETZTE WARNUNG! Wirklich ALLES löschen?')) return;
+
+            localStorage.clear();
+            players = [];
+            currentSquad = {};
+            savedSquads = [];
+            benchPlayers = [];
+
+            location.reload();
+        });
+
+        // ========== INIT ==========
+        renderOlymp();
+        renderFormation();
+        renderBench();
+        renderSavedSquads();
+        document.getElementById('formationSelect').value = currentSquad.formation || '4-4-2';
+    </script>
 </body>
 </html>
