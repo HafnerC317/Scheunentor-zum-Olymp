@@ -1,13 +1,31 @@
+
+/* =====================================================
+   SCHEUNENTOR ZUM OLYMP - PREMIUM BLACK & GOLD DESIGN
+   ===================================================== */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+:root {
+    --bg-dark: #0a0a0a;
+    --bg-card: #1a1410;
+    --gold: #D4AF37;
+    --gold-hover: #F4CF57;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --elite: #9b59b6;
+    --silver: #C0C0C0;
+    --bronze: #CD7F32;
+    --champions: #003B7A;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1410 100%);
-    color: #ffffff;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
+    color: var(--text-primary);
     min-height: 100vh;
     padding: 20px;
 }
@@ -15,71 +33,83 @@ body {
 .container {
     max-width: 1100px;
     margin: 0 auto;
-    background: rgba(26, 20, 16, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 8px 32px rgba(212, 175, 55, 0.15);
-    border: 1px solid rgba(212, 175, 55, 0.2);
 }
+
+/* =====================================================
+   HEADER
+   ===================================================== */
 
 header {
     text-align: center;
     margin-bottom: 30px;
+    background: rgba(212, 175, 55, 0.05);
+    padding: 30px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.logo-container {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 20px;
+    margin-bottom: 15px;
 }
 
 .logo {
-    width: 80px;
-    height: 80px;
-    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
+    width: 60px;
+    height: 60px;
 }
 
-h1 {
-    font-size: 2.5rem;
-    color: #D4AF37;
-    text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+header h1 {
+    font-size: 2.5em;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
 }
 
-h2 {
-    color: #D4AF37;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-}
+/* =====================================================
+   TABS
+   ===================================================== */
 
-/* TABS */
 .tabs {
     display: flex;
     gap: 10px;
     margin-bottom: 30px;
-    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .tab-btn {
-    flex: 1;
-    padding: 15px;
     background: rgba(212, 175, 55, 0.1);
-    border: none;
-    color: #D4AF37;
-    font-size: 1rem;
-    font-weight: bold;
+    color: var(--text-secondary);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    padding: 12px 30px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s;
-    border-radius: 10px 10px 0 0;
+    font-size: 1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .tab-btn:hover {
     background: rgba(212, 175, 55, 0.2);
+    border-color: var(--gold);
+    color: var(--text-primary);
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+    background: var(--gold);
     color: #0a0a0a;
-    box-shadow: 0 -4px 15px rgba(212, 175, 55, 0.4);
+    border-color: var(--gold);
 }
+
+/* =====================================================
+   TAB CONTENT
+   ===================================================== */
 
 .tab-content {
     display: none;
@@ -87,7 +117,7 @@ h2 {
 
 .tab-content.active {
     display: block;
-    animation: fadeIn 0.3s;
+    animation: fadeIn 0.3s ease;
 }
 
 @keyframes fadeIn {
@@ -95,563 +125,360 @@ h2 {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* FORMULAR */
-.add-player-form {
-    background: rgba(212, 175, 55, 0.05);
-    padding: 25px;
+/* =====================================================
+   FORM CARD
+   ===================================================== */
+
+.form-card {
+    background: rgba(26, 20, 16, 0.8);
+    padding: 30px;
     border-radius: 15px;
-    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
     border: 1px solid rgba(212, 175, 55, 0.2);
+    margin-bottom: 30px;
 }
 
-.add-player-form input,
-.add-player-form select {
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
     width: 100%;
     padding: 12px;
-    margin-bottom: 15px;
-    background: rgba(10, 10, 10, 0.7);
+    background: rgba(10, 10, 10, 0.6);
     border: 1px solid rgba(212, 175, 55, 0.3);
     border-radius: 8px;
-    color: #ffffff;
-    font-size: 1rem;
+    color: var(--text-primary);
+    font-size: 1em;
 }
 
-.add-player-form input:focus,
-.add-player-form select:focus {
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
-    border-color: #D4AF37;
+    border-color: var(--gold);
     box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
 }
 
-button {
-    padding: 12px 25px;
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
-    border: none;
-    border-radius: 8px;
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.btn {
+    background: var(--gold);
     color: #0a0a0a;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
-}
-
-/* FILTER */
-.filter-section {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-
-.filter-section input,
-.filter-section select {
-    flex: 1;
-    min-width: 200px;
-    padding: 12px;
-    background: rgba(10, 10, 10, 0.7);
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    border: none;
+    padding: 12px 30px;
     border-radius: 8px;
-    color: #ffffff;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-/* SPIELERKARTEN */
-.player-list {
+.btn:hover {
+    background: var(--gold-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(212, 175, 55, 0.2);
+    color: var(--gold);
+    border: 1px solid var(--gold);
+}
+
+.btn-secondary:hover {
+    background: rgba(212, 175, 55, 0.3);
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+/* =====================================================
+   PLAYERS GRID
+   ===================================================== */
+
+.players-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
+    margin-top: 30px;
 }
 
 .player-card {
     background: rgba(26, 20, 16, 0.8);
     border-radius: 15px;
     padding: 20px;
-    border: 2px solid;
-    transition: all 0.3s;
-    position: relative;
-    overflow: hidden;
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    transition: all 0.3s ease;
 }
 
 .player-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+    border-color: var(--gold);
 }
 
-.player-card.tier-elite { border-color: #9b59b6; }
-.player-card.tier-gold { border-color: #D4AF37; }
-.player-card.tier-silver { border-color: #C0C0C0; }
-.player-card.tier-bronze { border-color: #CD7F32; }
-.player-card.tier-champions { border-color: #003B7A; }
-
-.player-card-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.player-card-image {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
+.player-image {
+    width: 100%;
+    height: 200px;
     object-fit: cover;
-    border: 3px solid rgba(212, 175, 55, 0.5);
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 2px solid rgba(212, 175, 55, 0.3);
 }
 
-.player-card-info h3 {
-    font-size: 1.3rem;
-    color: #D4AF37;
-    margin-bottom: 5px;
-}
-
-.player-card-info p {
-    color: #cccccc;
-    font-size: 0.9rem;
+.player-name {
+    font-size: 1.3em;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--gold);
 }
 
 .player-rating {
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-    margin: 15px 0;
+    font-size: 2em;
+    font-weight: 900;
+    margin: 10px 0;
 }
 
-.tier-badge {
+.player-tier {
     display: inline-block;
-    padding: 6px 12px;
+    padding: 5px 15px;
     border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    margin-top: 10px;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
-.tier-elite .tier-badge { background: #9b59b6; color: #fff; }
-.tier-gold .tier-badge { background: #D4AF37; color: #0a0a0a; }
-.tier-silver .tier-badge { background: #C0C0C0; color: #0a0a0a; }
-.tier-bronze .tier-badge { background: #CD7F32; color: #fff; }
-.tier-champions .tier-badge { background: #003B7A; color: #fff; }
+.tier-elite { background: var(--elite); color: white; }
+.tier-gold { background: var(--gold); color: #0a0a0a; }
+.tier-silver { background: var(--silver); color: #0a0a0a; }
+.tier-bronze { background: var(--bronze); color: white; }
+.tier-champions { background: var(--champions); color: white; }
 
-.player-card-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-}
+/* =====================================================
+   DREAM SQUAD (TRAUMAUFSTELLUNG)
+   ===================================================== */
 
-.player-card-actions button {
-    flex: 1;
-    padding: 8px;
-    font-size: 0.9rem;
-}
-
-.btn-edit {
-    background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
-}
-
-.btn-delete {
-    background: linear-gradient(135deg, #e74c3c 0%, #ec7063 100%);
-}
-
-.btn-alt-positions {
-    background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
-}
-
-/* TRAUMAUFSTELLUNG */
-.squad-controls {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-}
-
-.squad-controls h2 {
-    margin: 0;
-    flex: 1;
-}
-
-.squad-controls select {
-    padding: 12px;
-    background: rgba(10, 10, 10, 0.7);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    border-radius: 8px;
-    color: #ffffff;
-    font-size: 1rem;
-}
-
-.squad-field {
-    background: linear-gradient(180deg, #1a5f1a 0%, #0f3d0f 100%);
-    border-radius: 20px;
-    padding: 40px;
-    position: relative;
-    min-height: 600px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 3px solid rgba(212, 175, 55, 0.3);
-}
-
-.squad-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin: 15px 0;
-}
-
-.squad-slot {
-    width: 100px;
-    background: rgba(212, 175, 55, 0.15);
-    border: 2px dashed rgba(212, 175, 55, 0.5);
-    border-radius: 12px;
-    padding: 10px;
+.formation-selector {
+    margin-bottom: 30px;
     text-align: center;
-    transition: all 0.3s;
-    cursor: pointer;
-    position: relative;
 }
 
-.squad-slot:hover {
-    background: rgba(212, 175, 55, 0.25);
-    border-color: #D4AF37;
+.formation-btn {
+    background: var(--gold);
+    color: #0a0a0a;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.formation-btn:hover {
+    background: var(--gold-hover);
     transform: scale(1.05);
 }
 
-.squad-slot.filled {
-    background: rgba(26, 20, 16, 0.9);
-    border: 2px solid #D4AF37;
+.field {
+    background: linear-gradient(180deg, #1a5f1a 0%, #0f3d0f 100%);
+    border-radius: 15px;
+    padding: 40px 20px;
+    position: relative;
+    min-height: 600px;
+    border: 3px solid rgba(212, 175, 55, 0.3);
 }
 
-.squad-slot-image {
+.field-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.position-slot {
+    background: rgba(26, 20, 16, 0.9);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.position-slot:hover {
+    background: rgba(212, 175, 55, 0.2);
+    transform: scale(1.05);
+}
+
+.position-slot.filled {
+    background: rgba(212, 175, 55, 0.3);
+}
+
+.squad-player-img {
     width: 60px;
     height: 60px;
     border-radius: 50%;
     object-fit: cover;
-    margin: 0 auto 8px;
-    border: 2px solid #D4AF37;
-}
-
-.squad-slot-name {
-    font-size: 0.85rem;
-    color: #D4AF37;
-    font-weight: bold;
-    margin-bottom: 5px;
-    word-wrap: break-word;
-}
-
-.squad-slot-rating {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #FFD700;
-}
-
-.squad-slot-position {
-    font-size: 0.75rem;
-    color: #cccccc;
     margin-bottom: 8px;
+    border: 2px solid var(--gold);
 }
 
-.squad-slot-actions {
-    display: flex;
-    gap: 5px;
-    margin-top: 10px;
+.squad-player-name {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--gold);
 }
 
-.squad-slot-actions button {
-    flex: 1;
-    padding: 5px;
-    font-size: 0.7rem;
+.squad-player-rating {
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-top: 5px;
 }
 
-.btn-change {
-    background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
-}
+/* =====================================================
+   BENCH (ERSATZBANK)
+   ===================================================== */
 
-.btn-remove {
-    background: linear-gradient(135deg, #e74c3c 0%, #ec7063 100%);
-}
-
-/* ERSATZBANK */
 .bench-container {
     margin-top: 30px;
-}
-
-.toggle-bench-btn {
-    width: 100%;
-    margin-bottom: 15px;
-}
-
-.bench-slots {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 15px;
-    padding: 20px;
-    background: rgba(10, 10, 10, 0.5);
+    background: rgba(26, 20, 16, 0.8);
     border-radius: 15px;
+    padding: 20px;
     border: 2px solid rgba(212, 175, 55, 0.2);
 }
 
-/* OLYMP */
-.olymp-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-}
-
-.olymp-tab-btn {
-    flex: 1;
-    padding: 12px;
-    background: rgba(212, 175, 55, 0.1);
-    border: none;
-    color: #D4AF37;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    border-radius: 8px;
-}
-
-.olymp-tab-btn:hover {
-    background: rgba(212, 175, 55, 0.2);
-}
-
-.olymp-tab-btn.active {
-    background: linear-gradient(135deg, #D4AF37 0%, #FFD700 100%);
+.bench-toggle {
+    background: var(--gold);
     color: #0a0a0a;
-}
-
-.olymp-content {
-    display: none;
-}
-
-.olymp-content.active {
-    display: block;
-}
-
-.olymp-player-item {
-    background: rgba(26, 20, 16, 0.7);
-    padding: 15px;
-    border-radius: 10px;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    width: 100%;
     margin-bottom: 15px;
-    border-left: 4px solid;
-    display: flex;
-    align-items: center;
+}
+
+.bench-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
     gap: 15px;
 }
 
-.olymp-player-item.tier-elite { border-color: #9b59b6; }
-.olymp-player-item.tier-gold { border-color: #D4AF37; }
-.olymp-player-item.tier-silver { border-color: #C0C0C0; }
-.olymp-player-item.tier-bronze { border-color: #CD7F32; }
-.olymp-player-item.tier-champions { border-color: #003B7A; }
-
-.olymp-player-item img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
+@media (max-width: 768px) {
+    .bench-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
-.olymp-player-info {
-    flex: 1;
-}
+/* =====================================================
+   MODAL
+   ===================================================== */
 
-.olymp-player-info h4 {
-    color: #D4AF37;
-    margin-bottom: 5px;
-    font-size: 1.1rem;
-}
-
-.olymp-player-info h4 a {
-    color: #D4AF37;
-    text-decoration: none;
-    transition: all 0.3s;
-}
-
-.olymp-player-info h4 a:hover {
-    color: #FFD700;
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-}
-
-.olymp-player-info p {
-    color: #cccccc;
-    font-size: 0.9rem;
-}
-
-.olymp-player-rating {
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.position-group {
-    margin-bottom: 30px;
-}
-
-.position-group h3 {
-    color: #D4AF37;
-    margin-bottom: 15px;
-    font-size: 1.4rem;
-    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
-    padding-bottom: 10px;
-}
-
-/* MODAL */
 .modal {
     display: none;
     position: fixed;
-    top: 0;
+    z-index: 1000;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
+    backdrop-filter: blur(5px);
 }
 
 .modal.active {
     display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-content {
-    background: linear-gradient(135deg, #1a1410 0%, #0a0a0a 100%);
+    background: var(--bg-card);
     padding: 30px;
-    border-radius: 20px;
-    max-width: 600px;
+    border-radius: 15px;
+    max-width: 500px;
     width: 90%;
+    border: 2px solid var(--gold);
     max-height: 80vh;
     overflow-y: auto;
-    border: 2px solid rgba(212, 175, 55, 0.3);
 }
 
-.modal-content h3 {
-    color: #D4AF37;
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
-    font-size: 1.5rem;
 }
 
-.modal-player-list {
-    max-height: 400px;
-    overflow-y: auto;
-    margin: 20px 0;
+.modal-close {
+    background: #dc3545;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2em;
 }
 
-.modal-player-item {
+.player-select-item {
     background: rgba(212, 175, 55, 0.1);
-    padding: 12px;
+    padding: 15px;
     margin-bottom: 10px;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border: 2px solid transparent;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
 }
 
-.modal-player-item:hover {
+.player-select-item:hover {
     background: rgba(212, 175, 55, 0.2);
-    border-color: #D4AF37;
+    border-color: var(--gold);
 }
 
-.modal-player-item img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
 
-.modal-player-item-info {
-    flex: 1;
-}
-
-.modal-player-item-info h4 {
-    color: #D4AF37;
-    font-size: 1rem;
-    margin-bottom: 3px;
-}
-
-.modal-player-item-info p {
-    color: #cccccc;
-    font-size: 0.85rem;
-}
-
-.modal-player-item-rating {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #FFD700;
-}
-
-.alt-position-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin: 20px 0;
-}
-
-.alt-position-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    background: rgba(212, 175, 55, 0.1);
-    border-radius: 8px;
-}
-
-.alt-position-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-.alt-position-item label {
-    color: #D4AF37;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close-modal-btn {
-    background: linear-gradient(135deg, #e74c3c 0%, #ec7063 100%);
-    width: 100%;
-    margin-top: 15px;
-}
-
-/* RESPONSIVE */
 @media (max-width: 768px) {
-    .container {
-        padding: 20px;
+    header h1 {
+        font-size: 1.8em;
     }
-
-    h1 {
-        font-size: 1.8rem;
-    }
-
-    .logo {
-        width: 60px;
-        height: 60px;
-    }
-
-    .squad-field {
-        padding: 20px;
-    }
-
-    .squad-slot {
-        width: 80px;
-    }
-
-    .player-list {
+    
+    .players-grid {
         grid-template-columns: 1fr;
     }
-
-    .filter-section {
+    
+    .tabs {
         flex-direction: column;
     }
-
-    .filter-section input,
-    .filter-section select {
+    
+    .tab-btn {
         width: 100%;
     }
 }
