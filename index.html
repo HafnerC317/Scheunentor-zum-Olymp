@@ -1,200 +1,874 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Fußballer Ratings</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-    .container { max-width: 600px; margin: 0 auto; }
-    h1 { color: white; text-align: center; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-    
-    .input-box {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    input, button {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-    button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:active { transform: scale(0.98); }
-    
-    .stats {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .stat-bar {
-      display: flex;
-      align-items: center;
-      margin: 8px 0;
-      padding: 8px;
-      border-radius: 6px;
-    }
-    .stat-label { width: 120px; font-weight: bold; }
-    .stat-value { margin-left: auto; font-weight: bold; }
-    
-    .elite { background: linear-gradient(135deg, #a855f7, #ec4899); color: white; }
-    .gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; }
-    .silber { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: #1f2937; }
-    .bronze { background: linear-gradient(135deg, #d97706, #92400e); color: white; }
-    .nennung { background: linear-gradient(135deg, #93c5fd, #60a5fa); color: white; }
-    
-    .player-list { margin-top: 20px; }
-    .player-card {
-      background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      border-left: 6px solid;
-    }
-    .player-info { flex: 1; }
-    .player-name { font-weight: bold; font-size: 18px; }
-    .player-rating {
-      font-size: 24px;
-      font-weight: bold;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      margin-right: 15px;
-    }
-    .player-actions button {
-      width: auto;
-      padding: 8px 16px;
-      margin: 4px;
-      font-size: 14px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Fußballer Ratings Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.85;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            color: #333;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        
+        .input-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f7fafc;
+            font-family: inherit;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        select {
+            cursor: pointer;
+        }
+        
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        .tier-overview {
+            display: grid;
+            gap: 14px;
+        }
+        
+        .tier-card {
+            padding: 18px 24px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .tier-card:hover {
+            transform: translateX(6px) scale(1.02);
+        }
+        
+        .tier-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 17px;
+        }
+        
+        .tier-count {
+            font-size: 22px;
+            font-weight: 800;
+            background: rgba(255,255,255,0.35);
+            padding: 6px 16px;
+            border-radius: 25px;
+        }
+        
+        .elite { background: linear-gradient(135deg, #c471f5 0%, #fa71cd 100%); color: #fff; }
+        .gold { background: linear-gradient(135deg, #f7b733 0%, #fc4a1a 100%); color: #fff; }
+        .silver { background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%); color: #fff; }
+        .bronze { background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%); color: #fff; }
+        .mentions { background: linear-gradient(135deg, #56ccf2 0%, #2f80ed 100%); color: #fff; }
+        
+        .filter-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .filter-btn:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .player-list {
+            margin-top: 16px;
+        }
+        
+        .player-item {
+            background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border-left: 5px solid;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .player-item:hover {
+            background: linear-gradient(135deg, #edf2f7 0%, #f7fafc 100%);
+            transform: translateX(8px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        
+        .player-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 3px solid #e2e8f0;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        
+        .player-info {
+            flex-grow: 1;
+        }
+        
+        .player-name {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+        
+        .player-details {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .player-rating {
+            font-size: 14px;
+            color: #4a5568;
+            font-weight: 600;
+            background: #edf2f7;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        
+        .player-position {
+            font-size: 13px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+        
+        .player-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .btn-small {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 700;
+        }
+        
+        .btn-edit {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .btn-small:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+            font-style: italic;
+            font-size: 15px;
+        }
+        
+        .position-group {
+            margin-bottom: 24px;
+        }
+        
+        .position-group h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #667eea;
+            display: inline-block;
+        }
+        
+        .formation-selector {
+            margin-bottom: 20px;
+        }
+        
+        .formation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .formation-btn {
+            padding: 12px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #4a5568;
+        }
+        
+        .formation-btn:hover {
+            background: #edf2f7;
+            border-color: #667eea;
+        }
+        
+        .formation-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .pitch {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            border-radius: 16px;
+            padding: 30px 20px;
+            position: relative;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: inset 0 4px 20px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+        
+        .pitch-line {
+            position: absolute;
+            background: rgba(255,255,255,0.4);
+        }
+        
+        .formation-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 2;
+        }
+        
+        .player-slot {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .player-slot select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 2px solid #fff;
+            background: rgba(255,255,255,0.95);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .position-label {
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.3);
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .player-image {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .filter-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 14px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .nav-tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>⚽ Fußballer Ratings</h1>
-    
-    <div class="input-box">
-      <input type="text" id="playerName" placeholder="Spielername">
-      <input type="number" id="playerRating" placeholder="Rating (0-99)" min="0" max="99">
-      <button onclick="addPlayer()">Spieler hinzufügen</button>
+    <div class="container">
+        <header>
+            <h1>⚽ FUSSBALL RATINGS PRO</h1>
+            <div class="subtitle">PREMIUM SPIELER-MANAGEMENT</div>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchView('ratings')">📊 Ratings</div>
+            <div class="nav-tab" onclick="switchView('squad')">⚡ Traumaufstellung</div>
+        </div>
+
+        <!-- RATINGS VIEW -->
+        <div id="ratingsView" class="view active">
+            <!-- Eingabeformular -->
+            <div class="card">
+                <h2>➕ Spieler hinzufügen</h2>
+                <form id="playerForm">
+                    <div class="input-group">
+                        <label for="playerName">Spielername</label>
+                        <input type="text" id="playerName" placeholder="z.B. Cristiano Ronaldo" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="playerImage">Bild-URL (optional)</label>
+                        <input type="url" id="playerImage" placeholder="https://... (Link zum Spielerbild)">
+                    </div>
+                    <div class="input-group">
+                        <label for="playerRating">Rating (0-99)</label>
+                        <input type="number" id="playerRating" min="0" max="99" placeholder="z.B. 95" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="playerPosition">Position</label>
+                        <select id="playerPosition" required>
+                            <option value="">Position wählen</option>
+                            <option value="TW">TW - Torwart</option>
+                            <option value="LV">LV - Linker Verteidiger</option>
+                            <option value="IV">IV - Innenverteidiger</option>
+                            <option value="RV">RV - Rechter Verteidiger</option>
+                            <option value="ZDM">ZDM - Zentrales Defensives Mittelfeld</option>
+                            <option value="ZM">ZM - Zentrales Mittelfeld</option>
+                            <option value="ZOM">ZOM - Zentrales Offensives Mittelfeld</option>
+                            <option value="LM">LM - Linkes Mittelfeld</option>
+                            <option value="RM">RM - Rechtes Mittelfeld</option>
+                            <option value="LF">LF - Linker Flügel</option>
+                            <option value="RF">RF - Rechter Flügel</option>
+                            <option value="ST">ST - Stürmer</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="submitBtn">Spieler hinzufügen</button>
+                </form>
+            </div>
+
+            <!-- Tier-Übersicht -->
+            <div class="card">
+                <h2>📊 Tier-Übersicht</h2>
+                <div class="tier-overview">
+                    <div class="tier-card elite" onclick="filterByTier('Elite')">
+                        <div class="tier-label">
+                            <span>👑</span>
+                            <span>Elite (95-99)</span>
+                        </div>
+                        <div class="tier-count" id="count-elite">0</div>
+                    </div>
+                    <div class="tier-card gold" onclick="filterByTier('Gold')">
+                        <div class="tier-label">
+                            <span>🥇</span>
+                            <span>Gold (90-94)</span>
+                        </div>
+                        <div class="tier-count" id="count-gold">0</div>
+                    </div>
+                    <div class="tier-card silver" onclick="filterByTier('Silber')">
+                        <div class="tier-label">
+                            <span>🥈</span>
+                            <span>Silber (85-89)</span>
+                        </div>
+                        <div class="tier-count" id="count-silver">0</div>
+                    </div>
+                    <div class="tier-card bronze" onclick="filterByTier('Bronze')">
+                        <div class="tier-label">
+                            <span>🥉</span>
+                            <span>Bronze (80-84)</span>
+                        </div>
+                        <div class="tier-count" id="count-bronze">0</div>
+                    </div>
+                    <div class="tier-card mentions" onclick="filterByTier('Nennungen')">
+                        <div class="tier-label">
+                            <span>💬</span>
+                            <span>Nennungen (0-79)</span>
+                        </div>
+                        <div class="tier-count" id="count-mentions">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter -->
+            <div class="card">
+                <h2>🔍 Filter</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterPlayers('all')">Alle Spieler</button>
+                    <button class="filter-btn" onclick="filterPlayers('position')">Nach Position</button>
+                </div>
+
+                <div id="playerList" class="player-list"></div>
+            </div>
+        </div>
+
+        <!-- TRAUMAUFSTELLUNG VIEW -->
+        <div id="squadView" class="view">
+            <div class="card">
+                <h2>⚡ Traumaufstellung erstellen</h2>
+                
+                <div class="formation-selector">
+                    <label style="font-weight: 700; color: #1a202c; margin-bottom: 12px; display: block;">Formation wählen:</label>
+                    <div class="formation-grid" id="formationGrid"></div>
+                </div>
+
+                <div id="pitchContainer"></div>
+            </div>
+        </div>
     </div>
-    
-    <div class="stats" id="stats"></div>
-    
-    <div class="player-list" id="playerList"></div>
-  </div>
 
-  <script>
-    let players = JSON.parse(localStorage.getItem('players')) || [];
+    <script>
+        let players = JSON.parse(localStorage.getItem('players')) || [];
+        let editingIndex = null;
+        let currentFilter = 'all';
+        let currentTierFilter = null;
+        let selectedFormation = null;
 
-    function getCategory(rating) {
-      if (rating >= 95) return { name: 'Elite', class: 'elite', color: '#a855f7' };
-      if (rating >= 90) return { name: 'Gold', class: 'gold', color: '#fbbf24' };
-      if (rating >= 85) return { name: 'Silber', class: 'silber', color: '#d1d5db' };
-      if (rating >= 80) return { name: 'Bronze', class: 'bronze', color: '#d97706' };
-      return { name: 'Nennung', class: 'nennung', color: '#93c5fd' };
-    }
+        const formations = [
+            '3-1-4-2', '3-4-1-2', '3-4-2-1', '3-4-3', '3-4-3 Flach', '3-5-2',
+            '4-1-2-1-2 Schmal', '4-1-2-1-2 Breit', '4-1-3-2', '4-1-4-1',
+            '4-2-1-3', '4-2-2-2', '4-2-3-1 Schmal', '4-2-3-1 Breit', '4-2-4',
+            '4-3-1-2', '4-3-2-1', '4-3-3 Offensiv', '4-3-3 Defensiv', '4-3-3 Flach',
+            '4-3-3 Falsche 9', '4-4-1-1 Mittelfeld', '4-4-1-1 Angriff', '4-4-2 Flach',
+            '4-4-2 Defensiv', '4-5-1 Angriff', '4-5-1 Flach', '5-2-1-2', '5-2-3',
+            '5-3-2', '5-3-2 Defensiv', '5-4-1', '5-4-1 Flach'
+        ];
 
-    function addPlayer() {
-      const name = document.getElementById('playerName').value.trim();
-      const rating = parseInt(document.getElementById('playerRating').value);
-      
-      if (!name || isNaN(rating) || rating < 0 || rating > 99) {
-        alert('Bitte gültigen Namen und Rating (0-99) eingeben!');
-        return;
-      }
-      
-      players.push({ id: Date.now(), name, rating });
-      saveAndRender();
-      document.getElementById('playerName').value = '';
-      document.getElementById('playerRating').value = '';
-    }
+        const formationLayouts = {
+            '4-3-3': [
+                { positions: ['ST'], label: 'ST' },
+                { positions: ['LF', 'RF'], label: 'LF/RF' },
+                { positions: ['ZM', 'ZM', 'ZM'], label: 'ZM' },
+                { positions: ['LV', 'IV', 'IV', 'RV'], label: 'Abwehr' },
+                { positions: ['TW'], label: 'TW' }
+            ],
+            '4-4-2': [
+                { positions: ['ST', 'ST'], label: 'ST' },
+                { positions: ['LM', 'ZM', 'ZM', 'RM'], label: 'Mittelfeld' },
+                { positions: ['LV', 'IV', 'IV', 'RV'], label: 'Abwehr' },
+                { positions: ['TW'], label: 'TW' }
+            ],
+            '4-2-3-1': [
+                { positions: ['ST'], label: 'ST' },
+                { positions: ['LF', 'ZOM', 'RF'], label: 'Off. MF' },
+                { positions: ['ZDM', 'ZDM'], label: 'ZDM' },
+                { positions: ['LV', 'IV', 'IV', 'RV'], label: 'Abwehr' },
+                { positions: ['TW'], label: 'TW' }
+            ]
+        };
 
-    function deletePlayer(id) {
-      players = players.filter(p => p.id !== id);
-      saveAndRender();
-    }
+        const tierColors = {
+            'Elite': '#c471f5',
+            'Gold': '#f7b733',
+            'Silber': '#bdc3c7',
+            'Bronze': '#cd7f32',
+            'Nennungen': '#56ccf2'
+        };
 
-    function editPlayer(id) {
-      const player = players.find(p => p.id === id);
-      const newRating = prompt(`Neues Rating für ${player.name}:`, player.rating);
-      if (newRating !== null && !isNaN(newRating)) {
-        player.rating = parseInt(newRating);
-        saveAndRender();
-      }
-    }
+        const positionGroups = {
+            'Torwart': ['TW'],
+            'Verteidiger': ['LV', 'IV', 'RV'],
+            'Mittelfeld': ['ZDM', 'ZM', 'ZOM', 'LM', 'RM'],
+            'Stürmer': ['LF', 'RF', 'ST']
+        };
 
-    function saveAndRender() {
-      localStorage.setItem('players', JSON.stringify(players));
-      render();
-    }
+        function getTier(rating) {
+            if (rating >= 95 && rating <= 99) return 'Elite';
+            if (rating >= 90 && rating <= 94) return 'Gold';
+            if (rating >= 85 && rating <= 89) return 'Silber';
+            if (rating >= 80 && rating <= 84) return 'Bronze';
+            return 'Nennungen';
+        }
 
-    function render() {
-      // Statistiken
-      const stats = { elite: 0, gold: 0, silber: 0, bronze: 0, nennung: 0 };
-      players.forEach(p => {
-        const cat = getCategory(p.rating);
-        stats[cat.class]++;
-      });
-      
-      document.getElementById('stats').innerHTML = `
-        <h3>📊 Übersicht</h3>
-        <div class="stat-bar elite"><span class="stat-label">🟣 Elite</span><span class="stat-value">${stats.elite}</span></div>
-        <div class="stat-bar gold"><span class="stat-label">🟡 Gold</span><span class="stat-value">${stats.gold}</span></div>
-        <div class="stat-bar silber"><span class="stat-label">⚪ Silber</span><span class="stat-value">${stats.silber}</span></div>
-        <div class="stat-bar bronze"><span class="stat-label">🟤 Bronze</span><span class="stat-value">${stats.bronze}</span></div>
-        <div class="stat-bar nennung"><span class="stat-label">🔵 Nennungen</span><span class="stat-value">${stats.nennung}</span></div>
-      `;
-      
-      // Spieler-Liste (sortiert nach Rating)
-      const sorted = [...players].sort((a, b) => b.rating - a.rating);
-      document.getElementById('playerList').innerHTML = sorted.map(p => {
-        const cat = getCategory(p.rating);
-        return `
-          <div class="player-card" style="border-left-color: ${cat.color}">
-            <div class="player-rating ${cat.class}">${p.rating}</div>
-            <div class="player-info">
-              <div class="player-name">${p.name}</div>
-              <small>${cat.name}</small>
-            </div>
-            <div class="player-actions">
-              <button onclick="editPlayer(${p.id})">✏️</button>
-              <button onclick="deletePlayer(${p.id})" style="background: #ef4444;">🗑️</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
+        function switchView(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            if (view === 'ratings') {
+                document.getElementById('ratingsView').classList.add('active');
+                document.querySelectorAll('.nav-tab')[0].classList.add('active');
+            } else {
+                document.getElementById('squadView').classList.add('active');
+                document.querySelectorAll('.nav-tab')[1].classList.add('active');
+                initFormations();
+            }
+        }
 
-    render();
-  </script>
+        function updateUI() {
+            updateCounts();
+            renderPlayers();
+        }
+
+        function updateCounts() {
+            const counts = { Elite: 0, Gold: 0, Silber: 0, Bronze: 0, Nennungen: 0 };
+            players.forEach(p => counts[getTier(p.rating)]++);
+            
+            document.getElementById('count-elite').textContent = counts.Elite;
+            document.getElementById('count-gold').textContent = counts.Gold;
+            document.getElementById('count-silver').textContent = counts.Silber;
+            document.getElementById('count-bronze').textContent = counts.Bronze;
+            document.getElementById('count-mentions').textContent = counts.Nennungen;
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('playerList');
+            let displayPlayers = [...players];
+
+            if (currentTierFilter) {
+                displayPlayers = displayPlayers.filter(p => getTier(p.rating) === currentTierFilter);
+            }
+
+            displayPlayers.sort((a, b) => b.rating - a.rating);
+
+            if (displayPlayers.length === 0) {
+                container.innerHTML = '<div class="empty-state">Keine Spieler gefunden</div>';
+                return;
+            }
+
+            if (currentFilter === 'position') {
+                renderByPosition(displayPlayers, container);
+            } else {
+                renderAllPlayers(displayPlayers, container);
+            }
+        }
+
+        function renderAllPlayers(displayPlayers, container) {
+            container.innerHTML = displayPlayers.map((player, idx) => {
+                const realIndex = players.indexOf(player);
+                return createPlayerHTML(player, realIndex);
+            }).join('');
+        }
+
+        function renderByPosition(displayPlayers, container) {
+            let html = '';
+            for (const [groupName, positions] of Object.entries(positionGroups)) {
+                const groupPlayers = displayPlayers.filter(p => positions.includes(p.position));
+                if (groupPlayers.length > 0) {
+                    html += `<div class="position-group">
+                        <h3>${groupName}</h3>
+                        ${groupPlayers.map(p => createPlayerHTML(p, players.indexOf(p))).join('')}
+                    </div>`;
+                }
+            }
+            container.innerHTML = html || '<div class="empty-state">Keine Spieler gefunden</div>';
+        }
+
+        function createPlayerHTML(player, realIndex) {
+            const tier = getTier(player.rating);
+            const color = tierColors[tier];
+            const imageHTML = player.image 
+                ? `<img src="${player.image}" class="player-image" onerror="this.outerHTML='<div class=player-image>⚽</div>'">` 
+                : `<div class="player-image">⚽</div>`;
+            
+            return `
+                <div class="player-item" style="border-left-color: ${color}">
+                    ${imageHTML}
+                    <div class="player-info">
+                        <div class="player-name">${player.name}</div>
+                        <div class="player-details">
+                            <span class="player-rating">⭐ ${player.rating} • ${tier}</span>
+                            <span class="player-position">${player.position}</span>
+                        </div>
+                    </div>
+                    <div class="player-actions">
+                        <button class="btn-small btn-edit" onclick="editPlayer(${realIndex})">✏️</button>
+                        <button class="btn-small btn-delete" onclick="deletePlayer(${realIndex})">🗑️</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function filterPlayers(type) {
+            currentFilter = type;
+            currentTierFilter = null;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderPlayers();
+        }
+
+        function filterByTier(tier) {
+            currentTierFilter = tier;
+            renderPlayers();
+        }
+
+        document.getElementById('playerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('playerName').value.trim();
+            const rating = parseInt(document.getElementById('playerRating').value);
+            const position = document.getElementById('playerPosition').value;
+            const image = document.getElementById('playerImage').value.trim();
+
+            if (rating < 0 || rating > 99) {
+                alert('Rating muss zwischen 0 und 99 liegen!');
+                return;
+            }
+
+            if (editingIndex !== null) {
+                players[editingIndex] = { name, rating, position, image };
+                editingIndex = null;
+                document.getElementById('submitBtn').textContent = 'SPIELER HINZUFÜGEN';
+            } else {
+                players.push({ name, rating, position, image });
+            }
+
+            localStorage.setItem('players', JSON.stringify(players));
+            updateUI();
+            
+            this.reset();
+        });
+
+        function editPlayer(index) {
+            const player = players[index];
+            document.getElementById('playerName').value = player.name;
+            document.getElementById('playerRating').value = player.rating;
+            document.getElementById('playerPosition').value = player.position;
+            document.getElementById('playerImage').value = player.image || '';
+            document.getElementById('submitBtn').textContent = 'SPIELER AKTUALISIEREN';
+            editingIndex = index;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deletePlayer(index) {
+            if (confirm(`${players[index].name} wirklich löschen?`)) {
+                players.splice(index, 1);
+                localStorage.setItem('players', JSON.stringify(players));
+                updateUI();
+            }
+        }
+
+        function initFormations() {
+            const grid = document.getElementById('formationGrid');
+            grid.innerHTML = formations.map(f => 
+                `<button class="formation-btn" onclick="selectFormation('${f}')">${f}</button>`
+            ).join('');
+        }
+
+        function selectFormation(formation) {
+            selectedFormation = formation;
+            document.querySelectorAll('.formation-btn').forEach(btn => {
+                btn.classList.toggle('selected', btn.textContent === formation);
+            });
+            
+            // Basis-Layout (4-3-3 als Standard)
+            const layout = formationLayouts['4-3-3'];
+            renderPitch(layout);
+        }
+
+        function renderPitch(layout) {
+            const container = document.getElementById('pitchContainer');
+            
+            let html = '<div class="pitch">';
+            layout.forEach(row => {
+                html += '<div class="formation-row">';
+                row.positions.forEach((pos, idx) => {
+                    html += `
+                        <div class="player-slot">
+                            <select onchange="assignPlayer(this.value)">
+                                <option value="">-</option>
+                                ${players.filter(p => p.position === pos).map(p => 
+                                    `<option value="${p.name}">${p.name} (${p.rating})</option>`
+                                ).join('')}
+                            </select>
+                            <div class="position-label">${pos}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        }
+
+        function assignPlayer(playerName) {
+            console.log('Spieler zugewiesen:', playerName);
+        }
+
+        updateUI();
+    </script>
 </body>
 </html>
