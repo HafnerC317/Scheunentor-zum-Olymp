@@ -1,952 +1,813 @@
-// ========================================
-// GITHUB GIST SYNC CONFIGURATION (SECURE)
-// ========================================
-const GIST_ID_KEY = 'scheunentor_gist_id';
-const TOKEN_KEY = 'scheunentor_github_token';
-
-let GIST_ID = localStorage.getItem(GIST_ID_KEY) || null;
-let GITHUB_TOKEN = localStorage.getItem(TOKEN_KEY) || null;
-
-// Token-Setup beim ersten Start
-if (!GITHUB_TOKEN) {
-    const token = prompt('🔐 GitHub Token eingeben (nur einmal!):\n\nGehe zu https://github.com/settings/tokens\nErstelle einen Token mit "gist" Berechtigung');
-    if (token && token.trim()) {
-        GITHUB_TOKEN = token.trim();
-        localStorage.setItem(TOKEN_KEY, GITHUB_TOKEN);
-        alert('✅ Token gespeichert! Die Synchronisation ist jetzt aktiv.');
-    } else {
-        alert('⚠️ Kein Token eingegeben. Synchronisation deaktiviert.');
-    }
-}
-
+// ==================== GLOBAL STATE ====================
+let players = [];
+let currentSquad = { formation: null, positions: {}, bench: [] };
+let savedSquads = JSON.parse(localStorage.getItem('scheunentor_squads')) || [];
+let editingPlayerId = null;
+let selectedSlot = null;
+let GIST_ID = localStorage.getItem('scheunentor_gist_id') || null;
+let GITHUB_TOKEN = localStorage.getItem('scheunentor_github_token') || null;
 let syncInterval = null;
-let isSyncing = false;
+let lastSyncTime = 0;
 
-// ========================================
-// DATA MIGRATION
-// ========================================
-function migrateOldPlayers() {
-    const players = getPlayers();
-    let updated = false;
-    players.forEach(player => {
-        if (!player.altPositions) {
-            player.altPositions = [];
-            updated = true;
-        }
-        if (!player.wikiLink) {
-            player.wikiLink = '';
-            updated = true;
-        }
-    });
-    if (updated) {
-        localStorage.setItem('players', JSON.stringify(players));
-    }
-}
+// ==================== FORMATIONS ====================
+const formations = {
+    '4-4-2': [['MS', 'MS'], ['LM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '4-3-3': [['MS'], ['LF', 'ZOM', 'RF'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '4-2-3-1': [['MS'], ['LF', 'ZOM', 'RF'], ['ZDM', 'ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '3-5-2': [['MS', 'MS'], ['LM', 'ZM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
+    '5-3-2': [['MS', 'MS'], ['LM', 'ZM', 'RM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
+    '4-1-4-1': [['MS'], ['LM', 'ZOM', 'ZOM', 'RM'], ['ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '4-3-2-1': [['MS'], ['LF', 'RF'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '3-4-3': [['MS'], ['LF', 'RF'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
+    '4-1-2-1-2': [['MS', 'MS'], ['ZOM'], ['LM', 'RM'], ['ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '4-4-1-1': [['MS'], ['ZOM'], ['LM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '5-4-1': [['MS'], ['LM', 'ZM', 'ZM', 'RM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
+    '3-4-2-1': [['MS'], ['LF', 'RF'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
+    '4-2-2-2': [['MS', 'MS'], ['LF', 'RF'], ['ZDM', 'ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '3-1-4-2': [['MS', 'MS'], ['LM', 'ZOM', 'ZOM', 'RM'], ['ZDM'], ['IV', 'IV', 'IV'], ['TW']],
+    '4-5-1': [['MS'], ['LM', 'ZM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '4-3-1-2': [['MS', 'MS'], ['ZOM'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '5-2-3': [['LF', 'MS', 'RF'], ['ZM', 'ZM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
+    '3-4-1-2': [['MS', 'MS'], ['ZOM'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
+    '4-1-3-2': [['MS', 'MS'], ['LM', 'ZOM', 'RM'], ['ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '5-2-1-2': [['MS', 'MS'], ['ZOM'], ['ZM', 'ZM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
+    '4-2-4': [['LF', 'MS', 'MS', 'RF'], ['ZM', 'ZM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '3-5-1-1': [['MS'], ['ZOM'], ['LM', 'ZM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
+    '5-3-1-1': [['MS'], ['ZOM'], ['LM', 'ZM', 'RM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
+    '4-4-2 (2)': [['LS', 'RS'], ['LM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
+    '3-4-3 (2)': [['LS', 'MS', 'RS'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
+    '4-3-3 (2)': [['LS', 'MS', 'RS'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']]
+};
 
-// ========================================
-// HELPER FUNCTIONS
-// ========================================
-function getPlayers() {
-    const data = localStorage.getItem('players');
-    return data ? JSON.parse(data) : [];
-}
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+    loadPlayers();
+    initTabs();
+    initAddPlayer();
+    initFiltersAndSort();
+    initFormationModal();
+    initSquadManagement();
+    initOlympTabs();
+    initEditModal();
+    initSync();
+    renderPlayers();
+    renderOlymp();
+});
 
-function savePlayers(players) {
-    localStorage.setItem('players', JSON.stringify(players));
-}
-
-function getTier(rating) {
-    if (rating >= 95) return { name: 'Elite', class: 'tier-elite', color: '#9b59b6' };
-    if (rating >= 90) return { name: 'Gold', class: 'tier-gold', color: '#D4AF37' };
-    if (rating >= 85) return { name: 'Silber', class: 'tier-silver', color: '#C0C0C0' };
-    if (rating >= 80) return { name: 'Bronze', class: 'tier-bronze', color: '#CD7F32' };
-    return { name: 'Champions League', class: 'tier-champions', color: '#003B7A' };
-}
-
-async function fetchWikipediaLink(playerName) {
-    try {
-        const url = `https://de.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(playerName)}&limit=1&format=json&origin=*`;
-        const response = await fetch(url);
-        const data = await response.json();
-        if (data && data[3] && data[3][0]) {
-            return data[3][0];
-        }
-    } catch (error) {
-        console.error('Wikipedia Fehler:', error);
-    }
-    return '';
-}
-
-// ========================================
-// GITHUB GIST SYNC
-// ========================================
-async function syncToGist() {
-    if (!GITHUB_TOKEN || isSyncing) return;
-    
-    isSyncing = true;
-    
-    try {
-        const syncData = {
-            players: getPlayers(),
-            savedSquads: JSON.parse(localStorage.getItem('savedSquads') || '[]'),
-            currentSquad: JSON.parse(localStorage.getItem('currentSquad') || '{}'),
-            currentFormation: localStorage.getItem('currentFormation') || '4-3-3',
-            benchPlayers: JSON.parse(localStorage.getItem('benchPlayers') || '[]')
-        };
-
-        if (!GIST_ID) {
-            // Erstelle neuen Gist
-            const response = await fetch('https://api.github.com/gists', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    description: 'Scheunentor zum Olymp - Sync Data',
-                    public: false,
-                    files: {
-                        'scheunentor-data.json': {
-                            content: JSON.stringify(syncData, null, 2)
-                        }
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`Gist erstellen fehlgeschlagen: ${response.status}`);
-            }
-
-            const gist = await response.json();
-            GIST_ID = gist.id;
-            localStorage.setItem(GIST_ID_KEY, GIST_ID);
-            console.log('✅ Neuer Gist erstellt:', GIST_ID);
+// ==================== GITHUB SYNC ====================
+function initSync() {
+    if (!GITHUB_TOKEN) {
+        GITHUB_TOKEN = prompt('🔑 Gib deinen GitHub Personal Access Token ein (Scope: gist):');
+        if (GITHUB_TOKEN) {
+            localStorage.setItem('scheunentor_github_token', GITHUB_TOKEN);
         } else {
-            // Lade Remote-Daten und überschreibe lokal
-            const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`
-                }
-            });
+            alert('⚠️ Ohne Token kann nicht synchronisiert werden!');
+            return;
+        }
+    }
 
-            if (!response.ok) {
-                throw new Error(`Gist laden fehlgeschlagen: ${response.status}`);
+    document.getElementById('syncBtn').addEventListener('click', () => manualSync());
+
+    // Auto-Sync alle 5 Sekunden
+    syncInterval = setInterval(() => autoSync(), 5000);
+    
+    // Initial sync
+    loadFromGist();
+}
+
+async function manualSync() {
+    const btn = document.getElementById('syncBtn');
+    btn.classList.add('syncing');
+    await saveToGist();
+    await loadFromGist();
+    btn.classList.remove('syncing');
+}
+
+async function autoSync() {
+    const now = Date.now();
+    if (now - lastSyncTime < 4000) return; // Verhindere zu häufige Syncs
+    
+    await saveToGist();
+    await loadFromGist();
+    lastSyncTime = now;
+}
+
+async function saveToGist() {
+    if (!GITHUB_TOKEN) return;
+
+    const data = {
+        players: players,
+        squads: savedSquads,
+        currentSquad: currentSquad,
+        timestamp: Date.now()
+    };
+
+    const gistData = {
+        description: 'Scheunentor zum Olymp - Sync Data',
+        public: false,
+        files: {
+            'scheunentor_data.json': {
+                content: JSON.stringify(data, null, 2)
             }
+        }
+    };
 
-            const gist = await response.json();
-            const remoteContent = gist.files['scheunentor-data.json']?.content;
-
-            if (remoteContent) {
-                const remoteData = JSON.parse(remoteContent);
-                
-                // Überschreibe lokal mit Remote-Daten
-                localStorage.setItem('players', JSON.stringify(remoteData.players || []));
-                localStorage.setItem('savedSquads', JSON.stringify(remoteData.savedSquads || []));
-                localStorage.setItem('currentSquad', JSON.stringify(remoteData.currentSquad || {}));
-                localStorage.setItem('currentFormation', remoteData.currentFormation || '4-3-3');
-                localStorage.setItem('benchPlayers', JSON.stringify(remoteData.benchPlayers || []));
-
-                // UI neu laden
-                renderPlayers();
-                renderSquad();
-                renderBench();
-                renderOlymp();
-            }
-
-            // Update Gist mit aktuellen lokalen Daten
-            const updateResponse = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+    try {
+        let response;
+        if (GIST_ID) {
+            response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `token ${GITHUB_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    files: {
-                        'scheunentor-data.json': {
-                            content: JSON.stringify(syncData, null, 2)
-                        }
-                    }
-                })
+                body: JSON.stringify(gistData)
+            });
+        } else {
+            response = await fetch('https://api.github.com/gists', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(gistData)
             });
 
-            if (!updateResponse.ok) {
-                throw new Error(`Gist update fehlgeschlagen: ${updateResponse.status}`);
+            if (response.ok) {
+                const result = await response.json();
+                GIST_ID = result.id;
+                localStorage.setItem('scheunentor_gist_id', GIST_ID);
             }
         }
     } catch (error) {
-        console.error('❌ Sync Fehler:', error);
-    } finally {
-        isSyncing = false;
+        console.error('Sync-Fehler:', error);
     }
 }
 
-function startSync() {
-    if (!GITHUB_TOKEN) return;
-    
-    // Initiale Sync nach 1 Sekunde
-    setTimeout(() => syncToGist(), 1000);
-    
-    // Dann alle 5 Sekunden
-    syncInterval = setInterval(() => syncToGist(), 5000);
+async function loadFromGist() {
+    if (!GITHUB_TOKEN || !GIST_ID) return;
+
+    try {
+        const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+
+        if (response.ok) {
+            const gist = await response.json();
+            const content = gist.files['scheunentor_data.json'].content;
+            const data = JSON.parse(content);
+
+            // Last write wins
+            const localTimestamp = parseInt(localStorage.getItem('scheunentor_timestamp') || '0');
+            if (data.timestamp > localTimestamp) {
+                players = data.players || [];
+                savedSquads = data.squads || [];
+                currentSquad = data.currentSquad || { formation: null, positions: {}, bench: [] };
+                
+                localStorage.setItem('scheunentor_players', JSON.stringify(players));
+                localStorage.setItem('scheunentor_squads', JSON.stringify(savedSquads));
+                localStorage.setItem('scheunentor_current_squad', JSON.stringify(currentSquad));
+                localStorage.setItem('scheunentor_timestamp', data.timestamp.toString());
+
+                renderPlayers();
+                renderAvailablePlayers();
+                renderOlymp();
+                if (currentSquad.formation) renderField();
+            }
+        }
+    } catch (error) {
+        console.error('Load-Fehler:', error);
+    }
 }
 
-// ========================================
-// TAB SYSTEM
-// ========================================
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const targetTab = btn.dataset.tab;
-        
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        btn.classList.add('active');
-        document.getElementById(targetTab).classList.add('active');
-    });
-});
+// ==================== LOCAL STORAGE ====================
+function loadPlayers() {
+    const stored = localStorage.getItem('scheunentor_players');
+    if (stored) {
+        players = JSON.parse(stored);
+        migrateOldPlayers();
+    }
 
-document.querySelectorAll('.olymp-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const targetTab = btn.dataset.olymp;
-        
-        document.querySelectorAll('.olymp-tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.olymp-content').forEach(c => c.classList.remove('active'));
-        
-        btn.classList.add('active');
-        document.getElementById(targetTab).classList.add('active');
-    });
-});
+    const storedSquad = localStorage.getItem('scheunentor_current_squad');
+    if (storedSquad) {
+        currentSquad = JSON.parse(storedSquad);
+    }
+}
 
-// ========================================
-// SPIELER HINZUFÜGEN
-// ========================================
-document.getElementById('addPlayerBtn').addEventListener('click', async () => {
+function savePlayers() {
+    localStorage.setItem('scheunentor_players', JSON.stringify(players));
+    localStorage.setItem('scheunentor_timestamp', Date.now().toString());
+}
+
+function saveCurrentSquad() {
+    localStorage.setItem('scheunentor_current_squad', JSON.stringify(currentSquad));
+    localStorage.setItem('scheunentor_timestamp', Date.now().toString());
+}
+
+function migrateOldPlayers() {
+    players = players.map(p => {
+        if (!p.alternativePositions) p.alternativePositions = [];
+        if (!p.id) p.id = Date.now() + Math.random();
+        return p;
+    });
+    savePlayers();
+}
+
+// ==================== TABS ====================
+function initTabs() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+
+            if (btn.dataset.tab === 'olymp') renderOlymp();
+            if (btn.dataset.tab === 'traumaufstellung') renderAvailablePlayers();
+        });
+    });
+}
+
+function initOlympTabs() {
+    document.querySelectorAll('.olymp-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.olymp-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.olymp-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.olympTab).classList.add('active');
+            renderOlymp();
+        });
+    });
+
+    document.getElementById('positionFilter').addEventListener('change', renderOlymp);
+}
+
+// ==================== ADD PLAYER ====================
+function initAddPlayer() {
+    const nameInput = document.getElementById('playerName');
+    const addBtn = document.getElementById('addPlayerBtn');
+    const suggestionsDiv = document.getElementById('wikiSuggestions');
+
+    let debounceTimer;
+    nameInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = nameInput.value.trim();
+        
+        if (query.length < 2) {
+            suggestionsDiv.classList.remove('show');
+            return;
+        }
+
+        debounceTimer = setTimeout(() => fetchWikiSuggestions(query), 300);
+    });
+
+    addBtn.addEventListener('click', addPlayer);
+}
+
+async function fetchWikiSuggestions(query) {
+    const suggestionsDiv = document.getElementById('wikiSuggestions');
+    
+    try {
+        const response = await fetch(`https://de.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query + ' Fußballspieler')}&limit=5&format=json&origin=*`);
+        const data = await response.json();
+        
+        if (data[1].length === 0) {
+            suggestionsDiv.classList.remove('show');
+            return;
+        }
+
+        suggestionsDiv.innerHTML = '';
+        data[1].forEach((title, index) => {
+            const item = document.createElement('div');
+            item.className = 'wiki-item';
+            item.textContent = title;
+            item.addEventListener('click', () => {
+                document.getElementById('playerName').value = title;
+                suggestionsDiv.classList.remove('show');
+            });
+            suggestionsDiv.appendChild(item);
+        });
+        
+        suggestionsDiv.classList.add('show');
+    } catch (error) {
+        console.error('Wiki-Fehler:', error);
+    }
+}
+
+function addPlayer() {
     const name = document.getElementById('playerName').value.trim();
     const rating = parseInt(document.getElementById('playerRating').value);
+    const image = document.getElementById('playerImage').value.trim();
     const position = document.getElementById('playerPosition').value;
-    const imageUrl = document.getElementById('playerImage').value.trim();
+
+    if (!name || isNaN(rating) || rating < 0 || rating > 99 || !position) {
+        alert('⚠️ Bitte alle Pflichtfelder korrekt ausfüllen!');
+        return;
+    }
+
+    const duplicate = players.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (duplicate) {
+        alert('⚠️ Dieser Spieler existiert bereits!');
+        return;
+    }
+
+    players.push({
+        id: Date.now(),
+        name,
+        rating,
+        image: image || 'https://via.placeholder.com/200x200/1a1410/D4AF37?text=?',
+        position,
+        alternativePositions: []
+    });
+
+    savePlayers();
+    renderPlayers();
+    renderAvailablePlayers();
+    renderOlymp();
+
+    document.getElementById('playerName').value = '';
+    document.getElementById('playerRating').value = '';
+    document.getElementById('playerImage').value = '';
+    document.getElementById('playerPosition').value = '';
+    document.getElementById('wikiSuggestions').classList.remove('show');
+}
+
+// ==================== RENDER PLAYERS ====================
+function renderPlayers() {
+    const container = document.getElementById('playersList');
+    const filterTier = document.getElementById('filterTier').value;
+    const sortMethod = document.getElementById('sortPlayers').value;
+
+    let filtered = [...players];
+
+    // Filter
+    if (filterTier !== 'all') {
+        filtered = filtered.filter(p => getTier(p.rating) === filterTier);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+        if (sortMethod === 'rating-desc') return b.rating - a.rating;
+        if (sortMethod === 'rating-asc') return a.rating - b.rating;
+        if (sortMethod === 'name-asc') return a.name.localeCompare(b.name);
+        if (sortMethod === 'name-desc') return b.name.localeCompare(a.name);
+        return 0;
+    });
+
+    container.innerHTML = filtered.map(player => `
+        <div class="player-card ${getTier(player.rating)}">
+            <img src="${player.image}" alt="${player.name}" class="player-img" onerror="this.src='https://via.placeholder.com/200x200/1a1410/D4AF37?text=?'">
+            <div class="player-info">
+                <h3>${player.name}</h3>
+                <div class="player-position">${player.position}</div>
+                ${player.alternativePositions && player.alternativePositions.length > 0 ? `
+                    <div class="alt-positions">
+                        ${player.alternativePositions.map(pos => `<span class="alt-pos-badge">${pos}</span>`).join('')}
+                    </div>
+                ` : ''}
+                <div class="player-rating">${player.rating}</div>
+                <div class="player-actions">
+                    <button class="edit-btn" onclick="openEditModal(${player.id})">✏️ Bearbeiten</button>
+                    <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getTier(rating) {
+    if (rating >= 95) return 'elite';
+    if (rating >= 90) return 'gold';
+    if (rating >= 85) return 'silver';
+    if (rating >= 80) return 'bronze';
+    return 'cl';
+}
+
+function deletePlayer(id) {
+    if (!confirm('Spieler wirklich löschen?')) return;
+    
+    players = players.filter(p => p.id !== id);
+    
+    // Aus Squad entfernen
+    Object.keys(currentSquad.positions).forEach(key => {
+        if (currentSquad.positions[key]?.id === id) {
+            delete currentSquad.positions[key];
+        }
+    });
+    currentSquad.bench = currentSquad.bench.filter(pid => pid !== id);
+    
+    savePlayers();
+    saveCurrentSquad();
+    renderPlayers();
+    renderAvailablePlayers();
+    renderOlymp();
+    if (currentSquad.formation) renderField();
+}
+
+function initFiltersAndSort() {
+    document.getElementById('filterTier').addEventListener('change', renderPlayers);
+    document.getElementById('sortPlayers').addEventListener('change', renderPlayers);
+}
+
+// ==================== EDIT MODAL ====================
+function initEditModal() {
+    document.getElementById('cancelEditBtn').addEventListener('click', closeEditModal);
+    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+}
+
+function openEditModal(playerId) {
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
+
+    editingPlayerId = playerId;
+
+    document.getElementById('editPlayerName').value = player.name;
+    document.getElementById('editPlayerRating').value = player.rating;
+    document.getElementById('editPlayerImage').value = player.image;
+    document.getElementById('editPlayerPosition').value = player.position;
+
+    renderAltPositionsEdit(player);
+
+    document.getElementById('editModal').classList.add('show');
+}
+
+function renderAltPositionsEdit(player) {
+    const container = document.getElementById('editAltPositions');
+    const allPositions = ['TW', 'IV', 'LV', 'RV', 'LWB', 'RWB', 'ZDM', 'ZM', 'LM', 'RM', 'ZOM', 'LF', 'RF', 'MS', 'LS', 'RS'];
+    
+    container.innerHTML = allPositions.filter(pos => pos !== player.position).map(pos => `
+        <label class="alt-pos-checkbox">
+            <input type="checkbox" value="${pos}" ${player.alternativePositions.includes(pos) ? 'checked' : ''}>
+            ${pos}
+        </label>
+    `).join('');
+}
+
+function saveEdit() {
+    const player = players.find(p => p.id === editingPlayerId);
+    if (!player) return;
+
+    const name = document.getElementById('editPlayerName').value.trim();
+    const rating = parseInt(document.getElementById('editPlayerRating').value);
+    const image = document.getElementById('editPlayerImage').value.trim();
+    const position = document.getElementById('editPlayerPosition').value;
 
     if (!name || isNaN(rating) || rating < 0 || rating > 99 || !position) {
         alert('⚠️ Bitte alle Felder korrekt ausfüllen!');
         return;
     }
 
-    const players = getPlayers();
-    
-    if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-        alert('⚠️ Ein Spieler mit diesem Namen existiert bereits!');
+    const altPositions = Array.from(document.querySelectorAll('#editAltPositions input:checked')).map(cb => cb.value);
+
+    player.name = name;
+    player.rating = rating;
+    player.image = image;
+    player.position = position;
+    player.alternativePositions = altPositions;
+
+    savePlayers();
+    renderPlayers();
+    renderAvailablePlayers();
+    renderOlymp();
+    if (currentSquad.formation) renderField();
+    closeEditModal();
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').classList.remove('show');
+    editingPlayerId = null;
+}
+
+// ==================== FORMATION MODAL ====================
+function initFormationModal() {
+    const modal = document.getElementById('formationModal');
+    const grid = document.getElementById('formationsGrid');
+
+    document.getElementById('selectFormationBtn').addEventListener('click', () => {
+        grid.innerHTML = Object.keys(formations).map(f => `
+            <div class="formation-option" onclick="selectFormation('${f}')">${f}</div>
+        `).join('');
+        modal.classList.add('show');
+    });
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => {
+        modal.classList.remove('show');
+    });
+}
+
+function selectFormation(formationName) {
+    currentSquad.formation = formationName;
+    currentSquad.positions = {};
+    document.getElementById('currentFormation').textContent = formationName;
+    document.getElementById('formationModal').classList.remove('show');
+    renderField();
+    saveCurrentSquad();
+}
+
+// ==================== FIELD RENDERING ====================
+function renderField() {
+    const container = document.getElementById('fieldPositions');
+    if (!currentSquad.formation) {
+        container.innerHTML = '<p style="text-align:center; color: var(--text-gray); padding: 50px;">Bitte zuerst Formation wählen</p>';
         return;
     }
 
-    const wikiLink = await fetchWikipediaLink(name);
-
-    const newPlayer = {
-        id: Date.now(),
-        name,
-        rating,
-        position,
-        imageUrl: imageUrl || 'https://via.placeholder.com/80',
-        altPositions: [],
-        wikiLink
-    };
-
-    players.push(newPlayer);
-    savePlayers(players);
-    renderPlayers();
-    renderOlymp();
-
-    document.getElementById('playerName').value = '';
-    document.getElementById('playerRating').value = '';
-    document.getElementById('playerPosition').value = '';
-    document.getElementById('playerImage').value = '';
-
-    alert('✅ Spieler hinzugefügt!');
-});
-
-// ========================================
-// SPIELER RENDERN
-// ========================================
-function renderPlayers() {
-    const players = getPlayers();
-    const searchTerm = document.getElementById('searchPlayer').value.toLowerCase();
-    const filterTier = document.getElementById('filterTier').value;
-    const filterPosition = document.getElementById('filterPosition').value;
-
-    let filtered = players.filter(p => {
-        const matchSearch = p.name.toLowerCase().includes(searchTerm);
-        const matchTier = !filterTier || getTier(p.rating).name === filterTier;
-        const matchPosition = !filterPosition || p.position === filterPosition || p.altPositions.includes(filterPosition);
-        return matchSearch && matchTier && matchPosition;
-    });
-
-    const playerList = document.getElementById('playerList');
-    playerList.innerHTML = '';
-
-    filtered.forEach(player => {
-        const tier = getTier(player.rating);
-        const card = document.createElement('div');
-        card.className = `player-card ${tier.class}`;
-        card.innerHTML = `
-            <div class="player-card-header">
-                <img src="${player.imageUrl}" alt="${player.name}" class="player-card-image" onerror="this.src='https://via.placeholder.com/80'">
-                <div class="player-card-info">
-                    <h3>${player.name}</h3>
-                    <p>${player.position}${player.altPositions.length > 0 ? ' | ' + player.altPositions.join(', ') : ''}</p>
-                </div>
-            </div>
-            <div class="player-rating" style="color: ${tier.color}">${player.rating}</div>
-            <span class="tier-badge">${tier.name}</span>
-            <div class="player-card-actions">
-                <button class="btn-edit" onclick="editPlayer(${player.id})">Bearbeiten</button>
-                <button class="btn-delete" onclick="deletePlayer(${player.id})">Löschen</button>
-                <button class="btn-alt-positions" onclick="openAltPositions(${player.id})">Alt. Positionen</button>
-            </div>
-        `;
-        playerList.appendChild(card);
-    });
-}
-
-function editPlayer(id) {
-    const players = getPlayers();
-    const player = players.find(p => p.id === id);
-    if (!player) return;
-
-    const newName = prompt('Neuer Name:', player.name);
-    const newRating = parseInt(prompt('Neues Rating (0-99):', player.rating));
-    const newPosition = prompt('Neue Position:', player.position);
-    const newImage = prompt('Neue Bild-URL:', player.imageUrl);
-
-    if (newName && !isNaN(newRating) && newRating >= 0 && newRating <= 99 && newPosition) {
-        player.name = newName.trim();
-        player.rating = newRating;
-        player.position = newPosition;
-        player.imageUrl = newImage.trim() || player.imageUrl;
-
-        savePlayers(players);
-        renderPlayers();
-        renderOlymp();
-        alert('✅ Spieler aktualisiert!');
-    } else {
-        alert('⚠️ Ungültige Eingabe!');
-    }
-}
-
-function deletePlayer(id) {
-    if (!confirm('❌ Spieler wirklich löschen?')) return;
-
-    let players = getPlayers();
-    players = players.filter(p => p.id !== id);
-    savePlayers(players);
-    renderPlayers();
-    renderOlymp();
-    alert('✅ Spieler gelöscht!');
-}
-
-function openAltPositions(id) {
-    const players = getPlayers();
-    const player = players.find(p => p.id === id);
-    if (!player) return;
-
-    const modal = document.getElementById('altPositionModal');
-    const grid = document.getElementById('altPositionCheckboxes');
-    grid.innerHTML = '';
-
-    const allPositions = ['TW', 'LV', 'IV', 'RV', 'ZDM', 'ZM', 'ZOM', 'LM', 'RM', 'LF', 'ST', 'RF', 'MS', 'LS', 'RS'];
-
-    allPositions.forEach(pos => {
-        const item = document.createElement('div');
-        item.className = 'alt-position-item';
-        const checked = player.altPositions.includes(pos) ? 'checked' : '';
-        item.innerHTML = `
-            <input type="checkbox" id="alt-${pos}" value="${pos}" ${checked}>
-            <label for="alt-${pos}">${pos}</label>
-        `;
-        grid.appendChild(item);
-    });
-
-    modal.classList.add('active');
-
-    document.getElementById('saveAltPositionsBtn').onclick = () => {
-        const selected = Array.from(grid.querySelectorAll('input:checked')).map(cb => cb.value);
-        player.altPositions = selected;
-        savePlayers(players);
-        renderPlayers();
-        modal.classList.remove('active');
-        alert('✅ Alternative Positionen gespeichert!');
-    };
-
-    document.getElementById('closeAltModalBtn').onclick = () => {
-        modal.classList.remove('active');
-    };
-}
-
-// ========================================
-// FILTER
-// ========================================
-document.getElementById('searchPlayer').addEventListener('input', renderPlayers);
-document.getElementById('filterTier').addEventListener('change', renderPlayers);
-document.getElementById('filterPosition').addEventListener('change', renderPlayers);
-
-// ========================================
-// TRAUMAUFSTELLUNG
-// ========================================
-const formations = {
-    '4-3-3': [
-        ['ST'],
-        ['LF', 'RF'],
-        ['ZM', 'ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-4-2': [
-        ['ST', 'ST'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-2-3-1': [
-        ['ST'],
-        ['LF', 'ZOM', 'RF'],
-        ['ZDM', 'ZDM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '3-5-2': [
-        ['ST', 'ST'],
-        ['LM', 'ZM', 'ZM', 'ZM', 'RM'],
-        ['IV', 'IV', 'IV'],
-        ['TW']
-    ],
-    '3-4-3': [
-        ['LF', 'ST', 'RF'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['IV', 'IV', 'IV'],
-        ['TW']
-    ],
-    '5-3-2': [
-        ['ST', 'ST'],
-        ['ZM', 'ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-1-2-1-2': [
-        ['ST', 'ST'],
-        ['ZOM'],
-        ['ZM', 'ZM'],
-        ['ZDM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-3-2-1': [
-        ['ST'],
-        ['LF', 'RF'],
-        ['ZM', 'ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-3-1-2': [
-        ['ST', 'ST'],
-        ['ZOM'],
-        ['ZM', 'ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-5-1': [
-        ['ST'],
-        ['LM', 'ZM', 'ZM', 'ZM', 'RM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '3-4-2-1': [
-        ['ST'],
-        ['LF', 'RF'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['IV', 'IV', 'IV'],
-        ['TW']
-    ],
-    '5-4-1': [
-        ['ST'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['LV', 'IV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-1-4-1': [
-        ['ST'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['ZDM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-4-1-1': [
-        ['ST'],
-        ['ZOM'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '3-5-1-1': [
-        ['ST'],
-        ['ZOM'],
-        ['LM', 'ZM', 'ZM', 'ZM', 'RM'],
-        ['IV', 'IV', 'IV'],
-        ['TW']
-    ],
-    '3-1-4-2': [
-        ['ST', 'ST'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['ZDM'],
-        ['IV', 'IV', 'IV'],
-        ['TW']
-    ],
-    '5-2-3': [
-        ['LF', 'ST', 'RF'],
-        ['ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-2-2-2': [
-        ['ST', 'ST'],
-        ['LF', 'RF'],
-        ['ZDM', 'ZDM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '3-4-1-2': [
-        ['ST', 'ST'],
-        ['ZOM'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['IV', 'IV', 'IV'],
-        ['TW']
-    ],
-    '5-2-1-2': [
-        ['ST', 'ST'],
-        ['ZOM'],
-        ['ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-3-3-Attack': [
-        ['LF', 'ST', 'RF'],
-        ['ZM', 'ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-3-3-Defend': [
-        ['LF', 'ST', 'RF'],
-        ['ZM', 'ZDM', 'ZM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-2-3-1-Wide': [
-        ['ST'],
-        ['LM', 'ZOM', 'RM'],
-        ['ZDM', 'ZDM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '4-1-2-1-2-Wide': [
-        ['ST', 'ST'],
-        ['ZOM'],
-        ['LM', 'RM'],
-        ['ZDM'],
-        ['LV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ],
-    '3-4-3-Flat': [
-        ['LF', 'ST', 'RF'],
-        ['LM', 'ZM', 'ZM', 'RM'],
-        ['IV', 'IV', 'IV'],
-        ['TW']
-    ],
-    '5-3-2-Flat': [
-        ['ST', 'ST'],
-        ['ZM', 'ZM', 'ZM'],
-        ['LV', 'IV', 'IV', 'IV', 'RV'],
-        ['TW']
-    ]
-};
-
-let currentSquad = JSON.parse(localStorage.getItem('currentSquad') || '{}');
-let currentFormation = localStorage.getItem('currentFormation') || '4-3-3';
-let benchPlayers = JSON.parse(localStorage.getItem('benchPlayers') || '[]');
-let activeSlot = null;
-
-document.getElementById('formationSelect').value = currentFormation;
-
-document.getElementById('formationSelect').addEventListener('change', (e) => {
-    currentFormation = e.target.value;
-    localStorage.setItem('currentFormation', currentFormation);
-    currentSquad = {};
-    localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-    renderSquad();
-});
-
-function renderSquad() {
-    const field = document.getElementById('squadField');
-    field.innerHTML = '';
-
-    const structure = formations[currentFormation];
-    let slotIndex = 0;
-
-    structure.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'squad-row';
-
-        row.forEach(position => {
-            const slot = document.createElement('div');
-            slot.className = 'squad-slot';
-            slot.dataset.index = slotIndex;
-            slot.dataset.position = position;
-
-            const player = currentSquad[slotIndex];
-
-            if (player) {
-                slot.classList.add('filled');
-                const tier = getTier(player.rating);
-                slot.innerHTML = `
-                    <img src="${player.imageUrl}" class="squad-slot-image" onerror="this.src='https://via.placeholder.com/60'">
-                    <div class="squad-slot-name">${player.name}</div>
-                    <div class="squad-slot-rating" style="color: ${tier.color}">${player.rating}</div>
-                    <div class="squad-slot-actions">
-                        <button class="btn-change" onclick="changePlayer(${slotIndex})">Wechseln</button>
-                        <button class="btn-remove" onclick="removePlayer(${slotIndex})">Entfernen</button>
+    const formation = formations[currentSquad.formation];
+    container.innerHTML = formation.map((row, rowIndex) => `
+        <div class="field-row">
+            ${row.map((pos, posIndex) => {
+                const slotKey = `${rowIndex}-${posIndex}`;
+                const player = currentSquad.positions[slotKey] ? players.find(p => p.id === currentSquad.positions[slotKey]) : null;
+                
+                return `
+                    <div class="field-slot ${player ? 'filled' : ''}" onclick="selectSlot('${slotKey}', '${pos}')">
+                        ${player ? `
+                            <button class="remove-player" onclick="event.stopPropagation(); removeFromSlot('${slotKey}')">×</button>
+                            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/60x60/1a1410/D4AF37?text=?'">
+                            <div class="slot-name">${player.name}</div>
+                            <div class="slot-rating">${player.rating}</div>
+                        ` : `
+                            <div class="slot-position">${pos}</div>
+                        `}
                     </div>
                 `;
-            } else {
-                slot.innerHTML = `
-                    <div class="squad-slot-position">${position}</div>
-                    <div style="font-size: 0.8rem; color: #888; margin: 10px 0;">Leer</div>
-                    <div class="squad-slot-actions">
-                        <button class="btn-change" onclick="changePlayer(${slotIndex})">Wählen</button>
-                    </div>
-                `;
-            }
+            }).join('')}
+        </div>
+    `).join('');
 
-            rowDiv.appendChild(slot);
-            slotIndex++;
-        });
+    renderBench();
+}
 
-        field.appendChild(rowDiv);
+function selectSlot(slotKey, requiredPosition) {
+    selectedSlot = { key: slotKey, position: requiredPosition };
+    highlightCompatiblePlayers(requiredPosition);
+}
+
+function highlightCompatiblePlayers(position) {
+    document.querySelectorAll('.mini-player-card').forEach(card => {
+        const playerId = parseInt(card.dataset.playerId);
+        const player = players.find(p => p.id === playerId);
+        
+        if (!player) return;
+
+        const isCompatible = player.position === position || (player.alternativePositions && player.alternativePositions.includes(position));
+        
+        if (isCompatible) {
+            card.style.border = '3px solid var(--gold)';
+        } else {
+            card.style.border = '2px solid var(--glass-border)';
+        }
     });
 }
 
-function changePlayer(slotIndex) {
-    activeSlot = slotIndex;
-    openPlayerSelectModal();
+function removeFromSlot(slotKey) {
+    delete currentSquad.positions[slotKey];
+    saveCurrentSquad();
+    renderField();
+    renderAvailablePlayers();
 }
 
-function removePlayer(slotIndex) {
-    delete currentSquad[slotIndex];
-    localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-    renderSquad();
+// ==================== BENCH ====================
+function renderBench() {
+    const container = document.getElementById('benchGrid');
+    const btn = document.getElementById('toggleBenchBtn');
+    const filledCount = currentSquad.bench.length;
+    
+    btn.textContent = `${document.getElementById('benchArea').style.display === 'none' ? '🔽' : '🔼'} Ersatzbank ${filledCount > 0 ? 'zuklappen' : 'aufklappen'} (${filledCount}/7)`;
+
+    container.innerHTML = Array.from({ length: 7 }).map((_, i) => {
+        const playerId = currentSquad.bench[i];
+        const player = playerId ? players.find(p => p.id === playerId) : null;
+
+        return `
+            <div class="bench-slot ${player ? 'filled' : ''}" onclick="selectBenchSlot(${i})">
+                ${player ? `
+                    <button class="remove-player" onclick="event.stopPropagation(); removeFromBench(${i})">×</button>
+                    <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/50x50/1a1410/D4AF37?text=?'">
+                    <div class="slot-name">${player.name}</div>
+                    <div class="slot-rating">${player.rating}</div>
+                ` : `
+                    <div class="slot-position">Slot ${i + 1}</div>
+                `}
+            </div>
+        `;
+    }).join('');
 }
 
-function openPlayerSelectModal() {
-    const modal = document.getElementById('playerSelectModal');
-    const list = document.getElementById('modalPlayerList');
-    list.innerHTML = '';
+document.getElementById('toggleBenchBtn').addEventListener('click', () => {
+    const area = document.getElementById('benchArea');
+    area.style.display = area.style.display === 'none' ? 'block' : 'none';
+    renderBench();
+});
 
-    const slotPosition = document.querySelector(`[data-index="${activeSlot}"]`).dataset.position;
-    const players = getPlayers();
+function selectBenchSlot(index) {
+    selectedSlot = { benchIndex: index };
+}
 
-    const usedPlayerIds = Object.values(currentSquad).map(p => p.id);
-    const usedBenchIds = benchPlayers.map(p => p.id);
-    const allUsedIds = [...usedPlayerIds, ...usedBenchIds];
+function removeFromBench(index) {
+    currentSquad.bench.splice(index, 1);
+    saveCurrentSquad();
+    renderField();
+    renderAvailablePlayers();
+}
+
+// ==================== AVAILABLE PLAYERS ====================
+function renderAvailablePlayers() {
+    const container = document.getElementById('availablePlayersList');
+    const searchTerm = document.getElementById('searchSquadPlayers').value.toLowerCase();
+
+    const usedIds = [
+        ...Object.values(currentSquad.positions),
+        ...currentSquad.bench
+    ];
 
     const available = players.filter(p => 
-        !allUsedIds.includes(p.id) && 
-        (p.position === slotPosition || p.altPositions.includes(slotPosition))
+        !usedIds.includes(p.id) && p.name.toLowerCase().includes(searchTerm)
     );
 
-    if (available.length === 0) {
-        list.innerHTML = '<p style="color: #888;">Keine passenden Spieler verfügbar.</p>';
-    } else {
-        available.forEach(player => {
-            const tier = getTier(player.rating);
-            const item = document.createElement('div');
-            item.className = 'modal-player-item';
-            item.innerHTML = `
-                <img src="${player.imageUrl}" onerror="this.src='https://via.placeholder.com/40'">
-                <div class="modal-player-item-info">
-                    <h4>${player.name}</h4>
-                    <p>${player.position}${player.altPositions.length > 0 ? ' | ' + player.altPositions.join(', ') : ''}</p>
-                </div>
-                <div class="modal-player-item-rating" style="color: ${tier.color}">${player.rating}</div>
-            `;
-            item.addEventListener('click', () => selectPlayerForSlot(player));
-            list.appendChild(item);
-        });
+    container.innerHTML = available.map(player => `
+        <div class="mini-player-card" data-player-id="${player.id}" onclick="addPlayerToSlot(${player.id})">
+            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/70x70/1a1410/D4AF37?text=?'">
+            <div class="name">${player.name}</div>
+            <div class="rating">${player.rating}</div>
+            <div style="font-size: 0.75rem; color: var(--text-gray); margin-top: 3px;">${player.position}</div>
+        </div>
+    `).join('');
+}
+
+document.getElementById('searchSquadPlayers').addEventListener('input', renderAvailablePlayers);
+
+function addPlayerToSlot(playerId) {
+    if (!selectedSlot) {
+        alert('⚠️ Bitte zuerst einen Slot auf dem Feld oder der Bank auswählen!');
+        return;
     }
 
-    modal.classList.add('active');
-}
+    const player = players.find(p => p.id === playerId);
+    if (!player) return;
 
-function selectPlayerForSlot(player) {
-    currentSquad[activeSlot] = player;
-    localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-    renderSquad();
-    document.getElementById('playerSelectModal').classList.remove('active');
-}
-
-document.getElementById('closeModalBtn').addEventListener('click', () => {
-    document.getElementById('playerSelectModal').classList.remove('active');
-});
-
-document.getElementById('modalSearchPlayer').addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const items = document.querySelectorAll('.modal-player-item');
-    items.forEach(item => {
-        const name = item.querySelector('h4').textContent.toLowerCase();
-        item.style.display = name.includes(searchTerm) ? 'flex' : 'none';
-    });
-});
-
-// ========================================
-// ERSATZBANK
-// ========================================
-function renderBench() {
-    const benchSlots = document.getElementById('benchSlots');
-    benchSlots.innerHTML = '';
-
-    for (let i = 0; i < 7; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'squad-slot';
-        slot.dataset.benchindex = i;
-
-        const player = benchPlayers[i];
-
-        if (player) {
-            slot.classList.add('filled');
-            const tier = getTier(player.rating);
-            slot.innerHTML = `
-                <img src="${player.imageUrl}" class="squad-slot-image" onerror="this.src='https://via.placeholder.com/60'">
-                <div class="squad-slot-name">${player.name}</div>
-                <div class="squad-slot-rating" style="color: ${tier.color}">${player.rating}</div>
-                <div class="squad-slot-position">${player.position}</div>
-                <div class="squad-slot-actions">
-                    <button class="btn-change" onclick="changeBenchPlayer(${i})">Wechseln</button>
-                    <button class="btn-remove" onclick="removeBenchPlayer(${i})">Entfernen</button>
-                </div>
-            `;
-        } else {
-            slot.innerHTML = `
-                <div style="font-size: 0.8rem; color: #888; margin: 10px 0;">Leer</div>
-                <div class="squad-slot-actions">
-                    <button class="btn-change" onclick="changeBenchPlayer(${i})">Wählen</button>
-                </div>
-            `;
+    // Field slot
+    if (selectedSlot.key) {
+        const isCompatible = player.position === selectedSlot.position || 
+                           (player.alternativePositions && player.alternativePositions.includes(selectedSlot.position));
+        
+        if (!isCompatible) {
+            alert(`⚠️ ${player.name} kann nicht auf Position ${selectedSlot.position} spielen!`);
+            return;
         }
 
-        benchSlots.appendChild(slot);
+        currentSquad.positions[selectedSlot.key] = playerId;
     }
-}
-
-function changeBenchPlayer(index) {
-    activeSlot = `bench-${index}`;
-    openBenchSelectModal(index);
-}
-
-function removeBenchPlayer(index) {
-    benchPlayers[index] = null;
-    benchPlayers = benchPlayers.filter((p, i) => i !== index || p !== null);
-    while (benchPlayers.length < 7) benchPlayers.push(null);
-    localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
-    renderBench();
-}
-
-function openBenchSelectModal(index) {
-    const modal = document.getElementById('playerSelectModal');
-    const list = document.getElementById('modalPlayerList');
-    list.innerHTML = '';
-
-    const players = getPlayers();
-    const usedPlayerIds = Object.values(currentSquad).map(p => p.id);
-    const usedBenchIds = benchPlayers.filter(p => p).map(p => p.id);
-    const allUsedIds = [...usedPlayerIds, ...usedBenchIds];
-
-    const available = players.filter(p => !allUsedIds.includes(p.id));
-
-    if (available.length === 0) {
-        list.innerHTML = '<p style="color: #888;">Keine Spieler verfügbar.</p>';
-    } else {
-        available.forEach(player => {
-            const tier = getTier(player.rating);
-            const item = document.createElement('div');
-            item.className = 'modal-player-item';
-            item.innerHTML = `
-                <img src="${player.imageUrl}" onerror="this.src='https://via.placeholder.com/40'">
-                <div class="modal-player-item-info">
-                    <h4>${player.name}</h4>
-                    <p>${player.position}${player.altPositions.length > 0 ? ' | ' + player.altPositions.join(', ') : ''}</p>
-                </div>
-                <div class="modal-player-item-rating" style="color: ${tier.color}">${player.rating}</div>
-            `;
-            item.addEventListener('click', () => selectBenchPlayer(player, index));
-            list.appendChild(item);
-        });
+    // Bench slot
+    else if (selectedSlot.benchIndex !== undefined) {
+        currentSquad.bench[selectedSlot.benchIndex] = playerId;
     }
 
-    modal.classList.add('active');
+    selectedSlot = null;
+    saveCurrentSquad();
+    renderField();
+    renderAvailablePlayers();
 }
 
-function selectBenchPlayer(player, index) {
-    benchPlayers[index] = player;
-    localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
-    renderBench();
-    document.getElementById('playerSelectModal').classList.remove('active');
+// ==================== SQUAD MANAGEMENT ====================
+function initSquadManagement() {
+    document.getElementById('saveSquadBtn').addEventListener('click', openSaveSquadModal);
+    document.getElementById('loadSquadBtn').addEventListener('click', openLoadSquadModal);
+    document.getElementById('clearSquadBtn').addEventListener('click', clearSquad);
+    document.getElementById('closeSquadModalBtn').addEventListener('click', closeSquadModal);
 }
 
-document.getElementById('toggleBench').addEventListener('click', () => {
-    const bench = document.getElementById('benchSlots');
-    const btn = document.getElementById('toggleBench');
-    if (bench.style.display === 'none') {
-        bench.style.display = 'grid';
-        btn.textContent = 'Ersatzbank einklappen ▲';
-    } else {
-        bench.style.display = 'none';
-        btn.textContent = 'Ersatzbank aufklappen ▼';
+function openSaveSquadModal() {
+    if (!currentSquad.formation) {
+        alert('⚠️ Keine Aufstellung zum Speichern vorhanden!');
+        return;
     }
-});
 
-// ========================================
-// AUFSTELLUNG SPEICHERN/LADEN
-// ========================================
-document.getElementById('saveSquadBtn').addEventListener('click', () => {
-    const name = prompt('Name für die Aufstellung:');
-    if (!name) return;
+    document.getElementById('squadModalTitle').textContent = 'Aufstellung speichern';
+    const container = document.getElementById('squadSlots');
 
-    const savedSquads = JSON.parse(localStorage.getItem('savedSquads') || '[]');
-    savedSquads.push({
-        name,
-        formation: currentFormation,
-        squad: currentSquad,
-        bench: benchPlayers,
-        timestamp: Date.now()
-    });
+    container.innerHTML = Array.from({ length: 5 }).map((_, i) => {
+        const squad = savedSquads[i];
+        return `
+            <div class="squad-slot ${squad ? 'filled' : ''}" onclick="saveToSlot(${i})">
+                <h3>Slot ${i + 1}</h3>
+                ${squad ? `<p>${squad.formation} (${Object.keys(squad.positions).length + squad.bench.length} Spieler)</p>` : '<p>Leer</p>'}
+            </div>
+        `;
+    }).join('');
 
-    localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
+    document.getElementById('squadModal').classList.add('show');
+}
+
+function saveToSlot(index) {
+    savedSquads[index] = JSON.parse(JSON.stringify(currentSquad));
+    localStorage.setItem('scheunentor_squads', JSON.stringify(savedSquads));
     alert('✅ Aufstellung gespeichert!');
-});
+    closeSquadModal();
+}
 
-document.getElementById('loadSquadBtn').addEventListener('click', () => {
-    const savedSquads = JSON.parse(localStorage.getItem('savedSquads') || '[]');
-    if (savedSquads.length === 0) {
-        alert('⚠️ Keine gespeicherten Aufstellungen vorhanden.');
+function openLoadSquadModal() {
+    document.getElementById('squadModalTitle').textContent = 'Aufstellung laden';
+    const container = document.getElementById('squadSlots');
+
+    container.innerHTML = Array.from({ length: 5 }).map((_, i) => {
+        const squad = savedSquads[i];
+        return `
+            <div class="squad-slot ${squad ? 'filled' : ''}" onclick="loadFromSlot(${i})">
+                <h3>Slot ${i + 1}</h3>
+                ${squad ? `
+                    <p>${squad.formation}</p>
+                    <p>${Object.keys(squad.positions).length + squad.bench.length} Spieler</p>
+                ` : '<p>Leer</p>'}
+            </div>
+        `;
+    }).join('');
+
+    document.getElementById('squadModal').classList.add('show');
+}
+
+function loadFromSlot(index) {
+    const squad = savedSquads[index];
+    if (!squad) {
+        alert('⚠️ Dieser Slot ist leer!');
         return;
     }
 
-    let choice = 'Gespeicherte Aufstellungen:\n\n';
-    savedSquads.forEach((sq, i) => {
-        choice += `${i + 1}. ${sq.name} (${sq.formation})\n`;
-    });
-    choice += '\nNummer eingeben zum Laden, oder "L" zum Löschen:';
+    currentSquad = JSON.parse(JSON.stringify(squad));
+    document.getElementById('currentFormation').textContent = currentSquad.formation;
+    saveCurrentSquad();
+    renderField();
+    renderAvailablePlayers();
+    alert('✅ Aufstellung geladen!');
+    closeSquadModal();
+}
 
-    const input = prompt(choice);
-    if (!input) return;
+function clearSquad() {
+    if (!confirm('Aktuelle Aufstellung wirklich löschen?')) return;
+    
+    currentSquad = { formation: null, positions: {}, bench: [] };
+    document.getElementById('currentFormation').textContent = 'Keine Formation gewählt';
+    saveCurrentSquad();
+    renderField();
+    renderAvailablePlayers();
+}
 
-    if (input.toUpperCase() === 'L') {
-        const delIndex = parseInt(prompt('Welche Aufstellung löschen? (Nummer):')) - 1;
-        if (delIndex >= 0 && delIndex < savedSquads.length) {
-            savedSquads.splice(delIndex, 1);
-            localStorage.setItem('savedSquads', JSON.stringify(savedSquads));
-            alert('✅ Aufstellung gelöscht!');
-        }
-        return;
-    }
+function closeSquadModal() {
+    document.getElementById('squadModal').classList.remove('show');
+}
 
-    const index = parseInt(input) - 1;
-    if (index >= 0 && index < savedSquads.length) {
-        const loaded = savedSquads[index];
-        currentFormation = loaded.formation;
-        currentSquad = loaded.squad;
-        benchPlayers = loaded.bench || [];
-        
-        localStorage.setItem('currentFormation', currentFormation);
-        localStorage.setItem('currentSquad', JSON.stringify(currentSquad));
-        localStorage.setItem('benchPlayers', JSON.stringify(benchPlayers));
-        
-        document.getElementById('formationSelect').value = currentFormation;
-        renderSquad();
-        renderBench();
-        alert('✅ Aufstellung geladen!');
-    } else {
-        alert('⚠️ Ungültige Eingabe!');
-    }
-});
-
-// ========================================
-// DIE GÖTTER DES FUßBALLS
-// ========================================
+// ==================== OLYMP ====================
 function renderOlymp() {
-    renderRanking();
-    renderPosition();
+    const activeTab = document.querySelector('.olymp-tab-btn.active').dataset.olympTab;
+
+    if (activeTab === 'ranking') {
+        renderRanking();
+    } else {
+        renderByPosition();
+    }
 }
 
 function renderRanking() {
-    const players = getPlayers().sort((a, b) => b.rating - a.rating);
-    const list = document.getElementById('rankingList');
-    list.innerHTML = '';
+    const container = document.getElementById('rankingList');
+    const sorted = [...players].sort((a, b) => b.rating - a.rating);
 
-    players.forEach((player, index) => {
-        const tier = getTier(player.rating);
-        const item = document.createElement('div');
-        item.className = `olymp-player-item ${tier.class}`;
-        item.innerHTML = `
-            <div style="font-size: 1.5rem; font-weight: bold; color: #D4AF37; min-width: 40px;">#${index + 1}</div>
-            <img src="${player.imageUrl}" onerror="this.src='https://via.placeholder.com/50'">
-            <div class="olymp-player-info">
-                <h4>${player.wikiLink ? `<a href="${player.wikiLink}" target="_blank">${player.name}</a>` : player.name}</h4>
-                <p>${player.position}${player.altPositions.length > 0 ? ' | ' + player.altPositions.join(', ') : ''} • ${tier.name}</p>
+    container.innerHTML = sorted.map((player, index) => `
+        <div class="olymp-player ${getTier(player.rating)}">
+            <div class="olymp-rank">#${index + 1}</div>
+            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/80x80/1a1410/D4AF37?text=?'">
+            <div class="olymp-info">
+                <h3>${player.name}</h3>
+                <div class="position">${player.position}</div>
             </div>
-            <div class="olymp-player-rating" style="color: ${tier.color}">${player.rating}</div>
-        `;
-        list.appendChild(item);
-    });
+            <div class="olymp-rating">${player.rating}</div>
+            <div class="olymp-actions">
+                <button class="edit-btn" onclick="openEditModal(${player.id})">✏️</button>
+                <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
 }
 
-function renderPosition() {
-    const players = getPlayers();
-    const list = document.getElementById('positionList');
-    list.innerHTML = '';
+function renderByPosition() {
+    const container = document.getElementById('positionList');
+    const selectedPos = document.getElementById('positionFilter').value;
 
-    const positions = ['TW', 'LV', 'IV', 'RV', 'ZDM', 'ZM', 'ZOM', 'LM', 'RM', 'LF', 'ST', 'RF', 'MS', 'LS', 'RS'];
+    let filtered = selectedPos === 'all' ? [...players] : players.filter(p => p.position === selectedPos);
+    filtered.sort((a, b) => b.rating - a.rating);
 
-    positions.forEach(pos => {
-        const posPlayers = players.filter(p => p.position === pos || p.altPositions.includes(pos))
-                                   .sort((a, b) => b.rating - a.rating);
-
-        if (posPlayers.length === 0) return;
-
-        const group = document.createElement('div');
-        group.className = 'position-group';
-        group.innerHTML = `<h3>${pos}</h3>`;
-
-        posPlayers.forEach((player, index) => {
-            const tier = getTier(player.rating);
-            const item = document.createElement('div');
-            item.className = `olymp-player-item ${tier.class}`;
-            item.innerHTML = `
-                <div style="font-size: 1.2rem; font-weight: bold; color: #D4AF37; min-width: 35px;">#${index + 1}</div>
-                <img src="${player.imageUrl}" onerror="this.src='https://via.placeholder.com/50'">
-                <div class="olymp-player-info">
-                    <h4>${player.wikiLink ? `<a href="${player.wikiLink}" target="_blank">${player.name}</a>` : player.name}</h4>
-                    <p>${player.position}${player.altPositions.length > 0 ? ' | ' + player.altPositions.join(', ') : ''} • ${tier.name}</p>
-                </div>
-                <div class="olymp-player-rating" style="color: ${tier.color}">${player.rating}</div>
-            `;
-            group.appendChild(item);
-        });
-
-        list.appendChild(group);
-    });
+    container.innerHTML = filtered.map((player, index) => `
+        <div class="olymp-player ${getTier(player.rating)}">
+            <div class="olymp-rank">#${index + 1}</div>
+            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/80x80/1a1410/D4AF37?text=?'">
+            <div class="olymp-info">
+                <h3>${player.name}</h3>
+                <div class="position">${player.position}</div>
+            </div>
+            <div class="olymp-rating">${player.rating}</div>
+            <div class="olymp-actions">
+                <button class="edit-btn" onclick="openEditModal(${player.id})">✏️</button>
+                <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️</button>
+            </div>
+        </div>
+    `).join('');
 }
-
-// ========================================
-// INIT
-// ========================================
-migrateOldPlayers();
-renderPlayers();
-renderSquad();
-renderBench();
-renderOlymp();
-startSync();
