@@ -43,8 +43,8 @@
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: 2px solid #D4AF37;
         }
@@ -311,12 +311,12 @@
             justify-content: space-around;
             align-items: center;
             margin: 20px 0;
-            min-height: 100px;
+            min-height: 120px;
         }
 
         .player-slot {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             background: rgba(212, 175, 55, 0.3);
             border: 2px solid #D4AF37;
             border-radius: 50%;
@@ -333,7 +333,7 @@
 
         .player-slot:hover {
             background: rgba(212, 175, 55, 0.5);
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .player-slot.filled {
@@ -344,14 +344,17 @@
 
         .player-slot-info {
             position: absolute;
-            bottom: -25px;
+            bottom: -30px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 0.8em;
+            font-size: 0.75em;
             white-space: nowrap;
             color: #D4AF37;
             font-weight: bold;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .slot-rating {
@@ -360,39 +363,36 @@
             right: -5px;
             background: #D4AF37;
             color: #0a0a0a;
-            width: 25px;
-            height: 25px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 0.8em;
+            font-size: 0.85em;
             border: 2px solid #0a0a0a;
         }
 
         .slot-actions {
-            display: none;
+            display: flex;
             position: absolute;
-            bottom: -60px;
+            bottom: -65px;
             left: 50%;
             transform: translateX(-50%);
             gap: 5px;
             z-index: 10;
         }
 
-        .player-slot.filled:hover .slot-actions {
-            display: flex;
-        }
-
         .slot-btn {
-            padding: 5px 10px;
-            font-size: 0.7em;
+            padding: 6px 12px;
+            font-size: 0.75em;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             white-space: nowrap;
+            transition: all 0.3s;
         }
 
         .slot-btn-change {
@@ -400,9 +400,19 @@
             color: #0a0a0a;
         }
 
+        .slot-btn-change:hover {
+            background: #D4AF37;
+            transform: scale(1.05);
+        }
+
         .slot-btn-remove {
             background: rgba(220, 53, 69, 0.9);
             color: #fff;
+        }
+
+        .slot-btn-remove:hover {
+            background: #dc3545;
+            transform: scale(1.05);
         }
 
         .squad-management {
@@ -533,6 +543,17 @@
             box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
         }
 
+        .modal-player-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #666;
+        }
+
+        .modal-player-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
         .modal-player-image {
             width: 100%;
             height: 180px;
@@ -595,7 +616,7 @@
 
         .bench-slots {
             display: none;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
             gap: 15px;
             justify-items: center;
         }
@@ -711,7 +732,6 @@
             color: #ff0000;
         }
 
-        /* NEW: Der Olymp List Layout */
         .player-list {
             display: flex;
             flex-direction: column;
@@ -818,6 +838,25 @@
             .player-list-actions button {
                 flex: 1;
             }
+
+            .player-slot {
+                width: 70px;
+                height: 70px;
+            }
+
+            .formation-row {
+                min-height: 100px;
+            }
+
+            .slot-actions {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .slot-btn {
+                padding: 5px 8px;
+                font-size: 0.7em;
+            }
         }
     </style>
 </head>
@@ -825,7 +864,7 @@
     <div class="container">
         <header>
             <img src="https://i.imgur.com/vCwczZs.png" alt="Logo" class="logo">
-            <h1>⚽ Scheunentor zum Olymp</h1>
+            <h1>Scheunentor zum Olymp</h1>
         </header>
 
         <div class="tabs">
@@ -1168,6 +1207,21 @@
             'midfielder': ['LM', 'ZM', 'RM', 'ZDM', 'ZOM'],
             'forward': ['LF', 'RF', 'MS', 'ST', 'LS', 'RS']
         };
+
+        // ========== HELPER: GET ALL USED PLAYER IDs ==========
+        function getUsedPlayerIds() {
+            const used = new Set();
+            
+            if (currentSquad.players) {
+                Object.values(currentSquad.players).forEach(id => used.add(id));
+            }
+            
+            benchPlayers.forEach(id => {
+                if (id) used.add(id);
+            });
+            
+            return used;
+        }
 
         // ========== ALTERNATIVE POSITIONS BUTTON HANDLER ==========
         let selectedAltPositions = [];
@@ -1526,6 +1580,13 @@
         }
 
         window.openPlayerModal = function(slotId, position) {
+            const usedIds = getUsedPlayerIds();
+            
+            const currentPlayerId = currentSquad.players ? currentSquad.players[slotId] : null;
+            if (currentPlayerId) {
+                usedIds.delete(currentPlayerId);
+            }
+
             const eligible = players.filter(p => 
                 p.position === position || 
                 (p.altPositions && p.altPositions.includes(position))
@@ -1538,14 +1599,19 @@
                 modalPlayers.innerHTML = '<p style="text-align: center; color: #999;">Keine passenden Spieler verfügbar.</p>';
             } else {
                 eligible.forEach(player => {
+                    const isUsed = usedIds.has(player.id);
                     const allPositions = [player.position, ...(player.altPositions || [])];
+                    
                     const card = document.createElement('div');
-                    card.className = 'modal-player-card';
-                    card.onclick = () => assignPlayer(slotId, player.id);
+                    card.className = 'modal-player-card' + (isUsed ? ' disabled' : '');
+                    
+                    if (!isUsed) {
+                        card.onclick = () => assignPlayer(slotId, player.id);
+                    }
 
                     card.innerHTML = `
                         <img src="${player.image}" class="modal-player-image" onerror="this.src='https://via.placeholder.com/180?text=No+Image'">
-                        <div class="modal-player-name">${player.name}</div>
+                        <div class="modal-player-name">${player.name}${isUsed ? ' (bereits in Aufstellung)' : ''}</div>
                         <div class="modal-player-rating">${player.rating}</div>
                         <div class="modal-player-positions">
                             ${allPositions.map(pos => `<span class="modal-position-badge">${pos}</span>`).join('')}
@@ -1619,6 +1685,13 @@
         }
 
         window.openBenchModal = function(index) {
+            const usedIds = getUsedPlayerIds();
+            
+            const currentBenchId = benchPlayers[index];
+            if (currentBenchId) {
+                usedIds.delete(currentBenchId);
+            }
+
             const modalPlayers = document.getElementById('modalPlayers');
             modalPlayers.innerHTML = '';
 
@@ -1626,14 +1699,19 @@
                 modalPlayers.innerHTML = '<p style="text-align: center; color: #999;">Keine Spieler verfügbar.</p>';
             } else {
                 players.forEach(player => {
+                    const isUsed = usedIds.has(player.id);
                     const allPositions = [player.position, ...(player.altPositions || [])];
+                    
                     const card = document.createElement('div');
-                    card.className = 'modal-player-card';
-                    card.onclick = () => assignToBench(index, player.id);
+                    card.className = 'modal-player-card' + (isUsed ? ' disabled' : '');
+                    
+                    if (!isUsed) {
+                        card.onclick = () => assignToBench(index, player.id);
+                    }
 
                     card.innerHTML = `
                         <img src="${player.image}" class="modal-player-image" onerror="this.src='https://via.placeholder.com/180?text=No+Image'">
-                        <div class="modal-player-name">${player.name}</div>
+                        <div class="modal-player-name">${player.name}${isUsed ? ' (bereits in Aufstellung)' : ''}</div>
                         <div class="modal-player-rating">${player.rating}</div>
                         <div class="modal-player-positions">
                             ${allPositions.map(pos => `<span class="modal-position-badge">${pos}</span>`).join('')}
