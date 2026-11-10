@@ -1,217 +1,210 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0a0a0a">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="https://i.imgur.com/vCwczZs.png">
-    <title>Scheunentor zum Olymp</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Scheunentor zum Olymp</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="https://i.imgur.com/vCwczZs.png">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="header-content">
-                <img src="https://i.imgur.com/vCwczZs.png" alt="Logo" class="logo">
-                <h1>⚽ Scheunentor zum Olymp</h1>
-            </div>
-            <button id="syncBtn" class="sync-btn" title="Manuell synchronisieren">
-                <span class="sync-icon">🔄</span>
-            </button>
-        </header>
 
-        <nav class="tabs">
-            <button class="tab-btn active" data-tab="ratings">⭐ Bewertungen</button>
-            <button class="tab-btn" data-tab="traumaufstellung">🏆 Traumaufstellung</button>
-            <button class="tab-btn" data-tab="olymp">🏛️ Der Olymp</button>
-        </nav>
-
-        <!-- RATINGS TAB -->
-        <div id="ratings" class="tab-content active">
-            <div class="add-player-form">
-                <h2>Neuer Spieler</h2>
-                <input type="text" id="playerName" placeholder="Spielername" autocomplete="off">
-                <div id="wikiSuggestions" class="wiki-suggestions"></div>
-                <input type="number" id="playerRating" placeholder="Rating (0-99)" min="0" max="99">
-                <input type="text" id="playerImage" placeholder="Bild-URL (optional)">
-                <select id="playerPosition">
-                    <option value="">Position wählen</option>
-                    <option value="TW">TW - Torwart</option>
-                    <option value="IV">IV - Innenverteidiger</option>
-                    <option value="LV">LV - Linksverteidiger</option>
-                    <option value="RV">RV - Rechtsverteidiger</option>
-                    <option value="LWB">LWB - Linker Wingback</option>
-                    <option value="RWB">RWB - Rechter Wingback</option>
-                    <option value="ZDM">ZDM - Zentraler defensiver Mittelfeldspieler</option>
-                    <option value="ZM">ZM - Zentraler Mittelfeldspieler</option>
-                    <option value="LM">LM - Linker Mittelfeldspieler</option>
-                    <option value="RM">RM - Rechter Mittelfeldspieler</option>
-                    <option value="ZOM">ZOM - Zentraler offensiver Mittelfeldspieler</option>
-                    <option value="LF">LF - Linksaußen</option>
-                    <option value="RF">RF - Rechtsaußen</option>
-                    <option value="MS">MS - Mittelstürmer</option>
-                    <option value="LS">LS - Linksstürmer</option>
-                    <option value="RS">RS - Rechtsstürmer</option>
-                </select>
-                <button id="addPlayerBtn" class="btn-primary">Spieler hinzufügen</button>
-            </div>
-
-            <div class="filter-sort">
-                <select id="filterTier">
-                    <option value="all">Alle Tiers</option>
-                    <option value="elite">Elite (95-99)</option>
-                    <option value="gold">Gold (90-94)</option>
-                    <option value="silver">Silber (85-89)</option>
-                    <option value="bronze">Bronze (80-84)</option>
-                    <option value="cl">Champions League (0-79)</option>
-                </select>
-                <select id="sortPlayers">
-                    <option value="rating-desc">Rating absteigend</option>
-                    <option value="rating-asc">Rating aufsteigend</option>
-                    <option value="name-asc">Name A-Z</option>
-                    <option value="name-desc">Name Z-A</option>
-                </select>
-            </div>
-
-            <div id="playersList" class="players-grid"></div>
-        </div>
-
-        <!-- TRAUMAUFSTELLUNG TAB -->
-        <div id="traumaufstellung" class="tab-content">
-            <div class="formation-controls">
-                <button id="selectFormationBtn" class="btn-primary">Formation wählen</button>
-                <div id="currentFormation" class="current-formation">Keine Formation gewählt</div>
-                <div class="squad-actions">
-                    <button id="saveSquadBtn" class="btn-secondary">Aufstellung speichern</button>
-                    <button id="loadSquadBtn" class="btn-secondary">Aufstellung laden</button>
-                    <button id="clearSquadBtn" class="btn-danger">Aufstellung leeren</button>
-                </div>
-            </div>
-
-            <div class="field-container">
-                <div id="footballField" class="football-field">
-                    <div class="field-positions" id="fieldPositions"></div>
-                </div>
-            </div>
-
-            <div class="bench-container">
-                <button id="toggleBenchBtn" class="btn-secondary">🔽 Ersatzbank aufklappen (0/7)</button>
-                <div id="benchArea" class="bench-area" style="display: none;">
-                    <div class="bench-grid" id="benchGrid"></div>
-                </div>
-            </div>
-
-            <div class="available-players">
-                <h3>Verfügbare Spieler</h3>
-                <input type="text" id="searchSquadPlayers" placeholder="Spieler suchen..." class="search-input">
-                <div id="availablePlayersList" class="players-grid-small"></div>
-            </div>
-        </div>
-
-        <!-- DER OLYMP TAB -->
-        <div id="olymp" class="tab-content">
-            <h2>🏛️ Die Götter des Fußballs</h2>
-            <div class="olymp-tabs">
-                <button class="olymp-tab-btn active" data-olymp-tab="ranking">📊 Rangliste</button>
-                <button class="olymp-tab-btn" data-olymp-tab="position">⚽ Nach Position</button>
-            </div>
-
-            <div id="ranking" class="olymp-content active">
-                <div id="rankingList" class="olymp-list"></div>
-            </div>
-
-            <div id="position" class="olymp-content">
-                <select id="positionFilter" class="position-filter">
-                    <option value="all">Alle Positionen</option>
-                    <option value="TW">TW - Torwart</option>
-                    <option value="IV">IV - Innenverteidiger</option>
-                    <option value="LV">LV - Linksverteidiger</option>
-                    <option value="RV">RV - Rechtsverteidiger</option>
-                    <option value="LWB">LWB - Linker Wingback</option>
-                    <option value="RWB">RWB - Rechter Wingback</option>
-                    <option value="ZDM">ZDM - Defensives Mittelfeld</option>
-                    <option value="ZM">ZM - Zentrales Mittelfeld</option>
-                    <option value="LM">LM - Linkes Mittelfeld</option>
-                    <option value="RM">RM - Rechtes Mittelfeld</option>
-                    <option value="ZOM">ZOM - Offensives Mittelfeld</option>
-                    <option value="LF">LF - Linksaußen</option>
-                    <option value="RF">RF - Rechtsaußen</option>
-                    <option value="MS">MS - Mittelstürmer</option>
-                    <option value="LS">LS - Linksstürmer</option>
-                    <option value="RS">RS - Rechtsstürmer</option>
-                </select>
-                <div id="positionList" class="olymp-list"></div>
-            </div>
-        </div>
+  <!-- HEADER -->
+  <header class="header">
+    <img src="https://i.imgur.com/vCwczZs.png" alt="Logo" class="logo">
+    <h1>⚽ Scheunentor zum Olymp</h1>
+    <img src="https://i.imgur.com/vCwczZs.png" alt="Ball" class="logo">
+    
+    <div class="sync-controls">
+      <span id="syncStatus">⚠️ Sync inaktiv</span>
+      <button id="syncNowBtn" class="btn-sync">🔄 Sync</button>
+      <button id="resetTokenBtn" class="btn-sync btn-danger">🗑️ Token</button>
     </div>
+  </header>
 
-    <!-- FORMATION MODAL -->
-    <div id="formationModal" class="modal">
-        <div class="modal-content">
-            <h2>Formation wählen</h2>
-            <div class="formations-grid" id="formationsGrid"></div>
-            <button id="closeModalBtn" class="btn-danger">Abbrechen</button>
-        </div>
-    </div>
+  <!-- NAVIGATION -->
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="ratingsTab">📊 Bewertungen</button>
+    <button class="tab-btn" data-tab="squadTab">⚽ Traumaufstellung</button>
+    <button class="tab-btn" data-tab="olympTab">🏆 Der Olymp</button>
+  </nav>
 
-    <!-- EDIT PLAYER MODAL -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <h2>Spieler bearbeiten</h2>
-            <input type="text" id="editPlayerName" placeholder="Spielername">
-            <input type="number" id="editPlayerRating" placeholder="Rating (0-99)" min="0" max="99">
-            <input type="text" id="editPlayerImage" placeholder="Bild-URL">
-            <select id="editPlayerPosition">
-                <option value="">Position wählen</option>
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+
+    <!-- TAB: BEWERTUNGEN -->
+    <div id="ratingsTab" class="tab-content active">
+      
+      <!-- Spieler hinzufügen -->
+      <section class="card">
+        <h2>➕ Spieler hinzufügen</h2>
+        <form id="addPlayerForm" class="player-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" id="playerName" placeholder="z.B. Lionel Messi" required>
+              <div id="nameSuggestions" class="suggestions-list"></div>
+            </div>
+            
+            <div class="form-group">
+              <label>Position</label>
+              <select id="playerPosition" required>
                 <option value="TW">TW - Torwart</option>
+                <option value="LV">LV - Linker Verteidiger</option>
                 <option value="IV">IV - Innenverteidiger</option>
-                <option value="LV">LV - Linksverteidiger</option>
-                <option value="RV">RV - Rechtsverteidiger</option>
-                <option value="LWB">LWB - Linker Wingback</option>
-                <option value="RWB">RWB - Rechter Wingback</option>
-                <option value="ZDM">ZDM - Zentraler defensiver Mittelfeldspieler</option>
-                <option value="ZM">ZM - Zentraler Mittelfeldspieler</option>
-                <option value="LM">LM - Linker Mittelfeldspieler</option>
-                <option value="RM">RM - Rechter Mittelfeldspieler</option>
-                <option value="ZOM">ZOM - Zentraler offensiver Mittelfeldspieler</option>
-                <option value="LF">LF - Linksaußen</option>
-                <option value="RF">RF - Rechtsaußen</option>
-                <option value="MS">MS - Mittelstürmer</option>
-                <option value="LS">LS - Linksstürmer</option>
-                <option value="RS">RS - Rechtsstürmer</option>
-            </select>
-            
-            <div class="alt-positions-section">
-                <label>Alternative Positionen:</label>
-                <div id="editAltPositions" class="alt-positions-grid"></div>
+                <option value="RV">RV - Rechter Verteidiger</option>
+                <option value="LM">LM - Linkes Mittelfeld</option>
+                <option value="RM">RM - Rechtes Mittelfeld</option>
+                <option value="ZDM">ZDM - Zentrales defensives Mittelfeld</option>
+                <option value="ZM">ZM - Zentrales Mittelfeld</option>
+                <option value="ZOM">ZOM - Zentrales offensives Mittelfeld</option>
+                <option value="LF">LF - Linker Flügel</option>
+                <option value="RF">RF - Rechter Flügel</option>
+                <option value="ST">ST - Stürmer</option>
+                <option value="LS">LS - Linker Stürmer</option>
+                <option value="RS">RS - Rechter Stürmer</option>
+              </select>
             </div>
             
-            <div class="modal-actions">
-                <button id="saveEditBtn" class="btn-primary">Speichern</button>
-                <button id="cancelEditBtn" class="btn-secondary">Abbrechen</button>
+            <div class="form-group">
+              <label>Rating (0-99)</label>
+              <input type="number" id="playerRating" min="0" max="99" placeholder="95" required>
             </div>
-        </div>
+          </div>
+
+          <div class="form-group">
+            <label>Alternative Positionen</label>
+            <div id="altPositionsContainer" class="alt-positions-grid"></div>
+          </div>
+          
+          <div class="form-group">
+            <label>Bild-URL (optional)</label>
+            <input type="url" id="playerImage" placeholder="https://beispiel.de/bild.jpg">
+          </div>
+          
+          <button type="submit" class="btn btn-primary">💾 Spieler speichern</button>
+        </form>
+      </section>
+
+      <!-- Spielerliste -->
+      <section class="card">
+        <h2>📋 Alle Spieler</h2>
+        <div id="playersList" class="players-grid"></div>
+      </section>
+
     </div>
 
-    <!-- SQUAD MANAGEMENT MODAL -->
-    <div id="squadModal" class="modal">
-        <div class="modal-content">
-            <h2 id="squadModalTitle">Aufstellung speichern</h2>
-            <div id="squadSlots" class="squad-slots"></div>
-            <button id="closeSquadModalBtn" class="btn-danger">Abbrechen</button>
+    <!-- TAB: TRAUMAUFSTELLUNG -->
+    <div id="squadTab" class="tab-content">
+      
+      <!-- Formation Selector -->
+      <section class="card">
+        <div class="formation-header">
+          <h2>⚽ Aktuelle Formation: <span id="currentFormation">4-3-3</span></h2>
+          <button id="formationBtn" class="btn btn-primary">🔧 Formation ändern</button>
         </div>
+      </section>
+
+      <!-- Spielfeld -->
+      <section class="card">
+        <div class="football-field">
+          <div id="squadField" class="squad-grid"></div>
+        </div>
+      </section>
+
+      <!-- Ersatzbank -->
+      <section class="card">
+        <button id="benchToggle" class="btn btn-secondary">🔼 Bank aufklappen</button>
+        <div id="benchSlots" class="bench-grid"></div>
+      </section>
+
+      <!-- Aufstellungen speichern/laden -->
+      <section class="card">
+        <h3>💾 Aufstellungen verwalten</h3>
+        <div class="squad-slots">
+          <div class="squad-slot-controls">
+            <button id="saveSquad1" class="btn btn-save">💾 Slot 1</button>
+            <button id="loadSquad1" class="btn btn-load">📂 Laden 1</button>
+          </div>
+          <div class="squad-slot-controls">
+            <button id="saveSquad2" class="btn btn-save">💾 Slot 2</button>
+            <button id="loadSquad2" class="btn btn-load">📂 Laden 2</button>
+          </div>
+          <div class="squad-slot-controls">
+            <button id="saveSquad3" class="btn btn-save">💾 Slot 3</button>
+            <button id="loadSquad3" class="btn btn-load">📂 Laden 3</button>
+          </div>
+          <div class="squad-slot-controls">
+            <button id="saveSquad4" class="btn btn-save">💾 Slot 4</button>
+            <button id="loadSquad4" class="btn btn-load">📂 Laden 4</button>
+          </div>
+          <div class="squad-slot-controls">
+            <button id="saveSquad5" class="btn btn-save">💾 Slot 5</button>
+            <button id="loadSquad5" class="btn btn-load">📂 Laden 5</button>
+          </div>
+        </div>
+      </section>
+
     </div>
 
-    <script src="app.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('✅ Service Worker registriert'))
-                    .catch(err => console.log('❌ SW Fehler:', err));
-            });
-        }
-    </script>
+    <!-- TAB: DER OLYMP -->
+    <div id="olympTab" class="tab-content">
+      
+      <section class="card">
+        <h2>🏆 Die Götter des Fußballs</h2>
+        
+        <div class="olymp-tabs">
+          <button class="olymp-tab-btn active" data-olymp-tab="ranking">🥇 Ranking</button>
+          <button class="olymp-tab-btn" data-olymp-tab="positions">📍 Nach Position</button>
+        </div>
+
+        <div id="ranking" class="olymp-tab-content active">
+          <div id="olympRanking"></div>
+        </div>
+
+        <div id="positions" class="olymp-tab-content">
+          <div id="olympPositions"></div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- FORMATION MODAL -->
+  <div id="formationModal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <h2>🔧 Formation wählen</h2>
+      <div id="formationGrid" class="formation-grid"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('✅ Service Worker registriert'))
+        .catch(err => console.error('❌ SW-Fehler:', err));
+    }
+
+    // Olymp Sub-Tabs
+    document.addEventListener('DOMContentLoaded', () => {
+      const olympTabs = document.querySelectorAll('.olymp-tab-btn');
+      olympTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          olympTabs.forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.olymp-tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.olympTab).classList.add('active');
+        });
+      });
+    });
+  </script>
+
 </body>
 </html>
