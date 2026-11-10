@@ -1,813 +1,804 @@
-// ==================== GLOBAL STATE ====================
-let players = [];
-let currentSquad = { formation: null, positions: {}, bench: [] };
-let savedSquads = JSON.parse(localStorage.getItem('scheunentor_squads')) || [];
-let editingPlayerId = null;
-let selectedSlot = null;
-let GIST_ID = localStorage.getItem('scheunentor_gist_id') || null;
-let GITHUB_TOKEN = localStorage.getItem('scheunentor_github_token') || null;
-let syncInterval = null;
-let lastSyncTime = 0;
+// ============================================
+// SCHEUNENTOR ZUM OLYMP - APP.JS v2.7
+// ============================================
 
-// ==================== FORMATIONS ====================
-const formations = {
-    '4-4-2': [['MS', 'MS'], ['LM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '4-3-3': [['MS'], ['LF', 'ZOM', 'RF'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '4-2-3-1': [['MS'], ['LF', 'ZOM', 'RF'], ['ZDM', 'ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '3-5-2': [['MS', 'MS'], ['LM', 'ZM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
-    '5-3-2': [['MS', 'MS'], ['LM', 'ZM', 'RM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
-    '4-1-4-1': [['MS'], ['LM', 'ZOM', 'ZOM', 'RM'], ['ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '4-3-2-1': [['MS'], ['LF', 'RF'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '3-4-3': [['MS'], ['LF', 'RF'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
-    '4-1-2-1-2': [['MS', 'MS'], ['ZOM'], ['LM', 'RM'], ['ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '4-4-1-1': [['MS'], ['ZOM'], ['LM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '5-4-1': [['MS'], ['LM', 'ZM', 'ZM', 'RM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
-    '3-4-2-1': [['MS'], ['LF', 'RF'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
-    '4-2-2-2': [['MS', 'MS'], ['LF', 'RF'], ['ZDM', 'ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '3-1-4-2': [['MS', 'MS'], ['LM', 'ZOM', 'ZOM', 'RM'], ['ZDM'], ['IV', 'IV', 'IV'], ['TW']],
-    '4-5-1': [['MS'], ['LM', 'ZM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '4-3-1-2': [['MS', 'MS'], ['ZOM'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '5-2-3': [['LF', 'MS', 'RF'], ['ZM', 'ZM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
-    '3-4-1-2': [['MS', 'MS'], ['ZOM'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
-    '4-1-3-2': [['MS', 'MS'], ['LM', 'ZOM', 'RM'], ['ZDM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '5-2-1-2': [['MS', 'MS'], ['ZOM'], ['ZM', 'ZM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
-    '4-2-4': [['LF', 'MS', 'MS', 'RF'], ['ZM', 'ZM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '3-5-1-1': [['MS'], ['ZOM'], ['LM', 'ZM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
-    '5-3-1-1': [['MS'], ['ZOM'], ['LM', 'ZM', 'RM'], ['LWB', 'IV', 'IV', 'IV', 'RWB'], ['TW']],
-    '4-4-2 (2)': [['LS', 'RS'], ['LM', 'ZM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']],
-    '3-4-3 (2)': [['LS', 'MS', 'RS'], ['LM', 'ZM', 'ZM', 'RM'], ['IV', 'IV', 'IV'], ['TW']],
-    '4-3-3 (2)': [['LS', 'MS', 'RS'], ['LM', 'ZM', 'RM'], ['LV', 'IV', 'IV', 'RV'], ['TW']]
+const VERSION = '2.7';
+const GIST_FILENAME = 'scheunentor-sync-data.json';
+const SYNC_INTERVAL = 5000;
+
+let players = JSON.parse(localStorage.getItem('scheunentor_players')) || [];
+let squads = JSON.parse(localStorage.getItem('scheunentor_squads')) || [];
+let currentFormation = localStorage.getItem('scheunentor_formation') || '4-3-3';
+let currentSquadData = JSON.parse(localStorage.getItem('scheunentor_currentSquad')) || {};
+let githubToken = localStorage.getItem('scheunentor_github_token') || '';
+let gistId = localStorage.getItem('scheunentor_gist_id') || '';
+let lastSyncTime = 0;
+let syncIntervalId = null;
+
+const TIERS = {
+  elite: { min: 95, max: 99, color: '#9b59b6', label: 'Elite' },
+  gold: { min: 90, max: 94, color: '#D4AF37', label: 'Gold' },
+  silver: { min: 85, max: 89, color: '#C0C0C0', label: 'Silber' },
+  bronze: { min: 80, max: 84, color: '#CD7F32', label: 'Bronze' },
+  championsLeague: { min: 0, max: 79, color: '#003B7A', label: 'Champions League' }
 };
 
-// ==================== INIT ====================
+const FORMATIONS = {
+  '3-4-3': ['TW','LV','IV','RV','LM','ZM','ZM','RM','LF','ST','RF'],
+  '3-5-2': ['TW','LV','IV','RV','LM','ZM','ZM','ZM','RM','ST','ST'],
+  '4-1-2-1-2': ['TW','LV','IV','IV','RV','ZDM','LM','RM','ZOM','ST','ST'],
+  '4-1-2-1-2 (2)': ['TW','LV','IV','IV','RV','ZDM','ZM','ZM','ZOM','ST','ST'],
+  '4-1-3-2': ['TW','LV','IV','IV','RV','ZDM','LM','ZM','RM','ST','ST'],
+  '4-1-4-1': ['TW','LV','IV','IV','RV','ZDM','LM','ZM','ZM','RM','ST'],
+  '4-2-2-2': ['TW','LV','IV','IV','RV','ZDM','ZDM','LM','RM','ST','ST'],
+  '4-2-3-1': ['TW','LV','IV','IV','RV','ZDM','ZDM','LF','ZOM','RF','ST'],
+  '4-2-3-1 (2)': ['TW','LV','IV','IV','RV','ZDM','ZDM','LM','ZOM','RM','ST'],
+  '4-2-4': ['TW','LV','IV','IV','RV','ZDM','ZDM','LF','RF','ST','ST'],
+  '4-3-1-2': ['TW','LV','IV','IV','RV','ZM','ZM','ZM','ZOM','ST','ST'],
+  '4-3-2-1': ['TW','LV','IV','IV','RV','ZM','ZM','ZM','LF','RF','ST'],
+  '4-3-3': ['TW','LV','IV','IV','RV','ZM','ZM','ZM','LF','ST','RF'],
+  '4-3-3 (2)': ['TW','LV','IV','IV','RV','ZDM','ZM','ZM','LF','ST','RF'],
+  '4-3-3 (3)': ['TW','LV','IV','IV','RV','ZDM','ZM','ZM','LM','ST','RM'],
+  '4-3-3 (4)': ['TW','LV','IV','IV','RV','ZM','ZM','ZOM','LF','ST','RF'],
+  '4-3-3 (5)': ['TW','LV','IV','IV','RV','ZDM','ZDM','ZOM','LF','ST','RF'],
+  '4-4-1-1': ['TW','LV','IV','IV','RV','LM','ZM','ZM','RM','ZOM','ST'],
+  '4-4-2': ['TW','LV','IV','IV','RV','LM','ZM','ZM','RM','ST','ST'],
+  '4-4-2 (2)': ['TW','LV','IV','IV','RV','LM','ZDM','ZDM','RM','ST','ST'],
+  '4-5-1': ['TW','LV','IV','IV','RV','LM','ZM','ZM','ZM','RM','ST'],
+  '4-5-1 (2)': ['TW','LV','IV','IV','RV','LM','ZDM','ZM','ZM','RM','ST'],
+  '5-2-1-2': ['TW','LV','IV','IV','IV','RV','ZM','ZM','ZOM','ST','ST'],
+  '5-2-2-1': ['TW','LV','IV','IV','IV','RV','ZM','ZM','LF','RF','ST'],
+  '5-3-2': ['TW','LV','IV','IV','IV','RV','ZM','ZM','ZM','ST','ST'],
+  '5-4-1': ['TW','LV','IV','IV','IV','RV','LM','ZM','ZM','RM','ST']
+};
+
+const ALL_POSITIONS = ['TW','LV','IV','RV','LM','RM','ZDM','ZM','ZOM','LF','RF','ST','LS','RS'];
+
+const POSITION_COMPATIBILITY = {
+  TW: ['TW'],
+  LV: ['LV','LM','IV'],
+  IV: ['IV','LV','RV'],
+  RV: ['RV','RM','IV'],
+  LM: ['LM','LV','LF','RM'],
+  RM: ['RM','RV','RF','LM'],
+  ZDM: ['ZDM','ZM','IV'],
+  ZM: ['ZM','ZDM','ZOM'],
+  ZOM: ['ZOM','ZM','ST','LF','RF'],
+  LF: ['LF','LM','ST','LS'],
+  RF: ['RF','RM','ST','RS'],
+  ST: ['ST','ZOM','LF','RF','LS','RS'],
+  LS: ['LS','LF','ST'],
+  RS: ['RS','RF','ST']
+};
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
 document.addEventListener('DOMContentLoaded', () => {
-    loadPlayers();
-    initTabs();
-    initAddPlayer();
-    initFiltersAndSort();
-    initFormationModal();
-    initSquadManagement();
-    initOlympTabs();
-    initEditModal();
-    initSync();
-    renderPlayers();
-    renderOlymp();
+  initApp();
 });
 
-// ==================== GITHUB SYNC ====================
-function initSync() {
-    if (!GITHUB_TOKEN) {
-        GITHUB_TOKEN = prompt('🔑 Gib deinen GitHub Personal Access Token ein (Scope: gist):');
-        if (GITHUB_TOKEN) {
-            localStorage.setItem('scheunentor_github_token', GITHUB_TOKEN);
-        } else {
-            alert('⚠️ Ohne Token kann nicht synchronisiert werden!');
-            return;
-        }
+function initApp() {
+  setupTabs();
+  setupAddPlayerForm();
+  setupFormationSelector();
+  setupBenchToggle();
+  setupSquadSlots();
+  setupGitHubSync();
+  renderPlayers();
+  renderSquadBuilder();
+  renderOlymp();
+  checkGitHubToken();
+  startAutoSync();
+}
+
+// ============================================
+// TAB NAVIGATION
+// ============================================
+
+function setupTabs() {
+  const tabs = document.querySelectorAll('.tab-btn');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(target).classList.add('active');
+    });
+  });
+}
+
+// ============================================
+// PLAYER MANAGEMENT
+// ============================================
+
+function setupAddPlayerForm() {
+  const form = document.getElementById('addPlayerForm');
+  const nameInput = document.getElementById('playerName');
+  const suggestionsList = document.getElementById('nameSuggestions');
+
+  // Wikipedia-Vorschläge
+  nameInput.addEventListener('input', async (e) => {
+    const query = e.target.value.trim();
+    if (query.length < 2) {
+      suggestionsList.innerHTML = '';
+      suggestionsList.style.display = 'none';
+      return;
     }
-
-    document.getElementById('syncBtn').addEventListener('click', () => manualSync());
-
-    // Auto-Sync alle 5 Sekunden
-    syncInterval = setInterval(() => autoSync(), 5000);
-    
-    // Initial sync
-    loadFromGist();
-}
-
-async function manualSync() {
-    const btn = document.getElementById('syncBtn');
-    btn.classList.add('syncing');
-    await saveToGist();
-    await loadFromGist();
-    btn.classList.remove('syncing');
-}
-
-async function autoSync() {
-    const now = Date.now();
-    if (now - lastSyncTime < 4000) return; // Verhindere zu häufige Syncs
-    
-    await saveToGist();
-    await loadFromGist();
-    lastSyncTime = now;
-}
-
-async function saveToGist() {
-    if (!GITHUB_TOKEN) return;
-
-    const data = {
-        players: players,
-        squads: savedSquads,
-        currentSquad: currentSquad,
-        timestamp: Date.now()
-    };
-
-    const gistData = {
-        description: 'Scheunentor zum Olymp - Sync Data',
-        public: false,
-        files: {
-            'scheunentor_data.json': {
-                content: JSON.stringify(data, null, 2)
-            }
-        }
-    };
 
     try {
-        let response;
-        if (GIST_ID) {
-            response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(gistData)
-            });
-        } else {
-            response = await fetch('https://api.github.com/gists', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(gistData)
-            });
+      const response = await fetch(`https://de.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query + ' Fußballspieler')}&limit=5&namespace=0&format=json&origin=*`);
+      const data = await response.json();
+      const suggestions = data[1];
 
-            if (response.ok) {
-                const result = await response.json();
-                GIST_ID = result.id;
-                localStorage.setItem('scheunentor_gist_id', GIST_ID);
-            }
-        }
+      if (suggestions.length === 0) {
+        suggestionsList.innerHTML = '';
+        suggestionsList.style.display = 'none';
+        return;
+      }
+
+      suggestionsList.innerHTML = suggestions.map(name => 
+        `<div class="suggestion-item" data-name="${name}">${name}</div>`
+      ).join('');
+      suggestionsList.style.display = 'block';
+
+      document.querySelectorAll('.suggestion-item').forEach(item => {
+        item.addEventListener('click', () => {
+          nameInput.value = item.dataset.name;
+          suggestionsList.innerHTML = '';
+          suggestionsList.style.display = 'none';
+        });
+      });
     } catch (error) {
-        console.error('Sync-Fehler:', error);
+      console.error('Wikipedia API Fehler:', error);
     }
-}
+  });
 
-async function loadFromGist() {
-    if (!GITHUB_TOKEN || !GIST_ID) return;
-
-    try {
-        const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-        });
-
-        if (response.ok) {
-            const gist = await response.json();
-            const content = gist.files['scheunentor_data.json'].content;
-            const data = JSON.parse(content);
-
-            // Last write wins
-            const localTimestamp = parseInt(localStorage.getItem('scheunentor_timestamp') || '0');
-            if (data.timestamp > localTimestamp) {
-                players = data.players || [];
-                savedSquads = data.squads || [];
-                currentSquad = data.currentSquad || { formation: null, positions: {}, bench: [] };
-                
-                localStorage.setItem('scheunentor_players', JSON.stringify(players));
-                localStorage.setItem('scheunentor_squads', JSON.stringify(savedSquads));
-                localStorage.setItem('scheunentor_current_squad', JSON.stringify(currentSquad));
-                localStorage.setItem('scheunentor_timestamp', data.timestamp.toString());
-
-                renderPlayers();
-                renderAvailablePlayers();
-                renderOlymp();
-                if (currentSquad.formation) renderField();
-            }
-        }
-    } catch (error) {
-        console.error('Load-Fehler:', error);
+  // Suggestions schließen bei Klick außerhalb
+  document.addEventListener('click', (e) => {
+    if (!nameInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+      suggestionsList.innerHTML = '';
+      suggestionsList.style.display = 'none';
     }
-}
+  });
 
-// ==================== LOCAL STORAGE ====================
-function loadPlayers() {
-    const stored = localStorage.getItem('scheunentor_players');
-    if (stored) {
-        players = JSON.parse(stored);
-        migrateOldPlayers();
-    }
-
-    const storedSquad = localStorage.getItem('scheunentor_current_squad');
-    if (storedSquad) {
-        currentSquad = JSON.parse(storedSquad);
-    }
-}
-
-function savePlayers() {
-    localStorage.setItem('scheunentor_players', JSON.stringify(players));
-    localStorage.setItem('scheunentor_timestamp', Date.now().toString());
-}
-
-function saveCurrentSquad() {
-    localStorage.setItem('scheunentor_current_squad', JSON.stringify(currentSquad));
-    localStorage.setItem('scheunentor_timestamp', Date.now().toString());
-}
-
-function migrateOldPlayers() {
-    players = players.map(p => {
-        if (!p.alternativePositions) p.alternativePositions = [];
-        if (!p.id) p.id = Date.now() + Math.random();
-        return p;
-    });
-    savePlayers();
-}
-
-// ==================== TABS ====================
-function initTabs() {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.tab).classList.add('active');
-
-            if (btn.dataset.tab === 'olymp') renderOlymp();
-            if (btn.dataset.tab === 'traumaufstellung') renderAvailablePlayers();
-        });
-    });
-}
-
-function initOlympTabs() {
-    document.querySelectorAll('.olymp-tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.olymp-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.olymp-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(btn.dataset.olympTab).classList.add('active');
-            renderOlymp();
-        });
-    });
-
-    document.getElementById('positionFilter').addEventListener('change', renderOlymp);
-}
-
-// ==================== ADD PLAYER ====================
-function initAddPlayer() {
-    const nameInput = document.getElementById('playerName');
-    const addBtn = document.getElementById('addPlayerBtn');
-    const suggestionsDiv = document.getElementById('wikiSuggestions');
-
-    let debounceTimer;
-    nameInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        const query = nameInput.value.trim();
-        
-        if (query.length < 2) {
-            suggestionsDiv.classList.remove('show');
-            return;
-        }
-
-        debounceTimer = setTimeout(() => fetchWikiSuggestions(query), 300);
-    });
-
-    addBtn.addEventListener('click', addPlayer);
-}
-
-async function fetchWikiSuggestions(query) {
-    const suggestionsDiv = document.getElementById('wikiSuggestions');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
     
-    try {
-        const response = await fetch(`https://de.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query + ' Fußballspieler')}&limit=5&format=json&origin=*`);
-        const data = await response.json();
-        
-        if (data[1].length === 0) {
-            suggestionsDiv.classList.remove('show');
-            return;
-        }
-
-        suggestionsDiv.innerHTML = '';
-        data[1].forEach((title, index) => {
-            const item = document.createElement('div');
-            item.className = 'wiki-item';
-            item.textContent = title;
-            item.addEventListener('click', () => {
-                document.getElementById('playerName').value = title;
-                suggestionsDiv.classList.remove('show');
-            });
-            suggestionsDiv.appendChild(item);
-        });
-        
-        suggestionsDiv.classList.add('show');
-    } catch (error) {
-        console.error('Wiki-Fehler:', error);
-    }
-}
-
-function addPlayer() {
     const name = document.getElementById('playerName').value.trim();
+    const mainPosition = document.getElementById('playerPosition').value;
     const rating = parseInt(document.getElementById('playerRating').value);
-    const image = document.getElementById('playerImage').value.trim();
-    const position = document.getElementById('playerPosition').value;
+    const imageUrl = document.getElementById('playerImage').value.trim();
 
-    if (!name || isNaN(rating) || rating < 0 || rating > 99 || !position) {
-        alert('⚠️ Bitte alle Pflichtfelder korrekt ausfüllen!');
-        return;
+    // Alternative Positionen sammeln
+    const altPositions = Array.from(document.querySelectorAll('.alt-position-checkbox:checked'))
+      .map(cb => cb.value);
+
+    if (!name || rating < 0 || rating > 99) {
+      alert('⚠️ Bitte alle Felder korrekt ausfüllen!');
+      return;
     }
 
-    const duplicate = players.find(p => p.name.toLowerCase() === name.toLowerCase());
-    if (duplicate) {
-        alert('⚠️ Dieser Spieler existiert bereits!');
-        return;
+    // Duplikatsprüfung
+    if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+      alert('⚠️ Dieser Spieler existiert bereits!');
+      return;
     }
 
-    players.push({
-        id: Date.now(),
-        name,
-        rating,
-        image: image || 'https://via.placeholder.com/200x200/1a1410/D4AF37?text=?',
-        position,
-        alternativePositions: []
-    });
+    const player = {
+      id: Date.now().toString(),
+      name,
+      mainPosition,
+      alternativePositions: altPositions,
+      rating,
+      imageUrl: imageUrl || 'https://i.imgur.com/vCwczZs.png',
+      tier: getTier(rating),
+      createdAt: Date.now()
+    };
 
+    players.push(player);
     savePlayers();
     renderPlayers();
-    renderAvailablePlayers();
     renderOlymp();
+    form.reset();
+    document.querySelectorAll('.alt-position-checkbox').forEach(cb => cb.checked = false);
+    suggestionsList.innerHTML = '';
+    suggestionsList.style.display = 'none';
+    triggerSync();
+  });
 
-    document.getElementById('playerName').value = '';
-    document.getElementById('playerRating').value = '';
-    document.getElementById('playerImage').value = '';
-    document.getElementById('playerPosition').value = '';
-    document.getElementById('wikiSuggestions').classList.remove('show');
-}
+  // Alternative Positionen anzeigen
+  const posSelect = document.getElementById('playerPosition');
+  const altContainer = document.getElementById('altPositionsContainer');
 
-// ==================== RENDER PLAYERS ====================
-function renderPlayers() {
-    const container = document.getElementById('playersList');
-    const filterTier = document.getElementById('filterTier').value;
-    const sortMethod = document.getElementById('sortPlayers').value;
+  posSelect.addEventListener('change', () => {
+    const mainPos = posSelect.value;
+    const compatible = POSITION_COMPATIBILITY[mainPos] || [];
+    const available = ALL_POSITIONS.filter(p => p !== mainPos && !compatible.includes(p));
 
-    let filtered = [...players];
-
-    // Filter
-    if (filterTier !== 'all') {
-        filtered = filtered.filter(p => getTier(p.rating) === filterTier);
-    }
-
-    // Sort
-    filtered.sort((a, b) => {
-        if (sortMethod === 'rating-desc') return b.rating - a.rating;
-        if (sortMethod === 'rating-asc') return a.rating - b.rating;
-        if (sortMethod === 'name-asc') return a.name.localeCompare(b.name);
-        if (sortMethod === 'name-desc') return b.name.localeCompare(a.name);
-        return 0;
-    });
-
-    container.innerHTML = filtered.map(player => `
-        <div class="player-card ${getTier(player.rating)}">
-            <img src="${player.image}" alt="${player.name}" class="player-img" onerror="this.src='https://via.placeholder.com/200x200/1a1410/D4AF37?text=?'">
-            <div class="player-info">
-                <h3>${player.name}</h3>
-                <div class="player-position">${player.position}</div>
-                ${player.alternativePositions && player.alternativePositions.length > 0 ? `
-                    <div class="alt-positions">
-                        ${player.alternativePositions.map(pos => `<span class="alt-pos-badge">${pos}</span>`).join('')}
-                    </div>
-                ` : ''}
-                <div class="player-rating">${player.rating}</div>
-                <div class="player-actions">
-                    <button class="edit-btn" onclick="openEditModal(${player.id})">✏️ Bearbeiten</button>
-                    <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️ Löschen</button>
-                </div>
-            </div>
-        </div>
+    altContainer.innerHTML = available.map(pos => `
+      <label class="alt-pos-label">
+        <input type="checkbox" class="alt-position-checkbox" value="${pos}">
+        ${pos}
+      </label>
     `).join('');
+  });
+
+  // Initial-Trigger
+  posSelect.dispatchEvent(new Event('change'));
 }
 
 function getTier(rating) {
-    if (rating >= 95) return 'elite';
-    if (rating >= 90) return 'gold';
-    if (rating >= 85) return 'silver';
-    if (rating >= 80) return 'bronze';
-    return 'cl';
+  for (let [key, tier] of Object.entries(TIERS)) {
+    if (rating >= tier.min && rating <= tier.max) return key;
+  }
+  return 'championsLeague';
+}
+
+function savePlayers() {
+  localStorage.setItem('scheunentor_players', JSON.stringify(players));
+}
+
+function renderPlayers() {
+  const container = document.getElementById('playersList');
+  
+  if (players.length === 0) {
+    container.innerHTML = '<p class="empty-state">🔍 Noch keine Spieler vorhanden</p>';
+    return;
+  }
+
+  const sorted = [...players].sort((a, b) => b.rating - a.rating);
+
+  container.innerHTML = sorted.map(player => {
+    const tier = TIERS[player.tier];
+    const allPos = [player.mainPosition, ...(player.alternativePositions || [])].join(', ');
+    
+    return `
+      <div class="player-card" draggable="true" data-player-id="${player.id}" style="border-left: 4px solid ${tier.color}">
+        <img src="${player.imageUrl}" alt="${player.name}" class="player-card-img">
+        <div class="player-card-content">
+          <div class="player-card-header">
+            <h3>${player.name}</h3>
+            <span class="player-rating" style="background: ${tier.color}">${player.rating}</span>
+          </div>
+          <p class="player-position">${allPos}</p>
+          <span class="player-tier" style="color: ${tier.color}">${tier.label}</span>
+        </div>
+        <div class="player-card-actions">
+          <button onclick="editPlayer('${player.id}')" class="btn-icon" title="Bearbeiten">✏️</button>
+          <button onclick="deletePlayer('${player.id}')" class="btn-icon" title="Löschen">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Drag-Events für Aufstellung
+  document.querySelectorAll('.player-card').forEach(card => {
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('playerId', card.dataset.playerId);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+  });
+}
+
+function editPlayer(id) {
+  const player = players.find(p => p.id === id);
+  if (!player) return;
+
+  const newName = prompt('✏️ Neuer Name:', player.name);
+  if (!newName) return;
+
+  const newRating = parseInt(prompt('✏️ Neues Rating (0-99):', player.rating));
+  if (isNaN(newRating) || newRating < 0 || newRating > 99) return;
+
+  const newImage = prompt('✏️ Neue Bild-URL:', player.imageUrl);
+
+  player.name = newName.trim();
+  player.rating = newRating;
+  player.imageUrl = newImage ? newImage.trim() : player.imageUrl;
+  player.tier = getTier(newRating);
+
+  savePlayers();
+  renderPlayers();
+  renderSquadBuilder();
+  renderOlymp();
+  triggerSync();
 }
 
 function deletePlayer(id) {
-    if (!confirm('Spieler wirklich löschen?')) return;
-    
-    players = players.filter(p => p.id !== id);
-    
-    // Aus Squad entfernen
-    Object.keys(currentSquad.positions).forEach(key => {
-        if (currentSquad.positions[key]?.id === id) {
-            delete currentSquad.positions[key];
-        }
+  if (!confirm('🗑️ Spieler wirklich löschen?')) return;
+
+  players = players.filter(p => p.id !== id);
+  
+  // Aus aktueller Aufstellung entfernen
+  for (let key in currentSquadData) {
+    if (currentSquadData[key] === id) delete currentSquadData[key];
+  }
+
+  savePlayers();
+  saveCurrentSquad();
+  renderPlayers();
+  renderSquadBuilder();
+  renderOlymp();
+  triggerSync();
+}
+
+// ============================================
+// SQUAD BUILDER
+// ============================================
+
+function setupFormationSelector() {
+  const btn = document.getElementById('formationBtn');
+  const modal = document.getElementById('formationModal');
+  const close = modal.querySelector('.modal-close');
+  const grid = document.getElementById('formationGrid');
+
+  btn.addEventListener('click', () => modal.classList.add('active'));
+  close.addEventListener('click', () => modal.classList.remove('active'));
+
+  grid.innerHTML = Object.keys(FORMATIONS).map(f => 
+    `<div class="formation-option" data-formation="${f}">${f}</div>`
+  ).join('');
+
+  grid.querySelectorAll('.formation-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      currentFormation = opt.dataset.formation;
+      localStorage.setItem('scheunentor_formation', currentFormation);
+      currentSquadData = {};
+      saveCurrentSquad();
+      renderSquadBuilder();
+      modal.classList.remove('active');
+      triggerSync();
     });
-    currentSquad.bench = currentSquad.bench.filter(pid => pid !== id);
-    
-    savePlayers();
-    saveCurrentSquad();
-    renderPlayers();
-    renderAvailablePlayers();
-    renderOlymp();
-    if (currentSquad.formation) renderField();
+  });
 }
 
-function initFiltersAndSort() {
-    document.getElementById('filterTier').addEventListener('change', renderPlayers);
-    document.getElementById('sortPlayers').addEventListener('change', renderPlayers);
+function setupBenchToggle() {
+  const btn = document.getElementById('benchToggle');
+  const bench = document.getElementById('benchSlots');
+
+  btn.addEventListener('click', () => {
+    const isOpen = bench.classList.toggle('open');
+    btn.textContent = isOpen ? '🔽 Bank einklappen' : '🔼 Bank aufklappen';
+  });
 }
 
-// ==================== EDIT MODAL ====================
-function initEditModal() {
-    document.getElementById('cancelEditBtn').addEventListener('click', closeEditModal);
-    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+function saveCurrentSquad() {
+  localStorage.setItem('scheunentor_currentSquad', JSON.stringify(currentSquadData));
 }
 
-function openEditModal(playerId) {
-    const player = players.find(p => p.id === playerId);
-    if (!player) return;
+function renderSquadBuilder() {
+  const field = document.getElementById('squadField');
+  const bench = document.getElementById('benchSlots');
+  const formation = FORMATIONS[currentFormation];
 
-    editingPlayerId = playerId;
+  document.getElementById('currentFormation').textContent = currentFormation;
 
-    document.getElementById('editPlayerName').value = player.name;
-    document.getElementById('editPlayerRating').value = player.rating;
-    document.getElementById('editPlayerImage').value = player.image;
-    document.getElementById('editPlayerPosition').value = player.position;
+  // Spielfeld
+  field.innerHTML = formation.map((pos, idx) => {
+    const playerId = currentSquadData[`pos_${idx}`];
+    const player = playerId ? players.find(p => p.id === playerId) : null;
 
-    renderAltPositionsEdit(player);
+    return `
+      <div class="squad-slot" data-position="${pos}" data-index="${idx}">
+        ${player ? `
+          <img src="${player.imageUrl}" alt="${player.name}" class="squad-player-img">
+          <div class="squad-player-name">${player.name}</div>
+          <div class="squad-player-rating">${player.rating}</div>
+          <button class="remove-player-btn" onclick="removeFromSquad(${idx})">✖</button>
+        ` : `
+          <div class="squad-slot-empty">${pos}</div>
+        `}
+      </div>
+    `;
+  }).join('');
 
-    document.getElementById('editModal').classList.add('show');
+  // Bank
+  bench.innerHTML = Array.from({length: 7}, (_, i) => {
+    const playerId = currentSquadData[`bench_${i}`];
+    const player = playerId ? players.find(p => p.id === playerId) : null;
+
+    return `
+      <div class="squad-slot bench-slot" data-bench="${i}">
+        ${player ? `
+          <img src="${player.imageUrl}" alt="${player.name}" class="squad-player-img">
+          <div class="squad-player-name">${player.name}</div>
+          <div class="squad-player-rating">${player.rating}</div>
+          <button class="remove-player-btn" onclick="removeFromBench(${i})">✖</button>
+        ` : `
+          <div class="squad-slot-empty">Bank ${i + 1}</div>
+        `}
+      </div>
+    `;
+  }).join('');
+
+  setupDropZones();
 }
 
-function renderAltPositionsEdit(player) {
-    const container = document.getElementById('editAltPositions');
-    const allPositions = ['TW', 'IV', 'LV', 'RV', 'LWB', 'RWB', 'ZDM', 'ZM', 'LM', 'RM', 'ZOM', 'LF', 'RF', 'MS', 'LS', 'RS'];
-    
-    container.innerHTML = allPositions.filter(pos => pos !== player.position).map(pos => `
-        <label class="alt-pos-checkbox">
-            <input type="checkbox" value="${pos}" ${player.alternativePositions.includes(pos) ? 'checked' : ''}>
-            ${pos}
-        </label>
-    `).join('');
-}
+function setupDropZones() {
+  document.querySelectorAll('.squad-slot').forEach(slot => {
+    slot.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const playerId = e.dataTransfer.getData('playerId');
+      const player = players.find(p => p.id === playerId);
+      
+      if (!player) return;
 
-function saveEdit() {
-    const player = players.find(p => p.id === editingPlayerId);
-    if (!player) return;
+      const requiredPos = slot.dataset.position;
+      const isBench = slot.dataset.bench !== undefined;
 
-    const name = document.getElementById('editPlayerName').value.trim();
-    const rating = parseInt(document.getElementById('editPlayerRating').value);
-    const image = document.getElementById('editPlayerImage').value.trim();
-    const position = document.getElementById('editPlayerPosition').value;
-
-    if (!name || isNaN(rating) || rating < 0 || rating > 99 || !position) {
-        alert('⚠️ Bitte alle Felder korrekt ausfüllen!');
-        return;
-    }
-
-    const altPositions = Array.from(document.querySelectorAll('#editAltPositions input:checked')).map(cb => cb.value);
-
-    player.name = name;
-    player.rating = rating;
-    player.image = image;
-    player.position = position;
-    player.alternativePositions = altPositions;
-
-    savePlayers();
-    renderPlayers();
-    renderAvailablePlayers();
-    renderOlymp();
-    if (currentSquad.formation) renderField();
-    closeEditModal();
-}
-
-function closeEditModal() {
-    document.getElementById('editModal').classList.remove('show');
-    editingPlayerId = null;
-}
-
-// ==================== FORMATION MODAL ====================
-function initFormationModal() {
-    const modal = document.getElementById('formationModal');
-    const grid = document.getElementById('formationsGrid');
-
-    document.getElementById('selectFormationBtn').addEventListener('click', () => {
-        grid.innerHTML = Object.keys(formations).map(f => `
-            <div class="formation-option" onclick="selectFormation('${f}')">${f}</div>
-        `).join('');
-        modal.classList.add('show');
-    });
-
-    document.getElementById('closeModalBtn').addEventListener('click', () => {
-        modal.classList.remove('show');
-    });
-}
-
-function selectFormation(formationName) {
-    currentSquad.formation = formationName;
-    currentSquad.positions = {};
-    document.getElementById('currentFormation').textContent = formationName;
-    document.getElementById('formationModal').classList.remove('show');
-    renderField();
-    saveCurrentSquad();
-}
-
-// ==================== FIELD RENDERING ====================
-function renderField() {
-    const container = document.getElementById('fieldPositions');
-    if (!currentSquad.formation) {
-        container.innerHTML = '<p style="text-align:center; color: var(--text-gray); padding: 50px;">Bitte zuerst Formation wählen</p>';
-        return;
-    }
-
-    const formation = formations[currentSquad.formation];
-    container.innerHTML = formation.map((row, rowIndex) => `
-        <div class="field-row">
-            ${row.map((pos, posIndex) => {
-                const slotKey = `${rowIndex}-${posIndex}`;
-                const player = currentSquad.positions[slotKey] ? players.find(p => p.id === currentSquad.positions[slotKey]) : null;
-                
-                return `
-                    <div class="field-slot ${player ? 'filled' : ''}" onclick="selectSlot('${slotKey}', '${pos}')">
-                        ${player ? `
-                            <button class="remove-player" onclick="event.stopPropagation(); removeFromSlot('${slotKey}')">×</button>
-                            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/60x60/1a1410/D4AF37?text=?'">
-                            <div class="slot-name">${player.name}</div>
-                            <div class="slot-rating">${player.rating}</div>
-                        ` : `
-                            <div class="slot-position">${pos}</div>
-                        `}
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `).join('');
-
-    renderBench();
-}
-
-function selectSlot(slotKey, requiredPosition) {
-    selectedSlot = { key: slotKey, position: requiredPosition };
-    highlightCompatiblePlayers(requiredPosition);
-}
-
-function highlightCompatiblePlayers(position) {
-    document.querySelectorAll('.mini-player-card').forEach(card => {
-        const playerId = parseInt(card.dataset.playerId);
-        const player = players.find(p => p.id === playerId);
+      if (isBench || !requiredPos) {
+        slot.classList.add('drop-valid');
+      } else {
+        const compatible = POSITION_COMPATIBILITY[requiredPos] || [];
+        const allPlayerPos = [player.mainPosition, ...(player.alternativePositions || [])];
+        const isCompatible = allPlayerPos.some(p => compatible.includes(p) || p === requiredPos);
         
-        if (!player) return;
-
-        const isCompatible = player.position === position || (player.alternativePositions && player.alternativePositions.includes(position));
-        
-        if (isCompatible) {
-            card.style.border = '3px solid var(--gold)';
-        } else {
-            card.style.border = '2px solid var(--glass-border)';
-        }
+        slot.classList.toggle('drop-valid', isCompatible);
+        slot.classList.toggle('drop-invalid', !isCompatible);
+      }
     });
+
+    slot.addEventListener('dragleave', () => {
+      slot.classList.remove('drop-valid', 'drop-invalid');
+    });
+
+    slot.addEventListener('drop', (e) => {
+      e.preventDefault();
+      slot.classList.remove('drop-valid', 'drop-invalid');
+
+      const playerId = e.dataTransfer.getData('playerId');
+      const player = players.find(p => p.id === playerId);
+      
+      if (!player) return;
+
+      const benchIndex = slot.dataset.bench;
+      const posIndex = slot.dataset.index;
+
+      if (benchIndex !== undefined) {
+        currentSquadData[`bench_${benchIndex}`] = playerId;
+      } else if (posIndex !== undefined) {
+        const requiredPos = slot.dataset.position;
+        const compatible = POSITION_COMPATIBILITY[requiredPos] || [];
+        const allPlayerPos = [player.mainPosition, ...(player.alternativePositions || [])];
+        const isCompatible = allPlayerPos.some(p => compatible.includes(p) || p === requiredPos);
+
+        if (!isCompatible) {
+          alert(`⚠️ ${player.name} kann nicht auf ${requiredPos} spielen!`);
+          return;
+        }
+
+        currentSquadData[`pos_${posIndex}`] = playerId;
+      }
+
+      saveCurrentSquad();
+      renderSquadBuilder();
+      triggerSync();
+    });
+  });
 }
 
-function removeFromSlot(slotKey) {
-    delete currentSquad.positions[slotKey];
-    saveCurrentSquad();
-    renderField();
-    renderAvailablePlayers();
-}
-
-// ==================== BENCH ====================
-function renderBench() {
-    const container = document.getElementById('benchGrid');
-    const btn = document.getElementById('toggleBenchBtn');
-    const filledCount = currentSquad.bench.length;
-    
-    btn.textContent = `${document.getElementById('benchArea').style.display === 'none' ? '🔽' : '🔼'} Ersatzbank ${filledCount > 0 ? 'zuklappen' : 'aufklappen'} (${filledCount}/7)`;
-
-    container.innerHTML = Array.from({ length: 7 }).map((_, i) => {
-        const playerId = currentSquad.bench[i];
-        const player = playerId ? players.find(p => p.id === playerId) : null;
-
-        return `
-            <div class="bench-slot ${player ? 'filled' : ''}" onclick="selectBenchSlot(${i})">
-                ${player ? `
-                    <button class="remove-player" onclick="event.stopPropagation(); removeFromBench(${i})">×</button>
-                    <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/50x50/1a1410/D4AF37?text=?'">
-                    <div class="slot-name">${player.name}</div>
-                    <div class="slot-rating">${player.rating}</div>
-                ` : `
-                    <div class="slot-position">Slot ${i + 1}</div>
-                `}
-            </div>
-        `;
-    }).join('');
-}
-
-document.getElementById('toggleBenchBtn').addEventListener('click', () => {
-    const area = document.getElementById('benchArea');
-    area.style.display = area.style.display === 'none' ? 'block' : 'none';
-    renderBench();
-});
-
-function selectBenchSlot(index) {
-    selectedSlot = { benchIndex: index };
+function removeFromSquad(index) {
+  delete currentSquadData[`pos_${index}`];
+  saveCurrentSquad();
+  renderSquadBuilder();
+  triggerSync();
 }
 
 function removeFromBench(index) {
-    currentSquad.bench.splice(index, 1);
-    saveCurrentSquad();
-    renderField();
-    renderAvailablePlayers();
+  delete currentSquadData[`bench_${index}`];
+  saveCurrentSquad();
+  renderSquadBuilder();
+  triggerSync();
 }
 
-// ==================== AVAILABLE PLAYERS ====================
-function renderAvailablePlayers() {
-    const container = document.getElementById('availablePlayersList');
-    const searchTerm = document.getElementById('searchSquadPlayers').value.toLowerCase();
+// ============================================
+// SQUAD SAVE SLOTS
+// ============================================
 
-    const usedIds = [
-        ...Object.values(currentSquad.positions),
-        ...currentSquad.bench
-    ];
-
-    const available = players.filter(p => 
-        !usedIds.includes(p.id) && p.name.toLowerCase().includes(searchTerm)
-    );
-
-    container.innerHTML = available.map(player => `
-        <div class="mini-player-card" data-player-id="${player.id}" onclick="addPlayerToSlot(${player.id})">
-            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/70x70/1a1410/D4AF37?text=?'">
-            <div class="name">${player.name}</div>
-            <div class="rating">${player.rating}</div>
-            <div style="font-size: 0.75rem; color: var(--text-gray); margin-top: 3px;">${player.position}</div>
-        </div>
-    `).join('');
+function setupSquadSlots() {
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById(`saveSquad${i}`).addEventListener('click', () => saveSquadToSlot(i));
+    document.getElementById(`loadSquad${i}`).addEventListener('click', () => loadSquadFromSlot(i));
+  }
 }
 
-document.getElementById('searchSquadPlayers').addEventListener('input', renderAvailablePlayers);
+function saveSquadToSlot(slotNum) {
+  const slotName = prompt(`💾 Name für Aufstellung ${slotNum}:`, `Aufstellung ${slotNum}`);
+  if (!slotName) return;
 
-function addPlayerToSlot(playerId) {
-    if (!selectedSlot) {
-        alert('⚠️ Bitte zuerst einen Slot auf dem Feld oder der Bank auswählen!');
-        return;
+  squads[slotNum - 1] = {
+    name: slotName,
+    formation: currentFormation,
+    data: { ...currentSquadData }
+  };
+
+  localStorage.setItem('scheunentor_squads', JSON.stringify(squads));
+  updateSlotLabels();
+  triggerSync();
+}
+
+function loadSquadFromSlot(slotNum) {
+  const squad = squads[slotNum - 1];
+  if (!squad) {
+    alert('⚠️ Slot ist leer!');
+    return;
+  }
+
+  currentFormation = squad.formation;
+  currentSquadData = { ...squad.data };
+  
+  localStorage.setItem('scheunentor_formation', currentFormation);
+  saveCurrentSquad();
+  renderSquadBuilder();
+  triggerSync();
+}
+
+function updateSlotLabels() {
+  squads.forEach((squad, i) => {
+    if (squad) {
+      document.getElementById(`loadSquad${i + 1}`).textContent = `📂 ${squad.name}`;
     }
-
-    const player = players.find(p => p.id === playerId);
-    if (!player) return;
-
-    // Field slot
-    if (selectedSlot.key) {
-        const isCompatible = player.position === selectedSlot.position || 
-                           (player.alternativePositions && player.alternativePositions.includes(selectedSlot.position));
-        
-        if (!isCompatible) {
-            alert(`⚠️ ${player.name} kann nicht auf Position ${selectedSlot.position} spielen!`);
-            return;
-        }
-
-        currentSquad.positions[selectedSlot.key] = playerId;
-    }
-    // Bench slot
-    else if (selectedSlot.benchIndex !== undefined) {
-        currentSquad.bench[selectedSlot.benchIndex] = playerId;
-    }
-
-    selectedSlot = null;
-    saveCurrentSquad();
-    renderField();
-    renderAvailablePlayers();
+  });
 }
 
-// ==================== SQUAD MANAGEMENT ====================
-function initSquadManagement() {
-    document.getElementById('saveSquadBtn').addEventListener('click', openSaveSquadModal);
-    document.getElementById('loadSquadBtn').addEventListener('click', openLoadSquadModal);
-    document.getElementById('clearSquadBtn').addEventListener('click', clearSquad);
-    document.getElementById('closeSquadModalBtn').addEventListener('click', closeSquadModal);
-}
+// ============================================
+// DER OLYMP (HALL OF FAME)
+// ============================================
 
-function openSaveSquadModal() {
-    if (!currentSquad.formation) {
-        alert('⚠️ Keine Aufstellung zum Speichern vorhanden!');
-        return;
-    }
-
-    document.getElementById('squadModalTitle').textContent = 'Aufstellung speichern';
-    const container = document.getElementById('squadSlots');
-
-    container.innerHTML = Array.from({ length: 5 }).map((_, i) => {
-        const squad = savedSquads[i];
-        return `
-            <div class="squad-slot ${squad ? 'filled' : ''}" onclick="saveToSlot(${i})">
-                <h3>Slot ${i + 1}</h3>
-                ${squad ? `<p>${squad.formation} (${Object.keys(squad.positions).length + squad.bench.length} Spieler)</p>` : '<p>Leer</p>'}
-            </div>
-        `;
-    }).join('');
-
-    document.getElementById('squadModal').classList.add('show');
-}
-
-function saveToSlot(index) {
-    savedSquads[index] = JSON.parse(JSON.stringify(currentSquad));
-    localStorage.setItem('scheunentor_squads', JSON.stringify(savedSquads));
-    alert('✅ Aufstellung gespeichert!');
-    closeSquadModal();
-}
-
-function openLoadSquadModal() {
-    document.getElementById('squadModalTitle').textContent = 'Aufstellung laden';
-    const container = document.getElementById('squadSlots');
-
-    container.innerHTML = Array.from({ length: 5 }).map((_, i) => {
-        const squad = savedSquads[i];
-        return `
-            <div class="squad-slot ${squad ? 'filled' : ''}" onclick="loadFromSlot(${i})">
-                <h3>Slot ${i + 1}</h3>
-                ${squad ? `
-                    <p>${squad.formation}</p>
-                    <p>${Object.keys(squad.positions).length + squad.bench.length} Spieler</p>
-                ` : '<p>Leer</p>'}
-            </div>
-        `;
-    }).join('');
-
-    document.getElementById('squadModal').classList.add('show');
-}
-
-function loadFromSlot(index) {
-    const squad = savedSquads[index];
-    if (!squad) {
-        alert('⚠️ Dieser Slot ist leer!');
-        return;
-    }
-
-    currentSquad = JSON.parse(JSON.stringify(squad));
-    document.getElementById('currentFormation').textContent = currentSquad.formation;
-    saveCurrentSquad();
-    renderField();
-    renderAvailablePlayers();
-    alert('✅ Aufstellung geladen!');
-    closeSquadModal();
-}
-
-function clearSquad() {
-    if (!confirm('Aktuelle Aufstellung wirklich löschen?')) return;
-    
-    currentSquad = { formation: null, positions: {}, bench: [] };
-    document.getElementById('currentFormation').textContent = 'Keine Formation gewählt';
-    saveCurrentSquad();
-    renderField();
-    renderAvailablePlayers();
-}
-
-function closeSquadModal() {
-    document.getElementById('squadModal').classList.remove('show');
-}
-
-// ==================== OLYMP ====================
 function renderOlymp() {
-    const activeTab = document.querySelector('.olymp-tab-btn.active').dataset.olympTab;
+  renderOlympRanking();
+  renderOlympPositions();
+}
 
-    if (activeTab === 'ranking') {
-        renderRanking();
+function renderOlympRanking() {
+  const container = document.getElementById('olympRanking');
+  
+  if (players.length === 0) {
+    container.innerHTML = '<p class="empty-state">🏆 Noch keine Götter vorhanden</p>';
+    return;
+  }
+
+  const sorted = [...players].sort((a, b) => b.rating - a.rating);
+
+  container.innerHTML = sorted.map((player, index) => {
+    const tier = TIERS[player.tier];
+    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+    const allPos = [player.mainPosition, ...(player.alternativePositions || [])].join(', ');
+
+    return `
+      <div class="olymp-card" style="border-left: 4px solid ${tier.color}">
+        <div class="olymp-rank">${medal}</div>
+        <img src="${player.imageUrl}" alt="${player.name}" class="olymp-img">
+        <div class="olymp-info">
+          <h3>${player.name}</h3>
+          <p>${allPos}</p>
+          <span class="player-tier" style="color: ${tier.color}">${tier.label}</span>
+        </div>
+        <div class="olymp-rating" style="background: ${tier.color}">${player.rating}</div>
+        <div class="player-card-actions">
+          <button onclick="editPlayer('${player.id}')" class="btn-icon" title="Bearbeiten">✏️</button>
+          <button onclick="deletePlayer('${player.id}')" class="btn-icon" title="Löschen">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderOlympPositions() {
+  const container = document.getElementById('olympPositions');
+  
+  const byPosition = {};
+  ALL_POSITIONS.forEach(pos => byPosition[pos] = []);
+  
+  players.forEach(player => {
+    const allPos = [player.mainPosition, ...(player.alternativePositions || [])];
+    allPos.forEach(pos => {
+      if (byPosition[pos]) byPosition[pos].push(player);
+    });
+  });
+
+  container.innerHTML = ALL_POSITIONS.map(pos => {
+    const posPlayers = byPosition[pos].sort((a, b) => b.rating - a.rating);
+    
+    if (posPlayers.length === 0) return '';
+
+    return `
+      <div class="position-section">
+        <h3 class="position-title">${pos}</h3>
+        <div class="position-grid">
+          ${posPlayers.map(player => {
+            const tier = TIERS[player.tier];
+            return `
+              <div class="position-player-card" style="border-left: 4px solid ${tier.color}">
+                <img src="${player.imageUrl}" alt="${player.name}" class="position-player-img">
+                <div class="position-player-info">
+                  <h4>${player.name}</h4>
+                  <span class="player-rating" style="background: ${tier.color}">${player.rating}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================
+// GITHUB SYNC
+// ============================================
+
+function setupGitHubSync() {
+  document.getElementById('syncNowBtn').addEventListener('click', () => {
+    if (!githubToken) {
+      promptForToken();
     } else {
-        renderByPosition();
+      manualSync();
     }
+  });
+
+  document.getElementById('resetTokenBtn').addEventListener('click', resetToken);
 }
 
-function renderRanking() {
-    const container = document.getElementById('rankingList');
-    const sorted = [...players].sort((a, b) => b.rating - a.rating);
-
-    container.innerHTML = sorted.map((player, index) => `
-        <div class="olymp-player ${getTier(player.rating)}">
-            <div class="olymp-rank">#${index + 1}</div>
-            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/80x80/1a1410/D4AF37?text=?'">
-            <div class="olymp-info">
-                <h3>${player.name}</h3>
-                <div class="position">${player.position}</div>
-            </div>
-            <div class="olymp-rating">${player.rating}</div>
-            <div class="olymp-actions">
-                <button class="edit-btn" onclick="openEditModal(${player.id})">✏️</button>
-                <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️</button>
-            </div>
-        </div>
-    `).join('');
+function checkGitHubToken() {
+  const status = document.getElementById('syncStatus');
+  if (githubToken) {
+    status.innerHTML = '✅ <strong>Sync aktiv</strong>';
+  } else {
+    status.innerHTML = '⚠️ <strong>Sync inaktiv</strong>';
+  }
 }
 
-function renderByPosition() {
-    const container = document.getElementById('positionList');
-    const selectedPos = document.getElementById('positionFilter').value;
+function promptForToken() {
+  const token = prompt('🔑 GitHub Personal Access Token eingeben:\n(Scope: "gist")');
+  if (!token) return;
 
-    let filtered = selectedPos === 'all' ? [...players] : players.filter(p => p.position === selectedPos);
-    filtered.sort((a, b) => b.rating - a.rating);
-
-    container.innerHTML = filtered.map((player, index) => `
-        <div class="olymp-player ${getTier(player.rating)}">
-            <div class="olymp-rank">#${index + 1}</div>
-            <img src="${player.image}" alt="${player.name}" onerror="this.src='https://via.placeholder.com/80x80/1a1410/D4AF37?text=?'">
-            <div class="olymp-info">
-                <h3>${player.name}</h3>
-                <div class="position">${player.position}</div>
-            </div>
-            <div class="olymp-rating">${player.rating}</div>
-            <div class="olymp-actions">
-                <button class="edit-btn" onclick="openEditModal(${player.id})">✏️</button>
-                <button class="delete-btn" onclick="deletePlayer(${player.id})">🗑️</button>
-            </div>
-        </div>
-    `).join('');
+  githubToken = token.trim();
+  localStorage.setItem('scheunentor_github_token', githubToken);
+  checkGitHubToken();
+  manualSync();
 }
+
+function resetToken() {
+  if (!confirm('🗑️ Token wirklich löschen?')) return;
+  
+  localStorage.removeItem('scheunentor_github_token');
+  localStorage.removeItem('scheunentor_gist_id');
+  githubToken = '';
+  gistId = '';
+  checkGitHubToken();
+  stopAutoSync();
+}
+
+async function manualSync() {
+  const status = document.getElementById('syncStatus');
+  status.innerHTML = '🔄 <strong>Synchronisiere...</strong>';
+
+  try {
+    await pushToGist();
+    await pullFromGist();
+    status.innerHTML = '✅ <strong>Sync erfolgreich</strong>';
+    setTimeout(() => checkGitHubToken(), 2000);
+  } catch (error) {
+    console.error('Sync-Fehler:', error);
+    status.innerHTML = '❌ <strong>Sync fehlgeschlagen</strong>';
+  }
+}
+
+async function pushToGist() {
+  if (!githubToken) return;
+
+  const data = {
+    players,
+    squads,
+    currentFormation,
+    currentSquadData,
+    lastModified: Date.now()
+  };
+
+  const payload = {
+    description: 'Scheunentor zum Olymp - Sync Data',
+    public: false,
+    files: {
+      [GIST_FILENAME]: {
+        content: JSON.stringify(data, null, 2)
+      }
+    }
+  };
+
+  const url = gistId 
+    ? `https://api.github.com/gists/${gistId}`
+    : 'https://api.github.com/gists';
+
+  const method = gistId ? 'PATCH' : 'POST';
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      'Authorization': `token ${githubToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) throw new Error('Push fehlgeschlagen');
+
+  const result = await response.json();
+  
+  if (!gistId) {
+    gistId = result.id;
+    localStorage.setItem('scheunentor_gist_id', gistId);
+  }
+
+  lastSyncTime = Date.now();
+}
+
+async function pullFromGist() {
+  if (!githubToken || !gistId) return;
+
+  const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+    headers: {
+      'Authorization': `token ${githubToken}`
+    }
+  });
+
+  if (!response.ok) throw new Error('Pull fehlgeschlagen');
+
+  const gist = await response.json();
+  const fileContent = gist.files[GIST_FILENAME]?.content;
+
+  if (!fileContent) return;
+
+  const data = JSON.parse(fileContent);
+
+  if (data.lastModified > lastSyncTime) {
+    players = data.players || [];
+    squads = data.squads || [];
+    currentFormation = data.currentFormation || '4-3-3';
+    currentSquadData = data.currentSquadData || {};
+
+    savePlayers();
+    localStorage.setItem('scheunentor_squads', JSON.stringify(squads));
+    localStorage.setItem('scheunentor_formation', currentFormation);
+    saveCurrentSquad();
+
+    renderPlayers();
+    renderSquadBuilder();
+    renderOlymp();
+    updateSlotLabels();
+
+    lastSyncTime = data.lastModified;
+  }
+}
+
+function triggerSync() {
+  if (githubToken && gistId) {
+    pushToGist().catch(err => console.error('Auto-Sync Fehler:', err));
+  }
+}
+
+function startAutoSync() {
+  if (syncIntervalId) return;
+  
+  syncIntervalId = setInterval(() => {
+    if (githubToken && gistId) {
+      pullFromGist().catch(err => console.error('Auto-Pull Fehler:', err));
+    }
+  }, SYNC_INTERVAL);
+}
+
+function stopAutoSync() {
+  if (syncIntervalId) {
+    clearInterval(syncIntervalId);
+    syncIntervalId = null;
+  }
+}
+
+// ============================================
+// INITIAL RENDER
+// ============================================
+
+updateSlotLabels();
